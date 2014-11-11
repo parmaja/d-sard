@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{002A2DE9-8BB6-484D-9802-7E4AD4084715}") = "sard", "sard.visualdproj", "{28133739-E943-4E6F-B532-F2198A850661}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28133739-E943-4E6F-B532-F2198A850661}.Debug|Win32.ActiveCfg = Debug|Win32
+		{28133739-E943-4E6F-B532-F2198A850661}.Debug|Win32.Build.0 = Debug|Win32
+		{28133739-E943-4E6F-B532-F2198A850661}.Release|Win32.ActiveCfg = Release|Win32
+		{28133739-E943-4E6F-B532-F2198A850661}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

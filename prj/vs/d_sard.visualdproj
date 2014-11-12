@@ -196,10 +196,12 @@
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
- <Folder name="sard">
-  <Folder name="src">
-   <File path="..\..\src\build.cmd" />
-   <File path="..\..\src\sard.d" />
+ <Folder name="d_sard">
+  <Folder name="sard">
+   <File path="..\..\src\sard\classes.d" />
+   <File path="..\..\src\sard\objects.d" />
+   <File path="..\..\src\sard\package.d" />
   </Folder>
+  <File path="..\..\src\main.d" />
  </Folder>
 </DProject>

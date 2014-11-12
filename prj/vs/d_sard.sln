@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{002A2DE9-8BB6-484D-9802-7E4AD4084715}") = "sard", "sard.visualdproj", "{28133739-E943-4E6F-B532-F2198A850661}"
+Project("{002A2DE9-8BB6-484D-9802-7E4AD4084715}") = "d_sard", "d_sard.visualdproj", "{28133739-E943-4E6F-B532-F2198A850661}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

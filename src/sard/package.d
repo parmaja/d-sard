@@ -1,6 +1,12 @@
 module sard;
+/**
+This file is part of the "SARD"
+
+@license   The MIT License (MIT) Included in this distribution
+@author    Zaher Dirkey <zaher at parmaja dot com>
+
+*/
 
 public import sard.classes;
 public import sard.objects;
-
-
+public import sard.scanners;

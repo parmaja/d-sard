@@ -1,3 +1,4 @@
+module sard.objects;
 /**
   This file is part of the "SARD"
 
@@ -5,6 +6,3 @@
   @author    Zaher Dirkey <zaher at parmaja dot com>
 
 */
-  
-module sard.objects;
-

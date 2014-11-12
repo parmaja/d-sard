@@ -1,3 +1,4 @@
+module sard.scanners;
 /**
   This file is part of the "SARD"
 
@@ -5,5 +6,3 @@
   @author    Zaher Dirkey <zaher at parmaja dot com>
 
 */
-  
-module sard.classes;

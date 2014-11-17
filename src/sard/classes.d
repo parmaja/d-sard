@@ -83,23 +83,29 @@ enum SardControl {
   }
 
 class SardStackItem: SardObject {
-  protected
+  protected {
     Object anObject; //rename it to object
     SardStackItem parent;
-  public
+  }
+
+  public {
     SardStack owner;
     int level;
+  }
 }
 
 class SardStack: SardObject {
-  private
+  private {
     int _count;
     SardStackItem _currentItem;
+  }
 
-  public @property int count(){ return _count; }
-  public @property SardStackItem currentItem(){ return _currentItem; }
+  public {
+    @property int count(){ return _count; }
+    @property SardStackItem currentItem(){ return _currentItem; }
+  }
 
-  protected
+  protected {
     Object getParent() {
       if (_currentItem is null)
         return null;
@@ -107,7 +113,7 @@ class SardStack: SardObject {
         return null;
       else
         return _currentItem.parent.anObject;
-    }
+    }  
 
     Object getCurrent(){
       if (currentItem is null)
@@ -122,47 +128,48 @@ class SardStack: SardObject {
 
     void beforePop(){
     };
+  }
 
-  public
+  public {
 
     bool isEmpty(){
       return currentItem is null;
     }
 
-  void push(Object vObject){
-    SardStackItem aItem;
+    void push(Object vObject){
+      SardStackItem aItem;
 
-    if (vObject is null)
-      raiseError("Can't push null");
+      if (vObject is null)
+        raiseError("Can't push null");
 
-    aItem = new SardStackItem;
-    aItem.anObject = vObject;
-    aItem.parent = _currentItem;
-    aItem.owner = this;
-    if (_currentItem is null) 
-      aItem.level = 0;
-    else
-      aItem.level = _currentItem.level + 1;
-    _currentItem = aItem;
-    _count++;
-    afterPush();
-  }
+      aItem = new SardStackItem;
+      aItem.anObject = vObject;
+      aItem.parent = _currentItem;
+      aItem.owner = this;
+      if (_currentItem is null) 
+        aItem.level = 0;
+      else
+        aItem.level = _currentItem.level + 1;
+      _currentItem = aItem;
+      _count++;
+      afterPush();
+    }
 
-  void pop() {
-  
-    if (currentItem is null)
-       raiseError("Stack is empty");
-    beforePop;
-    Object aObject = currentItem.anObject;
-    SardStackItem aItem = currentItem;
-    currentItem = aItem.Parent;
-    _count--;
+    void pop() {
     
-//    aItem.Free;
-//    aObject.Free;
+      if (currentItem is null)
+         raiseError("Stack is empty");
+      beforePop;
+      Object aObject = currentItem.anObject;
+      SardStackItem aItem = currentItem;
+      _currentItem = aItem.parent;
+      _count--;
+      
+  //    destroy(aItem);
+  //    destroy(aObject);    
+    }
   }
 }
-
 
 void raiseError(string error){
   throw new SardException(error);

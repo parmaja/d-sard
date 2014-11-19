@@ -13,7 +13,6 @@ import std.array;
 import std.range;
 import sard;
 
-int main(string[] argv)
-{
+int main(string[] argv) {
   return 0;
 }

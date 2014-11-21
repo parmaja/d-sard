@@ -27,6 +27,7 @@ class SardParserException : Exception {
   @property int line() {
     return _line;
   }
+
   @property int column() {
     return _column;
   }
@@ -49,21 +50,37 @@ class SardObject: Object {
 }
 
 class SardObjectList: SardObject {
-  SardObject[] _items;
+  private:
+    Object[] _items;
 
-  SardObject opIndex(size_t index) {
+  public Object getItem(int index) {
     return _items[index];
+  }
+
+  @property int count(){
+    return _items.length;
+  }
+
+  Object opIndex(size_t index) {
+    return _items[index];
+  }
+
+/*
+    @property SardObject items(int index){
+    return _items[index];
+  }
+*/
+}
+
+class SardObjects(T): SardObjectList {/////////////////
+  T opIndex(size_t index) {
+    return cast(T)getItem(index);
   }
 }
 
-class SardObjects: SardObjectList {
+class SardNamedObjects: SardObjectList {///////////////
 
 }
-
-class SardNamedObjects: SardObjectList {
-
-}
-
 
 enum SardControl {
   ctlNone,
@@ -183,33 +200,85 @@ class SardStack: SardObject {
 }
 
 class SardScanner: SardObject {
-private:
-  SardLexical _lexical;
-protected:
-  //Return true if it done, next will auto detect it detect
-  abstract bool Scan(const string text, inout int Column);
-  bool accept(const string text, inout int column){
-    return false;
-  }
-  //This function call when switched to it
-  void switched() {
-    //Maybe reset buffer or something
-  }
-public:
-  string collected; //buffer
-  SardScanner scanner;
-  this(SardLexical lexical){
-    _lexical = lexical;
-    super();
-  }
+  private:
+    SardLexical _lexical;
+  protected:
+    //Return true if it done, next will auto detect it detect
+    abstract bool Scan(const string text, inout int Column);
+    bool accept(const string text, inout int column){
+      return false;
+    }
+    //This function call when switched to it
 
-  ~this(){
-  }
+    void switched() {
+      //Maybe reseting buffer or something
+    }
+  public:
+    string collected; //buffer
+    SardScanner scanner;
 
-  @property SardLexical lexical() { return _lexical; } ;
+    this(SardLexical lexical){
+      _lexical = lexical;
+      super();
+    }
+
+    ~this(){
+    }
+
+    @property SardLexical lexical() { return _lexical; } ;
 }
 
-class SardLexical{//////////////
+class SardLexical: SardObjects!SardScanner{
+  private:
+    int _line;
+    SardParser _parser;
+    SardScanner _scanner;
+
+  protected:
+
+  public:
+    abstract bool isWhiteSpace(char vChar, bool vOpen= true);
+    abstract bool isControl(char vChar);
+    abstract bool isOperator(char vChar);
+    abstract bool isNumber(char vChar, bool vOpen = true);
+
+    abstract bool isIdentifier(char vChar, bool vOpen = true){
+      bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar);
+      if (vOpen)
+        r = r && !isNumber(vChar, vOpen);
+      return r;
+    }
+
+  public:
+    SardScanner detectScanner(const string text, inout int column) {
+      SardScanner r = null;
+
+      int i = 0;
+      while (i < count) {
+        if ((this[i] <> r) && this[i].accept(text, column)) {
+          r = this[i];
+          break;
+        }
+        i++;
+      }
+
+      if (r is null)
+        raiseError("Scanner not found:" ~ text[column]);
+      switchScanner(r);
+      return r;
+    }
+
+    void switchScanner(SardScanner nextScanner) {
+      if (_scanner <> nextScanner) {
+
+        _scanner = nextScanner;
+        if (_scanner is null)
+          _scanner.switched();
+      }
+    }
+};
+
+class SardParser {////////////////
 };
 
 void raiseError(string error) {
@@ -219,3 +288,4 @@ void raiseError(string error) {
 /*function ScanCompare(S: string; const Text: string; Index: Integer): Boolean;
 function ScanText(S: string; const Text: string; var Index: Integer): Boolean;
 function StringRepeat(S: string; C: Integer): string;*/
+

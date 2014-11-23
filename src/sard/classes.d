@@ -57,6 +57,10 @@ class SardObjectList: SardObject {
     return _items[index];
   }
 
+  protected void _add(Object object) {
+    _items = _items  ~ object;
+  }
+
   @property int count(){
     return _items.length;
   }
@@ -202,6 +206,9 @@ class SardStack: SardObject {
 class SardScanner: SardObject {
   private:
     SardLexical _lexical;
+
+    public @property SardLexical lexical() { return _lexical; } ;
+
   protected:
     //Return true if it done, next will auto detect it detect
     abstract bool Scan(const string text, inout int Column);
@@ -217,24 +224,32 @@ class SardScanner: SardObject {
     string collected; //buffer
     SardScanner scanner;
 
-    this(SardLexical lexical){
+    void initIt(SardLexical lexical) { //todo maybe rename to opCall
       _lexical = lexical;
+    }
+
+    this(SardLexical lexical){
+      initIt(lexical);
       super();
     }
 
     ~this(){
     }
-
-    @property SardLexical lexical() { return _lexical; } ;
 }
 
 class SardLexical: SardObjects!SardScanner{
   private:
     int _line;
-    SardParser _parser;
     SardScanner _scanner;
 
+    @property int line() { return _line; } ;
+    @property SardScanner scanner() { return _scanner; } ;
+
+    SardParser _parser;
+
   protected:
+    @property SardParser parser() { return _parser; };
+    @property SardParser parser(SardParser value) { return _parser = value; }
 
   public:
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
@@ -275,6 +290,37 @@ class SardLexical: SardObjects!SardScanner{
         if (_scanner is null)
           _scanner.switched();
       }
+
+    }
+
+
+    SardScanner findClass(const ClassInfo scannerClass) {
+      int i = 0;
+      while (i < count) {
+        if (this[i].classinfo == scannerClass) {
+          return this[i];
+        }
+        i++;
+      }
+      return null;
+    }
+
+    //This find the class and switch to it
+    void SelectScanner(ClassInfo scannerClass) {
+      SardScanner aScanner = findClass(scannerClass);
+      if (aScanner is null)
+        raiseError("Scanner not found");
+      switchScanner(aScanner);
+    }
+
+    SardScanner addScanner(ClassInfo scannerClass) {
+      SardScanner scanner;
+      //scanner = new typeof(scannerClass);
+      scanner = cast(SardScanner)scannerClass.create();
+      scanner.initIt(this);
+
+      _add(scanner);
+      return scanner;
     }
 };
 

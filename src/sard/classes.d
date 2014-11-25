@@ -293,7 +293,6 @@ class SardLexical: SardObjects!SardScanner{
 
     }
 
-
     SardScanner findClass(const ClassInfo scannerClass) {
       int i = 0;
       while (i < count) {
@@ -325,6 +324,33 @@ class SardLexical: SardObjects!SardScanner{
 };
 
 class SardParser {////////////////
+  protected:
+    void start{
+    }
+
+    void stop {
+    }
+
+    abstract void doSetControl(SardControl aControl);
+    abstract void DoSetToken(string aToken, SrdType aType);
+    abstract doSetOperator(SardObject aOperator);
+
+  public:
+    void setControl(SardControl aControl){
+      doSetControl(aControl);
+    }
+
+    final void setToken(string aToken, SrdType aType){
+      doSetToken(aToken, aType);
+    }
+
+    final void setOperator(SardObject aOperator){
+      doSetOperator(aOperator);
+    }
+};
+
+class SardCustomEngine : SardObject {
+
 };
 
 void raiseError(string error) {

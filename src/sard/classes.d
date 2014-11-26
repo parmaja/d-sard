@@ -1,4 +1,9 @@
 module sard.classes;
+
+import std.string;
+import std.array;
+import std.range;
+
 /**
   This file is part of the "SARD"
 
@@ -465,7 +470,23 @@ void raiseError(string error) {
   throw new SardException(error);
 }
 
-/*function ScanCompare(S: string; const Text: string; Index: Integer): Boolean;
-function ScanText(S: string; const Text: string; var Index: Integer): Boolean;
-function StringRepeat(S: string; C: Integer): string;*/
+bool scanCompare(string s, const string text, int index){
+  return scanText(s, text, index);
+}
 
+/**
+  return true if s is founded in text at index
+*/
+bool scanText(string s, const string text, ref int index) {
+  bool r = (text.length - index) >= s.length;
+  if (r) {
+    r = toLower(text[index..s.length]) == toLower(s); //case*in*sensitive
+    if (r)
+      index = index + s.length;
+  }
+  return r;
+}
+
+string stringRepeat(string s, int count){
+  return replicate(s, count);
+}

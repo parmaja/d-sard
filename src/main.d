@@ -14,5 +14,12 @@ import std.range;
 import sard;
 
 int main(string[] argv) {
+  ///testunit
+  //writeln(stringRepeat("test", 2));
+  int i = 0;
+  auto s = scanText("hello", "hello world, i hate you", i);
+  writeln(s);
+
+
   return 0;
 }

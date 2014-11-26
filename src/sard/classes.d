@@ -315,25 +315,97 @@ class SardLexical: SardObjects!SardScanner{
     SardScanner addScanner(ClassInfo scannerClass) {
       SardScanner scanner;
       //scanner = new typeof(scannerClass);
-      scanner = cast(SardScanner)scannerClass.create();
+      scanner = cast(SardScanner)scannerClass.create(); pragma(msg, "Need to review");
       scanner.initIt(this);
 
       _add(scanner);
       return scanner;
     }
+
+    void scanLine(const string text, const int aLine) {
+        int _line = aLine;
+        int column = 1; //start of pascal string is 1
+        int l = text.length;
+        if (scanner is null)
+          detectScanner(text, column);
+        while (column <= l)
+        {
+          int oldColumn = column;
+          SardScanner oldScanner = _scanner;
+          try {
+            if (scanner.Scan(text, column))
+              detectScanner(text, column);
+
+            if ((oldColumn == column) && (oldScanner == _scanner))
+              raiseError("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
+          }
+          catch {
+            /*on E: EsardException do
+            {
+              raise EsardParserException.Create(E.Message, Column, Line);
+            }*/
+          }
+        }
+    }
 };
 
-class SardParser {////////////////
+class SardFeeder: SardObject {
+  private:
+    bool _active;
+    string _ver;
+    string _charset;
+    SardLexical _lexical; //TODO: use stack to wrap the code inside <?sard ... ?>,
+                          //the current one must detect ?> to stop scanning and pop
+                          //but the other lexcial will throw none code to output provider
+
+  public:
+    @property bool active() { return _active; }
+    @property string ver() { return _ver; }
+    @property string charset() { return _charset; }
+
+    @property SardLexical lexical() { return _lexical; }
+    @property SardLexical lexical(SardLexical value) {
+      if (_lexical == value)
+        return _lexical;
+      if (active)
+        raiseError("You can not set scanner when started!");
+      return _lexical = value;
+    }
   protected:
-    void start{
+
+    void doStart() {
     }
 
-    void stop {
+    void doStop() {
+
+    }
+
+  public:
+    this(SardLexical lexical) {
+      super();
+      _lexical = lexical;
+    }
+
+    void scanLine(const string text, const int line) {
+      if (!active)
+        raiseError("Feeder not started");
+      lexical.scanLine(text, line);
+    }
+};
+
+enum SrdType {tpNone, tpIdentifier, tpNumber, tpColor, tpString, tpComment }
+
+class SardParser {
+  protected:
+    void start(){
+    }
+
+    void stop(){
     }
 
     abstract void doSetControl(SardControl aControl);
-    abstract void DoSetToken(string aToken, SrdType aType);
-    abstract doSetOperator(SardObject aOperator);
+    abstract void doSetToken(string aToken, SrdType aType);
+    abstract void doSetOperator(SardObject aOperator);
 
   public:
     void setControl(SardControl aControl){

@@ -24,12 +24,14 @@ class SardParserException : Exception {
   private int _line;
   private int _column;
 
-  @property int line() {
-    return _line;
-  }
+  @property {
+    int line() {
+      return _line;
+    }
 
-  @property int column() {
-    return _column;
+    int column() {
+      return _column;
+    }
   }
 
   this(string msg, int line, int column ) {
@@ -122,11 +124,14 @@ class SardStack: SardObject {
   }
 
   public {
-    @property int count() {
-      return _count;
-    }
-    @property SardStackItem currentItem() {
-      return _currentItem;
+    @property {
+      int count() {
+        return _count;
+      }
+
+      SardStackItem currentItem() {
+        return _currentItem;
+      }
     }
   }
 
@@ -194,11 +199,14 @@ class SardStack: SardObject {
       //    destroy(aObject);
     }
 
-    @property Object current() {
-      return getCurrent;
-    }
-    @property Object parent() {
-      return getParent;
+  public:
+    @property {
+      Object current() {
+        return getCurrent;
+      }
+      Object parent() {
+        return getParent;
+      }
     }
   }
 }
@@ -242,14 +250,19 @@ class SardLexical: SardObjects!SardScanner{
     int _line;
     SardScanner _scanner;
 
-    @property int line() { return _line; } ;
-    @property SardScanner scanner() { return _scanner; } ;
+  public:
+    @property {
+      int line() { return _line; };
+      SardScanner scanner() { return _scanner; } ;
+    }
 
     SardParser _parser;
 
   protected:
-    @property SardParser parser() { return _parser; };
-    @property SardParser parser(SardParser value) { return _parser = value; }
+    @property {
+      SardParser parser() { return _parser; };
+      SardParser parser(SardParser value) { return _parser = value; }
+    }
 
   public:
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
@@ -359,17 +372,19 @@ class SardFeeder: SardObject {
                           //but the other lexcial will throw none code to output provider
 
   public:
-    @property bool active() { return _active; }
-    @property string ver() { return _ver; }
-    @property string charset() { return _charset; }
+    @property {
+      bool active() { return _active; }
+      string ver() { return _ver; }
+      string charset() { return _charset; }
 
-    @property SardLexical lexical() { return _lexical; }
-    @property SardLexical lexical(SardLexical value) {
+      SardLexical lexical() { return _lexical; }
+      SardLexical lexical(SardLexical value) {
       if (_lexical == value)
         return _lexical;
       if (active)
         raiseError("You can not set scanner when started!");
       return _lexical = value;
+      }
     }
   protected:
 

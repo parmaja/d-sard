@@ -78,13 +78,13 @@ class SardObjectList: SardObject {
 */
 }
 
-class SardObjects(T): SardObjectList {/////////////////
+class SardObjects(T): SardObjectList {//TODO
   T opIndex(size_t index) {
     return cast(T)getItem(index);
   }
 }
 
-class SardNamedObjects: SardObjectList {///////////////
+class SardNamedObjects: SardObjectList {//TODO
 
 }
 
@@ -405,6 +405,27 @@ class SardFeeder: SardObject {
       if (!active)
         raiseError("Feeder not started");
       lexical.scanLine(text, line);
+    }
+
+    //void scan(const string fileName);
+    //void scan(const Stream stream);
+    //void scan(const Stream stream);
+
+    void start(){
+      if (_active)
+        raiseError("File already opened");
+      _active = true;
+      doStart;
+      lexical.parser.start;
+    }
+
+    void stop(){
+      if (!_active)
+        raiseError("File already closed");
+      lexical.parser.stop;
+      doStop;
+      _active = false;
+
     }
 };
 

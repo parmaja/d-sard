@@ -16,9 +16,11 @@
 					<Add option="-g" />
 					<Add option="-debug" />
 					<Add directory="W:/home/d/projects/sard/src" />
+					<Add directory="W:/home/d/projects/sard/src/minilib" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="W:/home/d/projects/sard/src" />
+					<Add directory="W:/home/d/projects/sard/src/minilib" />
 				</ResourceCompiler>
 			</Target>
 			<Target title="Release">

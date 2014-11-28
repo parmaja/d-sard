@@ -1,1 +1,1 @@
-dmd sard.d
+dmd main.d

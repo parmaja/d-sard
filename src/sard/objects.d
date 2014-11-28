@@ -58,6 +58,7 @@ module sard.objects;
 */
 
 import sard.classes;
+import minilib.sets;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
@@ -68,15 +69,13 @@ enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
 
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
-//struct RunVarKinds: Set!RunVarKind{};
+//alias RunVarKinds = Set!RunVarKind;
 
-/*
+class SrdDebug: SardObject {
 
-  class SrdDebug: SardObject {
   public:
-    int line: Integer;
-    int column: Integer;
-    string fileName: string;
+    int line;
+    int column;
+    string fileName;
     //bool breakPoint; //not sure, do not laugh
-  }
-*/
+}

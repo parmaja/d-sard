@@ -57,22 +57,26 @@ module sard.objects;
 
 */
 
+import sard.classes;
 
-const sSardVersion = '0.01';
-const iSardVersion = 001;
-
-
-  enum SrdObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
-  enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
+const string sSardVersion = "0.01";
+const int iSardVersion = 1;
 
 
-  RunVarKind = (vtLocal, vtParam);//Ok there is more in the future
-  RunVarKinds = set of TrunVarKind;
+enum SrdObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
+enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
 
-  class SrdDebug:SardObject {
+
+enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
+//struct RunVarKinds: Set!RunVarKind{};
+
+/*
+
+  class SrdDebug: SardObject {
   public:
     int line: Integer;
     int column: Integer;
     string fileName: string;
     //bool breakPoint; //not sure, do not laugh
   }
+*/

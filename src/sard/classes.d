@@ -490,3 +490,14 @@ bool scanText(string s, const string text, ref int index) {
 string stringRepeat(string s, int count){
   return replicate(s, count);
 }
+
+struct Set(T) {
+  alias SetType = typeof(this);
+  private T[] _set;
+  SetType opBinary(string op)(T other) if (op == "+") {
+      return _set ~ other;
+  }
+  SetType opBinary(string op)(SetType other) if (op == "+") {
+      return _set ~ other;
+  }
+}

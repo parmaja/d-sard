@@ -197,7 +197,10 @@
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
  <Folder name="d_sard">
-  <Folder name="sard">
+  <Folder name="minilib">
+   <File path="..\..\src\minilib\sets.d" />
+  </Folder>
+  <Folder name="src">
    <File path="..\..\src\sard\classes.d" />
    <File path="..\..\src\sard\objects.d" />
    <File path="..\..\src\sard\package.d" />

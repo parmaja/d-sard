@@ -1,3 +1,0 @@
-[submodule "src/minilib"]
-	path = src/minilib
-	url = git@github.com:parmaja/d-minilib.git

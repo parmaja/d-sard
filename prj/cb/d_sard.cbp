@@ -16,11 +16,11 @@
 					<Add option="-g" />
 					<Add option="-debug" />
 					<Add directory="W:/home/d/projects/sard/src" />
-					<Add directory="W:/home/d/projects/sard/src/minilib" />
+					<Add directory="W:/home/d/projects/minilib" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="W:/home/d/projects/sard/src" />
-					<Add directory="W:/home/d/projects/sard/src/minilib" />
+					<Add directory="W:/home/d/projects/minilib" />
 				</ResourceCompiler>
 			</Target>
 			<Target title="Release">
@@ -33,9 +33,9 @@
 				</Compiler>
 			</Target>
 		</Build>
+		<Unit filename="../../../minilib/package.d" />
+		<Unit filename="../../../minilib/sets.d" />
 		<Unit filename="../../src/main.d" />
-		<Unit filename="../../src/minilib/package.d" />
-		<Unit filename="../../src/minilib/sets.d" />
 		<Unit filename="../../src/sard/classes.d" />
 		<Unit filename="../../src/sard/objects.d" />
 		<Unit filename="../../src/sard/package.d" />

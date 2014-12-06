@@ -1,1 +1,1 @@
-dmd main.d
+rdmd -I../../ main.d

@@ -288,7 +288,7 @@ class SardLexical: SardObjects!SardScanner{
 
       int i = 0;
       while (i < count) {
-        if ((this[i] <> r) && this[i].accept(text, column)) {
+        if ((this[i] != r) && this[i].accept(text, column)) {
           r = this[i];
           break;
         }
@@ -302,7 +302,7 @@ class SardLexical: SardObjects!SardScanner{
     }
 
     void switchScanner(SardScanner nextScanner) {
-      if (_scanner <> nextScanner) {
+      if (_scanner != nextScanner) {
 
         _scanner = nextScanner;
         if (_scanner is null)

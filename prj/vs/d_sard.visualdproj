@@ -35,10 +35,10 @@
   <useUnitTests>0</useUnitTests>
   <useInline>0</useInline>
   <release>0</release>
-  <preservePaths>0</preservePaths>
+  <preservePaths>1</preservePaths>
   <warnings>1</warnings>
   <infowarnings>1</infowarnings>
-  <checkProperty>0</checkProperty>
+  <checkProperty>1</checkProperty>
   <genStackFrame>0</genStackFrame>
   <pic>0</pic>
   <cov>0</cov>
@@ -197,6 +197,10 @@
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
  <Folder name="d_sard">
+  <Folder name="minilib">
+   <File path="..\..\..\minilib\package.d" />
+   <File path="..\..\..\minilib\sets.d" />
+  </Folder>
   <Folder name="src">
    <File path="..\..\src\sard\classes.d" />
    <File path="..\..\src\sard\objects.d" />

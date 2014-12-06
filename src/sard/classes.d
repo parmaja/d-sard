@@ -194,7 +194,7 @@ class SardStack: SardObject {
 
       if (currentItem is null)
         raiseError("Stack is empty");
-      beforePop;
+      beforePop();
       Object aObject = currentItem.anObject;
       SardStackItem aItem = currentItem;
       _currentItem = aItem.parent;
@@ -207,10 +207,10 @@ class SardStack: SardObject {
   public:
     @property {
       Object current() {
-        return getCurrent;
+        return getCurrent();
       }
       Object parent() {
-        return getParent;
+        return getParent();
       }
     }
   }
@@ -420,15 +420,15 @@ class SardFeeder: SardObject {
       if (_active)
         raiseError("File already opened");
       _active = true;
-      doStart;
-      lexical.parser.start;
+      doStart();
+      lexical.parser.start();
     }
 
     void stop(){
       if (!_active)
         raiseError("File already closed");
-      lexical.parser.stop;
-      doStop;
+      lexical.parser.stop();
+      doStop();
       _active = false;
 
     }

@@ -56,9 +56,9 @@ module sard.objects;
   TmdModifier: It is like operator but with one side can be in the context before the identifier like + !x %x $x
 
 */
-
+deprecated("Please use foo2 instead.")
 import sard.classes;
-//import minilib.sets;
+import minilib.sets;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;

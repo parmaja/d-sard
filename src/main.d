@@ -11,7 +11,7 @@ import std.math;
 import std.conv;
 import std.array;
 import std.range;
-import sard;
+import sard.classes;
 
 int main(string[] argv) {
   writeln("---------------");

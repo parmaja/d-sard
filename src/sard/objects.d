@@ -58,7 +58,7 @@ module sard.objects;
 */
 
 import sard.classes;
-import minilib.sets;
+//import minilib.sets;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;

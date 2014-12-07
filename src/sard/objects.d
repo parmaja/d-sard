@@ -66,7 +66,7 @@ module sard.objects;
 */
 
 import sard.classes;
-import minilib.sets;
+//import minilib.sets;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
@@ -77,7 +77,8 @@ enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
 
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
-alias RunVarKinds = Set!RunVarKind;
+alias bool[RunVarKind] RunVarKinds;
+//alias RunVarKinds = Set!RunVarKind;
 
 class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
 
@@ -145,10 +146,10 @@ class SrdClause: SardObject {
       super();
     }
 
-    bool execute(RunStack vStack) {
+    bool execute(RunStack aStack) {
       if (_object is null)
         raiseError("Object not set!");
-      return _object.execute(vStack, _operator);
+      return _object.execute(aStack, _operator);
     }
 }
 
@@ -180,7 +181,21 @@ class SrdStatement: SrdObjectList!SrdClause {
   public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
+class SrdBlock: SrdObjectList!SrdStatement {
+  public:
+    @property SrdStatement statement() {
+      //check();//TODO: not sure
+      return last();
+    }
+
+    SrdStatement add(){
+      return new SrdStatement(parent);
+    }
+}
+
+//--------------------------------------
 //--------------  TODO  ----------------
+//--------------------------------------
 
 class RunResult: SardObject{
   private:
@@ -229,9 +244,6 @@ class SrdDebugInfo: SardObject {
 
 class RunStack: SardObject {
   public RunReturn ret;//todo make it property
-}
-
-class SrdBlock: SardObject {
 }
 
 class OpOperator:SardObject {

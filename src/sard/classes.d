@@ -57,34 +57,35 @@ class SardObject: Object {
 }
 
 class SardObjects(T): SardObject {
-  T[] _items;
+  private:
+    T[] _items;
+  public
+    alias _items this;
 
-  public T getItem(int index) {
-    return _items[index];
-  }
+  protected:
+    void add(T object) {
+      _items = _items  ~ object;
+    }
 
-  T opIndex(size_t index) {
-    return getItem(index);
-  }
+  public:
+    T getItem(int index) {
+      return _items[index];
+    }
 
-  @property int count(){
-    return _items.length;
-  }
+    T opIndex(size_t index) {
+      return getItem(index);
+    }
 
-  protected void add(T object) {
-    _items = _items  ~ object;
-  }
+    @property int count(){
+      return _items.length;
+    }
 
-  T last(){
-    if (_items.length == 0)
-      return null;
-    else
-      return _items[_items.length - 1];
-  }
-
-  this(){
-    super();
-  } 
+    T last(){
+      if (_items.length == 0)
+        return null;
+      else
+        return _items[_items.length - 1];
+    }
 }
 
 class SardNamedObjects: SardObjects!SardObject {//TODO
@@ -108,19 +109,20 @@ enum SardControl {
   ctlCloseArray // ]
 }
 
-class SardStackItem: SardObject {
-  protected {
-    Object anObject; //rename it to object
-    SardStackItem parent;
+class SardStack(T): SardObject {
+
+  static class SardStackItem: SardObject {
+    protected {
+      T object; //rename it to object
+      SardStackItem parent;
+    }
+
+    public {
+      SardStack owner;
+      int level;
+    }
   }
 
-  public {
-    SardStack owner;
-    int level;
-  }
-}
-
-class SardStack: SardObject {
   private {
     int _count;
     SardStackItem _currentItem;
@@ -139,20 +141,20 @@ class SardStack: SardObject {
   }
 
   protected {
-    Object getParent() {
+    T getParent() {
       if (_currentItem is null)
         return null;
       else if (_currentItem.parent is null)
         return null;
       else
-        return _currentItem.parent.anObject;
+        return _currentItem.parent.object;
     }
 
-    Object getCurrent() {
+    T getCurrent() {
       if (currentItem is null)
         return null;
       else
-        return currentItem.anObject;
+        return currentItem.object;
     }
 
     void afterPush() {
@@ -169,14 +171,14 @@ class SardStack: SardObject {
       return currentItem is null;
     }
 
-    void push(Object vObject) {
+    void push(T vObject) {
       SardStackItem aItem;
 
       if (vObject is null)
         raiseError("Can't push null");
 
       aItem = new SardStackItem;
-      aItem.anObject = vObject;
+      aItem.object = vObject;
       aItem.parent = _currentItem;
       aItem.owner = this;
       if (_currentItem is null)
@@ -188,12 +190,32 @@ class SardStack: SardObject {
       afterPush();
     }
 
-    void pop() {
+    void push() {
+      push(new T());//TODO: not sure
+    }
 
+    T pull(){
       if (currentItem is null)
         raiseError("Stack is empty");
       beforePop();
-      Object aObject = currentItem.anObject;
+      T aObject = currentItem.object;
+      SardStackItem aItem = currentItem;
+      _currentItem = aItem.parent;
+      _count--;
+      return aObject;
+    }
+
+    T peek(){
+      if (currentItem is null)
+        raiseError("Stack is empty"); //TODO maybe return nil
+      return currentItem.object;
+    }
+
+    void pop() {
+      if (currentItem is null)
+        raiseError("Stack is empty");
+      beforePop();
+      T aObject = currentItem.object;
       SardStackItem aItem = currentItem;
       _currentItem = aItem.parent;
       _count--;
@@ -204,10 +226,10 @@ class SardStack: SardObject {
 
   public:
     @property {
-      Object current() {
+      T current() {
         return getCurrent();
       }
-      Object parent() {
+      T parent() {
         return getParent();
       }
     }

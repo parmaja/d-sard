@@ -60,6 +60,9 @@ module sard.objects;
 /**
   DLang
   TODO: rename prefix Srd tp Obj //hmmm
+  
+  Renamed:
+    return -> ret
 */
 
 import sard.classes;
@@ -159,15 +162,73 @@ class SrdStatement: SrdObjectList!SrdClause {
       super.add(clause);    
     }
 
+  void execute(RunStack aStack){
+    aStack.ret.push(); //Each statement have own result
+    call(aStack);
+    if (aStack.ret.current.reference is null)
+      aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
+    aStack.ret.pop();
+  }
+
+  void call(RunStack aStack){
+    int i = 0;
+    while (i < count) {
+      this[i].execute(aStack);
+    }
+  }
+
   public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
 //--------------  TODO  ----------------
 
+class RunResult: SardObject{
+  private:
+    SoObject _object;
+  public:
+    @property SoObject object() { return _object; };
+    @property SoObject object(SoObject value) { 
+      if (_object != value){
+        if (_object !is null) {
+        }
+       _object = value;
+      }
+      return _object; 
+    };
+  public
+    SoObject extract(){
+      SoObject o = _object;
+      _object = null;
+      return o;
+    }
+}
+
+class RunReturnItem: SardObject{
+  public:
+    private RunResult _result;
+    private RunResult _reference;
+
+    @property RunResult result() { return _result; };
+    @property RunResult reference() { return _reference; };
+    @property RunResult reference(RunResult value) { 
+        if (_reference != value) {
+          if (_reference !is null) 
+            raiseError("Already set a reference");
+          _reference = value;
+        }
+
+        return _reference; 
+    };
+}
+
+class RunReturn: SardStack!RunReturnItem {
+}
+
 class SrdDebugInfo: SardObject {
 }
 
 class RunStack: SardObject {
+  public RunReturn ret;//todo make it property
 }
 
 class SrdBlock: SardObject {

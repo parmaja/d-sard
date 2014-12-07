@@ -233,11 +233,33 @@ class SoDeclare: SardNamedObject {
 
 }
 
+//Just a references not free inside objects, not sure how to do that in D
 class SrdDeclares: SardNamedObjects!SoDeclare {
 }
 
 
+abstract class SoObject: SardObject {
+private:
+  SoObject _parent;
 
+protected:
+  SrdObjectType _objectType;
+  public @property SrdObjectType objectType() {
+    return _objectType;
+  }
+
+public:
+  @property SoObject parent() {return _parent; };
+  @property 
+    SoObject parent(SoObject value) {
+      return _parent = value; 
+    };
+
+  public:
+    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null){
+      return false;
+    }
+}
 //--------------------------------------
 //--------------  TODO  ----------------
 //--------------------------------------
@@ -301,21 +323,4 @@ class RunStack: SardObject {
 }
 
 class OpOperator:SardObject {
-}
-
-class SoObject: SardObject {
-  private:
-    SoObject _parent;
-
-  public:
-    @property SoObject parent() {return _parent; };
-    @property 
-        SoObject parent(SoObject value) {
-          return _parent = value; 
-     };
-
-  public:
-    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null){
-      return false;
-    }
 }

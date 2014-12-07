@@ -52,44 +52,38 @@ class SardObject: Object {
   };
 
   this() {
-    created();
+    created(); 
   }
 }
 
-class SardObjectList: SardObject {
-  private:
-    Object[] _items;
+class SardObjects(T): SardObject {
+  T[] _items;
 
-  public Object getItem(int index) {
+  public T getItem(int index) {
     return _items[index];
   }
 
-  protected void _add(Object object) {
-    _items = _items  ~ object;
+  T opIndex(size_t index) {
+    return getItem(index);
   }
 
   @property int count(){
     return _items.length;
   }
 
-  Object opIndex(size_t index) {
-    return _items[index];
+  protected void add(T object) {
+    _items = _items  ~ object;
   }
 
-/*
-    @property SardObject items(int index){
-    return _items[index];
-  }
-*/
-}
-
-class SardObjects(T): SardObjectList {//TODO
-  T opIndex(size_t index) {
-    return cast(T)getItem(index);
+  T last(){
+    if (_items.length == 0)
+      return null;
+    else
+      return _items[_items.length - 1];
   }
 }
 
-class SardNamedObjects: SardObjectList {//TODO
+class SardNamedObjects: SardObjects!SardObject {//TODO
 
 }
 
@@ -336,7 +330,7 @@ class SardLexical: SardObjects!SardScanner{
       scanner = cast(SardScanner)scannerClass.create(); pragma(msg, "Need to review");
       scanner.initIt(this);
 
-      _add(scanner);
+      add(scanner);
       return scanner;
     }
 

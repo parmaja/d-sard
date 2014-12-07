@@ -56,7 +56,12 @@ module sard.objects;
   TmdModifier: It is like operator but with one side can be in the context before the identifier like + !x %x $x
 
 */
-deprecated("Please use foo2 instead.")
+
+/**
+  DLang
+  TODO: rename prefix Srd tp Obj //hmmm
+*/
+
 import sard.classes;
 import minilib.sets;
 
@@ -69,7 +74,7 @@ enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
 
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
-//alias RunVarKinds = Set!RunVarKind;
+alias RunVarKinds = Set!RunVarKind;
 
 class SrdDebug: SardObject {
 
@@ -78,4 +83,102 @@ class SrdDebug: SardObject {
     int column;
     string fileName;
     //bool breakPoint; //not sure, do not laugh
+}
+
+class SrdDefine: SardObject {
+  public:
+    string name;
+    string result;
+    this(string aName, string aResult){
+      name = aName;
+      super();
+    }
+}
+
+class SrdDefines: SardObjects!SrdDefine {
+
+  void add(string aName, string aResult) {
+    super.add(new SrdDefine(aName, aResult));
+  }
+}
+
+class SrdObjectList(T): SardObjects!T {
+  private:
+    SoObject _parent;
+
+  public:
+    @property SoObject parent() { return _parent; }
+
+  public:
+
+    this(SoObject aParent){
+      _parent = aParent;
+      super();
+    } 
+}
+
+class SrdClause: SardObject {
+  private
+    OpOperator _operator;
+    SoObject _object;
+
+  public:
+    @property OpOperator operator() { return _operator; }
+    @property SoObject object() { return _object; }
+
+    this(OpOperator aOperator, SoObject aObject) {
+      _operator = aOperator;
+      _object = aObject;
+      super();
+    }
+
+    bool execute(RunStack vStack) {
+      if (_object is null)
+        raiseError("Object not set!");
+      return _object.execute(vStack, _operator);
+    }
+}
+
+/** SrdStatement */
+
+class SrdStatement: SrdObjectList!SrdClause {
+  public:
+    void add(OpOperator aOperator, SoObject aObject){
+      SrdClause clause = new SrdClause(aOperator, aObject);
+    aObject.parent = parent;
+      super.add(clause);    
+    }
+
+  public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
+}
+
+//--------------  TODO  ----------------
+
+class SrdDebugInfo: SardObject {
+}
+
+class RunStack: SardObject {
+}
+
+class SrdBlock: SardObject {
+}
+
+class OpOperator:SardObject {
+}
+
+class SoObject: SardObject {
+  private:
+    SoObject _parent;
+
+  public:
+    @property SoObject parent() {return _parent; };
+    @property 
+        SoObject parent(SoObject value) {
+          return _parent = value; 
+     };
+
+  public:
+    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null){
+      return false;
+    }
 }

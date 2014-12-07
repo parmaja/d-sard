@@ -63,18 +63,18 @@ module sard.objects;
   
   Renamed:
     return -> ret
+    push() ->pushIt();
+    i made popIt to be similar name
 */
-
+import std.uni;
 import sard.classes;
 //import minilib.sets;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
 
-
 enum SrdObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
 enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
-
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
 alias bool[RunVarKind] RunVarKinds;
@@ -89,17 +89,20 @@ class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
     @property SoObject parent() { return _parent; }
 
   public:
-  /*
+  /**BUG1
     We need default constructor to resolve this error
     Error	1	Error: class sard.objects.SrdStatement Cannot implicitly generate a default ctor when base class sard.objects.SrdObjectList!(SrdClause).SrdObjectList is missing a default ctor	W:\home\d\lib\sard\src\sard\objects.d	151	
+    
+    add this to your subclass
+  
+    this(SoObject aParent){
+      super(aParent);    
+    }   
   */
-    this(){
-      super();
-    }
 
     this(SoObject aParent){
       _parent = aParent;
-      this();      
+      super();
     }   
 }
 
@@ -156,6 +159,11 @@ class SrdClause: SardObject {
 /** SrdStatement */
 
 class SrdStatement: SrdObjectList!SrdClause {
+  //check BUG1
+  this(SoObject aParent){
+    super(aParent);    
+  }   
+
   public:
     void add(OpOperator aOperator, SoObject aObject){
       SrdClause clause = new SrdClause(aOperator, aObject);
@@ -164,11 +172,11 @@ class SrdStatement: SrdObjectList!SrdClause {
     }
 
   void execute(RunStack aStack){
-    aStack.ret.push(); //Each statement have own result
+    aStack.ret.pushIt(); //Each statement have own result
     call(aStack);
     if (aStack.ret.current.reference is null)
       aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
-    aStack.ret.pop();
+    aStack.ret.popIt();
   }
 
   void call(RunStack aStack){
@@ -182,6 +190,12 @@ class SrdStatement: SrdObjectList!SrdClause {
 }
 
 class SrdBlock: SrdObjectList!SrdStatement {
+
+  //check BUG1
+  this(SoObject aParent){
+    super(aParent);    
+  }   
+
   public:
     @property SrdStatement statement() {
       //check();//TODO: not sure
@@ -191,7 +205,38 @@ class SrdBlock: SrdObjectList!SrdStatement {
     SrdStatement add(){
       return new SrdStatement(parent);
     }
+
+    void check(){
+      if (count==0) {
+        add();
+      }
+    }
+
+  bool execute(RunStack aStack){
+    if (count == 0)
+      return false;
+    else{
+      int i = 0;
+      while (i < count) {
+        this[i].execute(aStack);
+        //if the current statment assigned to parent or variable result "Reference" here have this object, or we will throw the result
+      }
+      return true;
+    }
+  }
 }
+
+class SrdBlockStack:SardStack!SrdBlock {
+}
+
+class SoDeclare: SardNamedObject {
+
+}
+
+class SrdDeclares: SardNamedObjects!SoDeclare {
+}
+
+
 
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -210,6 +255,7 @@ class RunResult: SardObject{
       }
       return _object; 
     };
+
   public
     SoObject extract(){
       SoObject o = _object;
@@ -237,6 +283,14 @@ class RunReturnItem: SardObject{
 }
 
 class RunReturn: SardStack!RunReturnItem {
+  public:    
+    void pushIt() {
+      push(new RunReturnItem());
+    }
+
+  void popIt() {
+    pop();
+  }
 }
 
 class SrdDebugInfo: SardObject {

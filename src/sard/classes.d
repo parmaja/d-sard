@@ -1,6 +1,7 @@
 module sard.classes;
 
 import std.string;
+import std.uni;
 import std.array;
 import std.range;
 
@@ -19,10 +20,10 @@ class SardException : Exception {
   private uint _code;
 
   @property uint code() { return _code; }
-
-  this(string msg) {
-    super(msg);
-  }
+  public:
+    this(string msg) {
+      super(msg);
+    }
 }
 
 class SardParserException : Exception {
@@ -88,8 +89,24 @@ class SardObjects(T): SardObject {
     }
 }
 
-class SardNamedObjects: SardObjects!SardObject {//TODO
+class SardNamedObject: SardObject{
+  string name;
+}
 
+class SardNamedObjects(T): SardObjects!T {//TODO check T is SardNamedObject
+
+  public:
+    T find(ref string aName) {
+      int i = 0;
+      T result = null;
+      while (i < count) {
+        if (icmp(aName, this[i].name) == 0) {
+          result = this[i];
+          break;
+        }
+      }
+      return result;
+    }
 }
 
 enum SardControl {
@@ -190,10 +207,6 @@ class SardStack(T): SardObject {
       afterPush();
     }
 
-    void push() {
-      push(new T());//TODO: not sure
-    }
-
     T pull(){
       if (currentItem is null)
         raiseError("Stack is empty");
@@ -261,8 +274,8 @@ class SardScanner: SardObject {
       _lexical = lexical;
     }
 
-    this(SardLexical lexical){
-      initIt(lexical);
+    this(SardLexical lexical){ 
+      initIt(lexical); //TODO check it for MetaClass
       super();
     }
 

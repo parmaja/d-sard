@@ -76,6 +76,22 @@ enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
 alias RunVarKinds = Set!RunVarKind;
 
+class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
+
+  private:
+    SoObject _parent;
+
+  public:
+    @property SoObject parent() { return _parent; }
+
+  public:
+
+    this(SoObject aParent){
+      _parent = aParent;
+      super();
+    } 
+}
+
 class SrdDebug: SardObject {
 
   public:
@@ -102,20 +118,7 @@ class SrdDefines: SardObjects!SrdDefine {
   }
 }
 
-class SrdObjectList(T): SardObjects!T {
-  private:
-    SoObject _parent;
-
-  public:
-    @property SoObject parent() { return _parent; }
-
-  public:
-
-    this(SoObject aParent){
-      _parent = aParent;
-      super();
-    } 
-}
+/** SrdClause */
 
 class SrdClause: SardObject {
   private
@@ -145,7 +148,7 @@ class SrdStatement: SrdObjectList!SrdClause {
   public:
     void add(OpOperator aOperator, SoObject aObject){
       SrdClause clause = new SrdClause(aOperator, aObject);
-    aObject.parent = parent;
+      aObject.parent = parent;
       super.add(clause);    
     }
 

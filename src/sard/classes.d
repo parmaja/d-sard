@@ -81,6 +81,10 @@ class SardObjects(T): SardObject {
     else
       return _items[_items.length - 1];
   }
+
+  this(){
+    super();
+  } 
 }
 
 class SardNamedObjects: SardObjects!SardObject {//TODO

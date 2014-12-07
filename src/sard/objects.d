@@ -85,11 +85,18 @@ class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
     @property SoObject parent() { return _parent; }
 
   public:
+  /*
+    We need default constructor to resolve this error
+    Error	1	Error: class sard.objects.SrdStatement Cannot implicitly generate a default ctor when base class sard.objects.SrdObjectList!(SrdClause).SrdObjectList is missing a default ctor	W:\home\d\lib\sard\src\sard\objects.d	151	
+  */
+    this(){
+      super();
+    }
 
     this(SoObject aParent){
       _parent = aParent;
-      super();
-    } 
+      this();      
+    }   
 }
 
 class SrdDebug: SardObject {

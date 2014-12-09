@@ -73,6 +73,9 @@ import sard.classes;
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
 
+alias long integer;
+alias double number;
+
 enum SrdObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
 enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
 
@@ -237,6 +240,7 @@ class SoDeclare: SardNamedObject {
 class SrdDeclares: SardNamedObjects!SoDeclare {
 }
 
+/** SoObject */
 
 abstract class SoObject: SardObject {
 private:
@@ -259,6 +263,57 @@ public:
     bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null){
       return false;
     }
+
+  public:
+    bool toBool(out bool outValue){
+      return false;
+    }
+
+    bool toString(out string outValue){
+      return false;
+    }
+
+    bool toNumber(out number outValue){
+      return false;
+    }
+
+    bool toInteger(out integer outValue){
+      return false;
+    }
+
+  protected:
+    @property final string AsString(){
+      string o;
+      if (toString(o))
+        return o;
+      else
+        return "";
+    };
+
+    @property final number AsNumber(){
+      number o;
+      if (toNumber(o))
+        return o;
+      else
+        return 0;
+    };
+
+    @property final integer AsInteger(){
+      integer o;
+      if (toInteger(o))
+        return o;
+      else
+        return 0;
+    };
+
+    @property final bool AsBool(){
+      bool o;
+      if (toBool(o))
+        return o;
+      else
+        return false;
+    };
+
 }
 //--------------------------------------
 //--------------  TODO  ----------------

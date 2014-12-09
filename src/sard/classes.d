@@ -13,9 +13,6 @@ import std.range;
 
 */
 
-alias long srd_int;
-alias double srd_float;
-
 class SardException : Exception {
   private uint _code;
 

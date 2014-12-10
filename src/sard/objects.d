@@ -68,6 +68,7 @@ module sard.objects;
 */
 import std.uni;
 import sard.classes;
+
 //import minilib.sets;
 
 const string sSardVersion = "0.01";
@@ -256,13 +257,12 @@ public:
   @property SoObject parent() {return _parent; };
   @property 
     SoObject parent(SoObject value) {
-      return _parent = value; 
+      if (_parent !is null) 
+        raiseError("Already have a parent");
+      _parent = value;
+      doSetParent(_parent);
+      return _parent; 
     };
-
-  public:
-    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null){
-      return false;
-    }
 
   public:
     bool toBool(out bool outValue){
@@ -314,6 +314,62 @@ public:
         return false;
     };
 
+  protected: 
+    bool Operate(SoObject aObject, OpOperator AOperator) {
+      return false;
+    }
+
+    void beforeExecute(RunStack vStack, OpOperator aOperator){
+
+    }
+
+    void afterExecute(RunStack vStack, OpOperator aOperator){
+
+    }
+
+    void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters) {
+
+    }
+
+    void doExecute(RunStack vStack,OpOperator aOperator, ref bool done){
+    }
+
+    void doSetParent(SoObject aParent){
+    }
+ 
+    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null) {
+      //vStack.TouchMe(Self);
+      bool result = false;
+      beforeExecute(vStack, aOperator);
+      executeParams(vStack, vDefines, vParameters);
+      doExecute(vStack, aOperator, result);
+      afterExecute(vStack, aOperator);      
+/*
+      //std.experimental.logger
+      //std.logger
+
+      debug.writeln(s) {
+        s = StringOfChar('-', vStack.Return.CurrentItem.Level)+'->';
+        s := s + 'Execute: ' + ClassName+ ' Level=' + IntToStr(vStack.Return.CurrentItem.Level);
+        if AOperator <> nil then
+          s := s +'{'+ AOperator.Name+'}';
+        if vStack.Return.Current.Result.anObject <> nil then
+          s := s + ' Value: '+ vStack.Return.Current.Result.anObject.AsString;
+        WriteLn(s);
+      }*/
+      return result; 
+    }
+
+    void assign(SoObject fromObject){
+      //nothing
+    }
+
+    SoObject Clone(bool withValue = true){
+      SoObject result = new typeof(this);//<-bad i want to create new object same as current object but with descent
+      if (WithValue)
+        result.assign(Self);
+      return result;
+    }
 }
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -374,7 +430,11 @@ class SrdDebugInfo: SardObject {
 }
 
 class RunStack: SardObject {
-  public RunReturn ret;//todo make it property
+  public:
+    RunReturn ret;//todo make it property
+  public:  
+    /*RunShadow TouchMe(SoObject aObject) {
+    }*/
 }
 
 class OpOperator:SardObject {

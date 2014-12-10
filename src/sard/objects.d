@@ -365,9 +365,11 @@ public:
     }
 
     SoObject Clone(bool withValue = true){
-      SoObject result = new typeof(this);//<-bad i want to create new object same as current object but with descent
-      if (WithValue)
-        result.assign(Self);
+      SoObject result = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
+
+      
+      if (withValue)
+        result.assign(this);
       return result;
     }
 }

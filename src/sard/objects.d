@@ -77,8 +77,8 @@ const int iSardVersion = 1;
 alias long integer;
 alias double number;
 
-enum SrdObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
-enum SrdCompare {cmpLess, cmpEqual, cmpGreater};
+enum ObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
+enum Compare {cmpLess, cmpEqual, cmpGreater};
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
 alias bool[RunVarKind] RunVarKinds;
@@ -233,25 +233,19 @@ class SrdBlock: SrdObjectList!SrdStatement {
 class SrdBlockStack:SardStack!SrdBlock {
 }
 
-class SoDeclare: SardNamedObject {
-
-}
-
-//Just a references not free inside objects, not sure how to do that in D
-class SrdDeclares: SardNamedObjects!SoDeclare {
-}
 
 /** SoObject */
 
 abstract class SoObject: SardObject {
-private:
-  SoObject _parent;
+  private:
+    SoObject _parent;
 
-protected:
-  SrdObjectType _objectType;
-  public @property SrdObjectType objectType() {
-    return _objectType;
-  }
+  protected:
+    ObjectType _objectType;
+    
+    public @property ObjectType objectType() {
+      return _objectType;
+    }
 
 public:
   @property SoObject parent() {return _parent; };
@@ -282,7 +276,7 @@ public:
     }
 
   protected:
-    @property final string AsString(){
+    @property final string asString(){
       string o;
       if (toString(o))
         return o;
@@ -290,7 +284,7 @@ public:
         return "";
     };
 
-    @property final number AsNumber(){
+    @property final number asNumber(){
       number o;
       if (toNumber(o))
         return o;
@@ -298,7 +292,7 @@ public:
         return 0;
     };
 
-    @property final integer AsInteger(){
+    @property final integer asInteger(){
       integer o;
       if (toInteger(o))
         return o;
@@ -306,7 +300,7 @@ public:
         return 0;
     };
 
-    @property final bool AsBool(){
+    @property final bool asBool(){
       bool o;
       if (toBool(o))
         return o;
@@ -315,7 +309,7 @@ public:
     };
 
   protected: 
-    bool Operate(SoObject aObject, OpOperator AOperator) {
+    bool operate(SoObject aObject, OpOperator AOperator) {
       return false;
     }
 
@@ -364,14 +358,112 @@ public:
       //nothing
     }
 
-    SoObject Clone(bool withValue = true){
+    SoObject clone(bool withValue = true){
       SoObject result = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
-
-      
+    
       if (withValue)
         result.assign(this);
       return result;
     }
+
+    int addDeclare(SoNamedObject executeObject, SoNamedObject callObject){
+      SoDeclare declare = new SoDeclare();
+      if (executeObject !is null)
+        declare.name = executeObject.name;
+      else if (callObject !is null)
+        declare.name = callObject.name;
+      declare.executeObject = executeObject;
+      declare.callObject = callObject;
+      return addDeclare(declare);
+    }
+
+    int addDeclare(SoDeclare aDeclare){
+      if (parent is null)
+        return -1;
+      else
+        return parent.addDeclare(aDeclare);
+    }
+}
+
+class SrdObjects:SardObjects!SoObject{
+}
+
+class SoNamedObject: SoObject {
+private:
+  int _id;
+  string _name;
+public:
+  @property int id(){ return _id; }
+  @property int id(int value){ return _id = value; }
+  @property string name(){ return _name; }
+  @property string name(string value){ return _name = value; }
+
+public:
+
+  this(){
+    super();
+  }
+
+  this(SoObject vParent, string vName){
+    name = vName;
+    parent = vParent;
+    super();
+  }
+
+  RunVariable registerVariable(RunStack vStack, RunVarKinds vKind){
+    return vStack.local.current.variables.register(name, vKind);
+  }
+}
+
+abstract class SoConstObject:SoObject{
+  override final void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+    if ((vStack.ret.current.result.object is null) && (aOperator is null)) {
+      vStack.ret.current.result.object = clone();
+    done = true;
+    }
+    else {
+      
+      if (vStack.ret.current.result.object is null)
+        vStack.ret.current.result.object = clone(false);
+      done = vStack.ret.current.result.object.operate(this, aOperator);
+    }
+  }
+}
+
+abstract class SoBlock: SoNamedObject{////////////////////
+protected:
+  SrdBlock _block;
+  override void created(){
+    _objectType = ObjectType.otBlock;
+  }
+
+  override void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters){
+//   super();
+    super.executeParams(vStack, vDefines, vParameters);
+    if (vParameters !is null) { //TODO we need to check if it is a block?
+      
+      for i := 0 to vParameters.Count -1 do
+        begin
+        vStack.Return.Push;
+    vParameters[i].Call(vStack);
+    if i < vDefines.Count then
+      begin
+      v := vStack.Local.Current.Variables.Register(vDefines[i].Name, [vtLocal, vtParam]);//must find it locally//bug//todo
+    v.Value := vStack.Return.Current.ReleaseResult;
+    end;
+    vStack.Return.Pop;
+    end;
+    end;
+
+
+  }
+  override void doExecute(RunStack vStack, OpOperator aOperator, ref bool Done){}
+public:
+  this(){}
+  ~this(){}
+  void call(RunStack vStack){ //vBlock here is params
+  }
+  @property SrdBlock block() {return _block; };
 }
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -431,13 +523,66 @@ class RunReturn: SardStack!RunReturnItem {
 class SrdDebugInfo: SardObject {
 }
 
+class RunVariable: SardNamedObject {
+  RunVarKinds kind;
+  RunResult value;
+}
+
+class RunVariables: SardNamedObjects!RunVariable{
+
+  RunVariable register(string vName, RunVarKinds vKind){
+    RunVariable result = find(vName);
+    if (result is null){      
+      result = new RunVariable();
+      result.name = vName;
+      result.kind = vKind;
+      add(result);
+    }
+    return result;
+  }
+
+  RunVariable setValue(string vName, SoObject vValue){
+    return null;//////////////////
+  }
+
+}
+
+class RunLocalItem: SardObject{
+  RunVariables variables;
+}
+
+class RunLocal: SardStack!RunLocalItem {
+
+}
+
 class RunStack: SardObject {
   public:
     RunReturn ret;//todo make it property
   public:  
+    RunLocal local;
     /*RunShadow TouchMe(SoObject aObject) {
     }*/
 }
 
 class OpOperator:SardObject {
+}
+
+class SoDeclare: SoNamedObject{
+private:
+  SrdDefines _defines;
+  protected
+    override void created(){
+      _objectType = ObjectType.otClass;
+    }
+
+public:
+  //ExecuteObject will execute in a context of statement if it is not null,
+  SoNamedObject executeObject;//You create it but Declare will free it
+  //ExecuteObject will execute by call, when called from outside,
+  SoNamedObject callObject;//You create it but Declare will free it
+  string resultType;
+}
+
+//Just a references not free inside objects, not sure how to do that in D
+class SrdDeclares: SardNamedObjects!SoDeclare {
 }

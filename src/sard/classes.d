@@ -267,12 +267,12 @@ class SardScanner: SardObject {
     string collected; //buffer
     SardScanner scanner;
 
-    void initIt(SardLexical lexical) { //todo maybe rename to opCall
+    void prepare(SardLexical lexical) { //todo maybe rename to opCall
       _lexical = lexical;
     }
 
     this(SardLexical lexical){ 
-      initIt(lexical); //TODO check it for MetaClass
+      prepare(lexical); //TODO check it for MetaClass
       super();
     }
 
@@ -364,7 +364,7 @@ class SardLexical: SardObjects!SardScanner{
       SardScanner scanner;
       //scanner = new typeof(scannerClass);
       scanner = cast(SardScanner)scannerClass.create(); pragma(msg, "Need to review");
-      scanner.initIt(this);
+      scanner.prepare(this);
 
       add(scanner);
       return scanner;

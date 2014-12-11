@@ -359,11 +359,13 @@ public:
     }
 
     SoObject clone(bool withValue = true){
-      SoObject result = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
-    
+      SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
+	  if (object is null)
+		  raiseError("Error when clongin");      
+	  
       if (withValue)
-        result.assign(this);
-      return result;
+        object.assign(this);
+      return object;
     }
 
     int addDeclare(SoNamedObject executeObject, SoNamedObject callObject){

@@ -69,7 +69,7 @@ module sard.objects;
 import std.uni;
 import sard.classes;
 
-//import minilib.sets;
+import minilib.sets;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
@@ -81,8 +81,8 @@ enum ObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, o
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
-alias bool[RunVarKind] RunVarKinds;
-//alias RunVarKinds = Set!RunVarKind;
+//alias bool[RunVarKind] RunVarKinds;
+alias RunVarKinds = Set!RunVarKind;
 
 class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
 
@@ -442,22 +442,19 @@ protected:
   override void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters){
 //   super();
     super.executeParams(vStack, vDefines, vParameters);
-    if (vParameters !is null) { //TODO we need to check if it is a block?
-      
-      for i := 0 to vParameters.Count -1 do
-        begin
-        vStack.Return.Push;
-    vParameters[i].Call(vStack);
-    if i < vDefines.Count then
-      begin
-      v := vStack.Local.Current.Variables.Register(vDefines[i].Name, [vtLocal, vtParam]);//must find it locally//bug//todo
-    v.Value := vStack.Return.Current.ReleaseResult;
-    end;
-    vStack.Return.Pop;
-    end;
-    end;
-
-
+    if (vParameters !is null) { //TODO we need to check if it is a block?      
+      int i = 0;
+      while (i < vParameters.count -1){        
+        vStack.ret.pushIt();
+        vParameters[i].call(vStack);
+        if (i < vDefines.count){      
+          RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.vtLocal, RunVarKind.vtParam])); //must find it locally//bug//todo
+            v.value = vStack.ret.current.releaseResult();
+          }
+          vStack.ret.popIt();
+          i++;
+      }        
+    }
   }
   override void doExecute(RunStack vStack, OpOperator aOperator, ref bool Done){}
 public:
@@ -517,9 +514,9 @@ class RunReturn: SardStack!RunReturnItem {
       push(new RunReturnItem());
     }
 
-  void popIt() {
-    pop();
-  }
+    void popIt() {
+      pop();
+    }
 }
 
 class SrdDebugInfo: SardObject {

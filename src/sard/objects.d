@@ -33,7 +33,7 @@ module sard.objects;
   Prefix guid:
     srd: global classes inherited from sard
     run: Runtime classes
-    so: Sard objects, that created when compile the source
+    so: Sard objects, that prepare when compile the source
     op: Operators objects
 */
 
@@ -63,7 +63,9 @@ module sard.objects;
   
   Renamed:
     return -> ret
+    created -> prepare
 */
+
 import std.uni;
 import sard.classes;
 
@@ -243,6 +245,10 @@ abstract class SoObject: SardObject {
     
     public @property ObjectType objectType() {
       return _objectType;
+    }
+
+    public @property ObjectType objectType(ObjectType value) {
+      return _objectType = value;
     }
 
   public:
@@ -473,7 +479,7 @@ abstract class SoBlock: SoNamedObject{
     }
 
   public:
-    override void created(){
+    override void prepare(){
       _objectType = ObjectType.otBlock;
     }
 
@@ -494,11 +500,12 @@ class SrdDeclares: SardNamedObjects!SoDeclare {
 /** SoSection */
 /** Used by { } */
 
-class SoSection: SoBlock {
+class SoSection: SoBlock { //Result was droped until using := assign in the first of statment
   private:
-    SrdDeclares _declares;
+    SrdDeclares _declares; //It is cache of objects listed inside statments, it is for fast find the object
     
     public @property SrdDeclares declares() { return _declares; };
+
   protected:
     override void beforeExecute(RunStack vStack, OpOperator aOperator){
       super.beforeExecute(vStack, aOperator);
@@ -527,6 +534,76 @@ class SoSection: SoBlock {
     }
 }
 
+class SoCustomStatement: SoObject{
+  protected:
+    SrdStatement _statement;
+    public @property SrdStatement statement() { return _statement; };
+
+    override void beforeExecute(RunStack vStack, OpOperator aOperator){
+      super.beforeExecute(vStack, aOperator);
+      vStack.ret.insert();
+    }  
+
+    override void afterExecute(RunStack vStack, OpOperator aOperator){        
+      
+      super.afterExecute(vStack, aOperator);
+      RunReturnItem T = vStack.ret.pull();
+      if (T.result.object !is null)
+        T.result.object.execute(vStack, aOperator);            
+    }  
+
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+      statement.call(vStack);
+      done = true;
+    }
+}
+
+class SoStatement: SoCustomStatement{
+public:
+  this(){
+    super();
+    _statement = new SrdStatement(parent);
+  }
+}
+
+/**  Variables objects */
+
+/**   SoInstance */
+
+/** it is a variable value like x in this "10 + x + 5" */
+
+class SoInstance: SoBlock{
+  protected:
+    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
+
+      SoDeclare p = findDeclare(name);
+      if (p !is null) //maybe we must check Define.count, cuz it refere to it class
+        p.call(vStack, aOperator, block, done);
+      else {
+        RunVariable v = vStack.local.current.variables.find(name);
+        if (v is null)
+          raiseError("Can not find a variable: " ~ name);
+        done = v.value.object.execute(vStack, aOperator);
+      }      
+    }
+
+  public:
+    override void prepare(){
+      super.prepare();
+      objectType = ObjectType.otObject;
+    }
+}
+
+
+class SoVariable: SoNamedObject{ ///////////////
+protected:
+  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
+    //TODO
+  }
+
+public:
+  SardMetaClass resultType; OUTCH
+}
 
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -638,8 +715,10 @@ class OpOperator:SardObject {
 class SoDeclare: SoNamedObject{
 private:
   SrdDefines _defines;
-  protected
-    override void created(){
+  public @property SrdDefines defines(){ return _defines; }
+
+ protected:
+    override void prepare(){
       _objectType = ObjectType.otClass;
     }
 
@@ -649,4 +728,10 @@ public:
   //ExecuteObject will execute by call, when called from outside,
   SoNamedObject callObject;//You create it but Declare will free it
   string resultType;
+
+  //This outside execute it will force to execute the section
+  void call(RunStack vStack, OpOperator aOperator, SrdBlock aParameters, ref bool done){
+    done = callObject.execute(vStack, aOperator, defines, aParameters);
+  }
+
 }

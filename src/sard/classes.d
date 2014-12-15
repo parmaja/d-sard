@@ -46,11 +46,11 @@ class SardParserException : Exception {
 
 class SardObject: Object {
 
-  void created() {
+  void prepare() {
   };
 
   this() {
-    created(); 
+    prepare(); 
   }
 }
 
@@ -94,7 +94,7 @@ class SardNamedObject: SardObject{
 class SardNamedObjects(T): SardObjects!T {//TODO check T is SardNamedObject
 
   public:
-    T find(ref string aName) {
+    T find(string aName) {
       int i = 0;
       T result = null;
       while (i < count) {

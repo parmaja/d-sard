@@ -61,8 +61,9 @@ class SardObjects(T): SardObject {
     alias _items this;
 
   protected:
-    void add(T object) {
+    int add(T object) {
       _items = _items  ~ object;
+      return _items.length - 1;
     }
 
   public:

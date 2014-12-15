@@ -383,6 +383,13 @@ abstract class SoObject: SardObject {
       else
         return parent.addDeclare(aDeclare);
     }
+
+    SoDeclare findDeclare(string vName){
+      if (parent !is null)
+        return parent.findDeclare(vName);
+      else
+        return null;
+    }
 }
 
 class SrdObjects: SardObjects!SoObject{
@@ -480,24 +487,46 @@ abstract class SoBlock: SoNamedObject{
     }
 }
 
-/+
+//Just a references not free inside objects, not sure how to do that in D
+class SrdDeclares: SardNamedObjects!SoDeclare {
+}
+
 /** SoSection */
 /** Used by { } */
 
 class SoSection: SoBlock {
   private:
     SrdDeclares _declares;
+    
+    public @property SrdDeclares declares() { return _declares; };
   protected:
     override void beforeExecute(RunStack vStack, OpOperator aOperator){
+      super.beforeExecute(vStack, aOperator);
       vStack.local.insert();
     }
 
     override void afterExecute(RunStack vStack, OpOperator aOperator){
+      super.afterExecute(vStack, aOperator);
+      vStack.local.pop();
     }
 
   public:
+    this(){
+      _declares = new SrdDeclares();
+    }
+
+    override int addDeclare(SoDeclare vDeclare){
+      return declares.add(vDeclare);
+    }
+
+    override SoDeclare findDeclare(string vName){
+      if (parent !is null)
+        return parent.findDeclare(vName);
+      else
+        return null;
+    }
 }
-+/
+
 
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -551,8 +580,7 @@ class RunReturnItem: SardObject{
 }
 
 class RunReturn: SardStack!RunReturnItem {
-  public:    
-    
+  public:        
     void insert() {
       push(new RunReturnItem());
     }
@@ -590,7 +618,9 @@ class RunLocalItem: SardObject{
 }
 
 class RunLocal: SardStack!RunLocalItem {
-
+  void insert() {
+    push(new RunLocalItem());
+  }
 }
 
 class RunStack: SardObject {
@@ -619,8 +649,4 @@ public:
   //ExecuteObject will execute by call, when called from outside,
   SoNamedObject callObject;//You create it but Declare will free it
   string resultType;
-}
-
-//Just a references not free inside objects, not sure how to do that in D
-class SrdDeclares: SardNamedObjects!SoDeclare {
 }

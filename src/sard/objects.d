@@ -103,8 +103,8 @@ class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
   */
 
     this(SoObject aParent){
-      _parent = aParent;
       super();
+      _parent = aParent;
     }   
 }
 
@@ -122,8 +122,8 @@ class SrdDefine: SardObject {
     string name;
     string result;
     this(string aName, string aResult){
-      name = aName;
       super();
+      name = aName;
     }
 }
 
@@ -146,9 +146,9 @@ class SrdClause: SardObject {
     @property SoObject object() { return _object; }
 
     this(OpOperator aOperator, SoObject aObject) {
+      super();
       _operator = aOperator;
       _object = aObject;
-      super();
     }
 
     bool execute(RunStack aStack) {
@@ -405,9 +405,9 @@ class SoNamedObject: SoObject {
     }
 
     this(SoObject vParent, string vName){
+      super();
       name = vName;
       parent = vParent;
-      super();
     }
 
     RunVariable registerVariable(RunStack vStack, RunVarKinds vKind){
@@ -472,7 +472,7 @@ abstract class SoBlock: SoNamedObject{
 
     this(){
       super();
-      _block = new SrdBlock(this());
+      _block = new SrdBlock(this);      
     }
 
     void call(RunStack vStack){ //vBlock here is params

@@ -127,7 +127,7 @@ class SardStack(T): SardObject {
 
   static class SardStackItem: SardObject {
     protected {
-      T object; //rename it to object
+      T object; //renamed it to object
       SardStackItem parent;
     }
 

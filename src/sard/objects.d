@@ -63,8 +63,6 @@ module sard.objects;
   
   Renamed:
     return -> ret
-    push() ->pushIt();
-    i made popIt to be similar name
 */
 import std.uni;
 import sard.classes;
@@ -176,11 +174,11 @@ class SrdStatement: SrdObjectList!SrdClause {
     }
 
   void execute(RunStack aStack){
-    aStack.ret.pushIt(); //Each statement have own result
+    aStack.ret.insert(); //Each statement have own result
     call(aStack);
     if (aStack.ret.current.reference is null)
       aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
-    aStack.ret.popIt();
+    aStack.ret.pop();
   }
 
   void call(RunStack aStack){
@@ -360,8 +358,8 @@ public:
 
     SoObject clone(bool withValue = true){
       SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
-	  if (object is null)
-		  raiseError("Error when clongin");      
+	    if (object is null)
+		    raiseError("Error when clongin");      
 	  
       if (withValue)
         object.assign(this);
@@ -432,38 +430,57 @@ abstract class SoConstObject:SoObject{
   }
 }
 
-abstract class SoBlock: SoNamedObject{////////////////////
-protected:
-  SrdBlock _block;
-  override void created(){
-    _objectType = ObjectType.otBlock;
-  }
+abstract class SoBlock: SoNamedObject{
 
-  override void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters){
-//   super();
-    super.executeParams(vStack, vDefines, vParameters);
-    if (vParameters !is null) { //TODO we need to check if it is a block?      
-      int i = 0;
-      while (i < vParameters.count -1){        
-        vStack.ret.pushIt();
-        vParameters[i].call(vStack);
-        if (i < vDefines.count){      
-          RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.vtLocal, RunVarKind.vtParam])); //must find it locally//bug//todo
-            v.value = vStack.ret.current.releaseResult();
-          }
-          vStack.ret.popIt();
-          i++;
-      }        
+  protected:
+    SrdBlock _block;
+
+    public @property SrdBlock block() { return _block; };
+
+    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters){
+  //   super();
+      super.executeParams(vStack, vDefines, vParameters);
+      if (vParameters !is null) { //TODO we need to check if it is a block?      
+        int i = 0;
+        while (i < vParameters.count -1) {
+          vStack.ret.insert();
+          vParameters[i].call(vStack);
+          if (i < vDefines.count){      
+            RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.vtLocal, RunVarKind.vtParam])); //must find it locally//bug//todo
+              v.value = vStack.ret.current.releaseResult();
+            }
+            vStack.ret.pop();
+            i++;
+        }        
+      }
     }
-  }
-  override void doExecute(RunStack vStack, OpOperator aOperator, ref bool Done){}
-public:
-  this(){}
-  ~this(){}
-  void call(RunStack vStack){ //vBlock here is params
-  }
-  @property SrdBlock block() {return _block; };
+
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+      vStack.ret.insert(); //<--here we can push a variable result or create temp result to drop it
+      call(vStack);
+      auto t = vStack.ret.pull();
+      //I dont know what if ther is an object there what we do???
+      if (t.result.object !is null)
+        t.result.object.execute(vStack, aOperator);
+      t = null; //destroy it
+      done = true;
+    }
+
+  public:
+    override void created(){
+      _objectType = ObjectType.otBlock;
+    }
+
+    this(){
+      _block = new SrdBlock();
+    }
+
+    void call(RunStack vStack){ //vBlock here is params
+      block.execute(vStack);
+    }
+
 }
+
 //--------------------------------------
 //--------------  TODO  ----------------
 //--------------------------------------
@@ -506,16 +523,20 @@ class RunReturnItem: SardObject{
 
         return _reference; 
     };
+
+    //ReleaseResult return the Result and set FResult to nil witout free it, you need to free the Result by your self
+    RunResult releaseResult(){
+      auto r = _result;
+      _result = null;
+      return r;
+    }
 }
 
 class RunReturn: SardStack!RunReturnItem {
   public:    
-    void pushIt() {
+    
+    void insert() {
       push(new RunReturnItem());
-    }
-
-    void popIt() {
-      pop();
     }
 }
 

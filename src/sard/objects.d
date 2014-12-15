@@ -245,16 +245,16 @@ abstract class SoObject: SardObject {
       return _objectType;
     }
 
-public:
-  @property SoObject parent() {return _parent; };
-  @property 
-    SoObject parent(SoObject value) {
-      if (_parent !is null) 
-        raiseError("Already have a parent");
-      _parent = value;
-      doSetParent(_parent);
-      return _parent; 
-    };
+  public:
+    @property SoObject parent() {return _parent; };
+    @property 
+      SoObject parent(SoObject value) {
+        if (_parent !is null) 
+          raiseError("Already have a parent");
+        _parent = value;
+        doSetParent(_parent);
+        return _parent; 
+      };
 
   public:
     bool toBool(out bool outValue){
@@ -385,37 +385,37 @@ public:
     }
 }
 
-class SrdObjects:SardObjects!SoObject{
+class SrdObjects: SardObjects!SoObject{
 }
 
 class SoNamedObject: SoObject {
-private:
-  int _id;
-  string _name;
-public:
-  @property int id(){ return _id; }
-  @property int id(int value){ return _id = value; }
-  @property string name(){ return _name; }
-  @property string name(string value){ return _name = value; }
+  private:
+    int _id;
+    string _name;
+  public:
+    @property int id(){ return _id; }
+    @property int id(int value){ return _id = value; }
+    @property string name(){ return _name; }
+    @property string name(string value){ return _name = value; }
 
-public:
+  public:
 
-  this(){
-    super();
-  }
+    this(){
+      super();
+    }
 
-  this(SoObject vParent, string vName){
-    name = vName;
-    parent = vParent;
-    super();
-  }
+    this(SoObject vParent, string vName){
+      name = vName;
+      parent = vParent;
+      super();
+    }
 
-  RunVariable registerVariable(RunStack vStack, RunVarKinds vKind){
-    return vStack.local.current.variables.register(name, vKind);
-  }
+    RunVariable registerVariable(RunStack vStack, RunVarKinds vKind){
+      return vStack.local.current.variables.register(name, vKind);
+    }
 }
 
-abstract class SoConstObject:SoObject{
+abstract class SoConstObject: SoObject{
   override final void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
     if ((vStack.ret.current.result.object is null) && (aOperator is null)) {
       vStack.ret.current.result.object = clone();
@@ -431,14 +431,13 @@ abstract class SoConstObject:SoObject{
 }
 
 abstract class SoBlock: SoNamedObject{
-
   protected:
     SrdBlock _block;
 
     public @property SrdBlock block() { return _block; };
 
     override void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters){
-  //   super();
+
       super.executeParams(vStack, vDefines, vParameters);
       if (vParameters !is null) { //TODO we need to check if it is a block?      
         int i = 0;
@@ -472,14 +471,33 @@ abstract class SoBlock: SoNamedObject{
     }
 
     this(){
-      _block = new SrdBlock();
+      super();
+      _block = new SrdBlock(this());
     }
 
     void call(RunStack vStack){ //vBlock here is params
       block.execute(vStack);
     }
-
 }
+
+/+
+/** SoSection */
+/** Used by { } */
+
+class SoSection: SoBlock {
+  private:
+    SrdDeclares _declares;
+  protected:
+    override void beforeExecute(RunStack vStack, OpOperator aOperator){
+      vStack.local.insert();
+    }
+
+    override void afterExecute(RunStack vStack, OpOperator aOperator){
+    }
+
+  public:
+}
++/
 
 //--------------------------------------
 //--------------  TODO  ----------------

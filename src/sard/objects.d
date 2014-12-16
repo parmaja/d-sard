@@ -81,6 +81,7 @@ enum ObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, o
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
+
 //alias bool[RunVarKind] RunVarKinds;
 alias RunVarKinds = Set!RunVarKind;
 
@@ -598,12 +599,60 @@ class SoInstance: SoBlock{
 class SoVariable: SoNamedObject{ ///////////////
 protected:
   override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
-    //TODO
+    RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));
+      if (v is null)
+        raiseError("Can not register a varibale: " ~ name) ;
+      if (v.value.object is null)
+        raiseError(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
+    done = v.value.object.execute(vStack, aOperator);
   }
 
 public:
-  SardMetaClass resultType; OUTCH
+  ClassInfo resultType;
+//  SardMetaClass resultType; OUTCH
 }
+
+/** It is assign a variable value, x:=10 + y */
+
+class SoAssign: SoNamedObject{
+  protected
+    override void doSetParent(SoObject value) {
+      super.doSetParent(value);
+    }
+
+  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
+      //super.doExecute(vStack, aOperator, done);
+      /** if not name it assign to parent result */
+      done = true;
+      if (name == "")
+        vStack.ret.current.reference = vStack.ret.parent.result;
+      else {
+        SoDeclare aDeclare = findDeclare(name);//TODO: maybe we can cashe it
+        if (aDeclare !is null) {
+          if (aDeclare.callObject !is null){
+            RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal])); //parent becuase we are in the statment
+            if (v is null)
+              raiseError("Variable not found!");
+            vStack.ret.current.reference = v.value;
+          }
+        }
+        else { //Ok let is declare it locally
+          RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));//parent becuase we are in the statment
+          if (v is null)
+            raiseError("Variable not found!");
+          vStack.ret.current.reference = v.value;
+        }
+      }
+    }
+
+    override void prepare(){
+      super.prepare();
+      objectType = ObjectType.otVariable;
+    }
+}
+
+
+
 
 //--------------------------------------
 //--------------  TODO  ----------------

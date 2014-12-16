@@ -4,6 +4,7 @@ import std.string;
 import std.uni;
 import std.array;
 import std.range;
+import minilib.metaclasses;
 
 /**
   This file is part of the "SARD"

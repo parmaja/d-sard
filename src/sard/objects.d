@@ -713,10 +713,11 @@ protected:
     done = true;
   }
 
-  void created(){
+  override void created(){
     super.created();
     objectType = ObjectType.otComment;
   }
+
 public:
   string value;
 }

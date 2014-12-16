@@ -47,11 +47,11 @@ class SardParserException : Exception {
 
 class SardObject: Object {
 
-  void prepare() {
+  void created() {
   };
 
   this() {
-    prepare(); 
+    created(); 
   }
 }
 
@@ -274,8 +274,8 @@ class SardScanner: SardObject {
     }
 
     this(SardLexical lexical){ 
-      prepare(lexical); //TODO check it for MetaClass
       super();
+      prepare(lexical); //TODO check it for MetaClass
     }
 
     ~this(){

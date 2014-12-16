@@ -33,7 +33,7 @@ module sard.objects;
   Prefix guid:
     srd: global classes inherited from sard
     run: Runtime classes
-    so: Sard objects, that prepare when compile the source
+    so: Sard objects, that created when compile the source
     op: Operators objects
 */
 
@@ -63,7 +63,6 @@ module sard.objects;
   
   Renamed:
     return -> ret
-    created -> prepare
 */
 
 import std.uni;
@@ -480,7 +479,8 @@ abstract class SoBlock: SoNamedObject{
     }
 
   public:
-    override void prepare(){
+    override void created(){
+      super.created();
       _objectType = ObjectType.otBlock;
     }
 
@@ -589,8 +589,8 @@ class SoInstance: SoBlock{
     }
 
   public:
-    override void prepare(){
-      super.prepare();
+    override void created(){
+      super.created();
       objectType = ObjectType.otObject;
     }
 }
@@ -620,7 +620,7 @@ class SoAssign: SoNamedObject{
       super.doSetParent(value);
     }
 
-  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
+  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
       //super.doExecute(vStack, aOperator, done);
       /** if not name it assign to parent result */
       done = true;
@@ -645,14 +645,70 @@ class SoAssign: SoNamedObject{
       }
     }
 
-    override void prepare(){
-      super.prepare();
+    override void created(){
+      super.created();
       objectType = ObjectType.otVariable;
     }
 }
 
+class SoDeclare: SoNamedObject{
+  private:
+    SrdDefines _defines;
+    public @property SrdDefines defines(){ return _defines; }
 
+  protected:
+    override void created(){
+      super.created();
+      _objectType = ObjectType.otClass;
+    }
 
+    override void doSetParent(SoObject value) {
+      super.doSetParent(value);
+      value.addDeclare(this);
+    }
+
+    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+      if (executeObject !is null)
+        done = executeObject.execute(vStack, aOperator);
+      else
+        done = true;
+    }
+
+  public:
+    //ExecuteObject will execute in a context of statement if it is not null,
+    SoNamedObject executeObject;//You create it but Declare will free it
+    //ExecuteObject will execute by call, when called from outside,
+    SoNamedObject callObject;//You create it but Declare will free it
+    string resultType;
+
+    //This outside execute it will force to execute the section
+    void call(RunStack vStack, OpOperator aOperator, SrdBlock aParameters, ref bool done){
+      done = callObject.execute(vStack, aOperator, defines, aParameters);
+    }
+
+    this(){
+      _defines = new SrdDefines();
+    }    
+}
+
+/**-------------------------------**/
+/**-------- Const Objects --------**/
+/**-------------------------------**/
+
+/** TsrdNone **/
+
+class SoNone: SoConstObject{ //None it is not Null, it is an initial value we sart it
+  //Do operator
+  //Convert to 0 or ''
+}
+
+abstract class SoNumber: SoConstObject{ //base class
+
+}
+
+class SoInteger: SoNumber {
+  
+}
 
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -761,26 +817,3 @@ class RunStack: SardObject {
 class OpOperator:SardObject {
 }
 
-class SoDeclare: SoNamedObject{
-private:
-  SrdDefines _defines;
-  public @property SrdDefines defines(){ return _defines; }
-
- protected:
-    override void prepare(){
-      _objectType = ObjectType.otClass;
-    }
-
-public:
-  //ExecuteObject will execute in a context of statement if it is not null,
-  SoNamedObject executeObject;//You create it but Declare will free it
-  //ExecuteObject will execute by call, when called from outside,
-  SoNamedObject callObject;//You create it but Declare will free it
-  string resultType;
-
-  //This outside execute it will force to execute the section
-  void call(RunStack vStack, OpOperator aOperator, SrdBlock aParameters, ref bool done){
-    done = callObject.execute(vStack, aOperator, defines, aParameters);
-  }
-
-}

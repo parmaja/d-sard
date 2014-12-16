@@ -65,6 +65,7 @@ module sard.objects;
     return -> ret
 */
 
+import std.conv;
 import std.uni;
 import sard.classes;
 
@@ -75,8 +76,9 @@ const int iSardVersion = 1;
 
 alias long integer;
 alias double number;
+alias string text;
 
-enum ObjectType {otUnkown, otInteger, otFloat, otBoolean, otString, otComment, otBlock, otObject, otClass, otVariable};
+enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otObject, otClass, otVariable};
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
 enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
@@ -267,7 +269,7 @@ abstract class SoObject: SardObject {
       return false;
     }
 
-    bool toString(out string outValue){
+    bool toText(out text outValue){
       return false;
     }
 
@@ -280,9 +282,9 @@ abstract class SoObject: SardObject {
     }
 
   protected:
-    @property final string asString(){
+    @property final text asText(){
       string o;
-      if (toString(o))
+      if (toText(o))
         return o;
       else
         return "";
@@ -352,7 +354,7 @@ abstract class SoObject: SardObject {
         if AOperator <> nil then
           s := s +'{'+ AOperator.Name+'}';
         if vStack.Return.Current.Result.anObject <> nil then
-          s := s + ' Value: '+ vStack.Return.Current.Result.anObject.AsString;
+          s := s + ' Value: '+ vStack.Return.Current.Result.anObject.asText;
         WriteLn(s);
       }*/
       return result; 
@@ -695,20 +697,308 @@ class SoDeclare: SoNamedObject{
 /**-------- Const Objects --------**/
 /**-------------------------------**/
 
-/** TsrdNone **/
+/** SoNone **/
 
 class SoNone: SoConstObject{ //None it is not Null, it is an initial value we sart it
   //Do operator
   //Convert to 0 or ''
 }
 
-abstract class SoNumber: SoConstObject{ //base class
+/** SoComment **/
 
+class SoComment: SoObject{
+protected:
+  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+    //Guess what!, we will not to execute the comment ;)
+    done = true;
+  }
+
+  void created(){
+    super.created();
+    objectType = ObjectType.otComment;
+  }
+public:
+  string value;
 }
 
-class SoInteger: SoNumber {
-  
+/** SoPreprocessor **/
+/*
+class SoPreprocessor: SoObject{
+protected:
+  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+    //TODO execute external programm and replace it with 
+    done = true;
+  }
+
+  void created(){
+    super.created();
+    objectType = ObjectType.otComment;
+  }
+public:
+  string value;
 }
+*/
+
+abstract class SoBaseNumber: SoConstObject{ //base class for Number and Integer
+}
+
+/** SoInteger **/
+
+class SoInteger: SoBaseNumber {
+protected:
+  override void created(){
+    super.created();
+    objectType = ObjectType.otInteger;
+  }
+public:
+  integer value;
+
+  this(integer aValue){
+    value = aValue;
+  }
+
+  override void assign(SoObject fromObject){      
+    value = fromObject.asInteger;      
+  }    
+
+  override bool operate(SoObject aObject, OpOperator aOperator){
+
+    switch(aOperator.name){
+      case "+": 
+        value = value + aObject.asInteger;
+        return true;
+      case "-": 
+        value = value - aObject.asInteger;
+        return true;
+      case "*": 
+        value = value * aObject.asInteger;
+        return true;
+      case "/": 
+        value = value % aObject.asInteger;
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  override bool toText(out string outValue){
+    outValue = to!text(value);
+    return true;
+  }
+
+  override bool toNumber(out number outValue){
+    outValue = to!number(value);
+    return true;
+  }
+
+  override bool toInteger(out integer outValue){
+    outValue = value;
+    return true;
+  }
+
+  override bool toBool(out bool outValue){
+    outValue = value != 0;
+    return true;
+  }
+}
+
+/** SoNumber **/
+
+class SoNumber: SoBaseNumber {
+protected:
+  override void created(){
+    super.created();
+    objectType = ObjectType.otNumber;
+  }
+public:
+  number value;
+
+  this(number aValue){
+    value = aValue;
+  }
+
+  override void assign(SoObject fromObject){      
+    value = fromObject.asNumber;      
+  }    
+
+  override bool operate(SoObject aObject, OpOperator aOperator){
+
+    switch(aOperator.name){
+      case "+": 
+        value = value + aObject.asNumber;
+        return true;
+      case "-": 
+        value = value - aObject.asNumber;
+        return true;
+      case "*": 
+        value = value * aObject.asNumber;
+        return true;
+      case "/": 
+        value = value / aObject.asNumber;
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  override bool toText(out string outValue){
+    outValue = to!text(value);
+    return true;
+  }
+
+  override bool toNumber(out number outValue){
+    outValue = value;
+    return true;
+  }
+
+  override bool toInteger(out integer outValue){
+    outValue = to!integer(value);
+    return true;
+  }
+
+  override bool toBool(out bool outValue){
+    outValue = value != 0;
+    return true;
+  }
+}
+/** SoBool **/
+
+class SoBool: SoBaseNumber {
+protected:
+  override void created(){
+    super.created();
+    objectType = ObjectType.otBoolean;
+  }
+public:
+  bool value;
+
+  this(bool aValue){
+    value = aValue;
+  }
+
+  override void assign(SoObject fromObject){      
+    value = fromObject.asBool;
+  }    
+
+  override bool operate(SoObject aObject, OpOperator aOperator){
+
+    switch(aOperator.name){
+      case "+": 
+        value = value && aObject.asBool;
+        return true;
+      case "-": 
+        value = value != aObject.asBool; //xor //LOL
+        return true; 
+      case "*": 
+        value = value || aObject.asBool;
+        return true;
+      /*case "/": 
+        value = value  aObject.asBool;
+        return true;*/
+      default:
+        return false;
+    }
+  }
+
+  override bool toText(out string outValue){
+    outValue = to!text(value);
+    return true;
+  }
+
+  override bool toNumber(out number outValue){
+    outValue = value;
+    return true;
+  }
+
+  override bool toInteger(out integer outValue){
+    outValue = to!integer(value);
+    return true;
+  }
+
+  override bool toBool(out bool outValue){
+    outValue = value != 0;
+    return true;
+  }
+}
+
+/** SoText **/
+
+class SoText: SoConstObject {
+protected:
+  override void created(){
+    super.created();
+    objectType = ObjectType.otText;
+  }
+public:
+  text value;
+
+  this(text aValue){
+    value = aValue;
+  }
+
+  override void assign(SoObject fromObject){      
+    value = fromObject.asText;
+  }    
+
+  override bool operate(SoObject aObject, OpOperator aOperator){
+
+    switch(aOperator.name){
+      case "+": 
+        value = value ~ aObject.asText;
+        return true;
+
+      case "-": 
+        if (cast(SoBaseNumber)aObject !is null) {
+          int c = value.length;
+          c =c - to!int((cast(SoBaseNumber)aObject).asInteger);
+          value = value[0..c];
+          return true;
+        }
+        else
+          return false;
+
+      case "*":  //stupid idea ^.^ 
+        if (cast(SoBaseNumber)aObject !is null) {
+          value = stringRepeat(value, to!int((cast(SoBaseNumber)aObject).asInteger));
+          return true;
+        }
+        else
+          return false;
+/*      case "/": 
+        value = value / aObject.asText; Hmmmmm
+        return true;*/
+      default:
+        return false;
+    }
+  }
+
+  override bool toText(out text outValue){
+    outValue = value;
+    return true;
+  }
+
+  override bool toNumber(out number outValue){
+    outValue = to!number(value);
+    return true;
+  }
+
+  override bool toInteger(out integer outValue){
+    outValue = to!integer(value);
+    return true;
+  }
+
+  override bool toBool(out bool outValue){    
+    outValue = to!bool(value);
+    return true;
+  }
+}
+
+/** TODO: SoArray **/
+
+/*
+class SoArray ....
+
+*/
 
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -815,5 +1105,6 @@ class RunStack: SardObject {
 }
 
 class OpOperator:SardObject {
+  string name;
 }
 

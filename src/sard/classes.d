@@ -269,13 +269,13 @@ class SardScanner: SardObject {
     string collected; //buffer
     SardScanner scanner;
 
-    void prepare(SardLexical lexical) { //todo maybe rename to opCall
+    void set(SardLexical lexical) { //todo maybe rename to opCall
       _lexical = lexical;
     }
 
     this(SardLexical lexical){ 
       super();
-      prepare(lexical); //TODO check it for MetaClass
+      set(lexical); //TODO check it for MetaClass
     }
 
     ~this(){
@@ -365,37 +365,38 @@ class SardLexical: SardObjects!SardScanner{
     SardScanner addScanner(ClassInfo scannerClass) {
       SardScanner scanner;
       //scanner = new typeof(scannerClass);
-      scanner = cast(SardScanner)scannerClass.create(); pragma(msg, "Need to review");
-      scanner.prepare(this);
+      //pragma(msg, "Need to review");
+      scanner = cast(SardScanner)scannerClass.create(); 
+      scanner.set(this);
 
       add(scanner);
       return scanner;
     }
 
     void scanLine(const string text, const int aLine) {
-        int _line = aLine;
-        int column = 1; //start of pascal string is 1
-        int l = text.length;
-        if (scanner is null)
-          detectScanner(text, column);
-        while (column <= l)
-        {
-          int oldColumn = column;
-          SardScanner oldScanner = _scanner;
-          try {
-            if (scanner.Scan(text, column))
-              detectScanner(text, column);
+      int _line = aLine;
+      int column = 1; //start of pascal string is 1
+      int l = text.length;
+      if (scanner is null)
+        detectScanner(text, column);
+      while (column <= l)
+      {
+        int oldColumn = column;
+        SardScanner oldScanner = _scanner;
+        try {
+          if (scanner.Scan(text, column))
+            detectScanner(text, column);
 
-            if ((oldColumn == column) && (oldScanner == _scanner))
-              raiseError("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
-          }
-          catch {
-            /*on E: EsardException do
-            {
-              raise EsardParserException.Create(E.Message, Column, Line);
-            }*/
-          }
+          if ((oldColumn == column) && (oldScanner == _scanner))
+            raiseError("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
         }
+        catch {
+          /*on E: EsardException do
+          {
+            raise EsardParserException.Create(E.Message, Column, Line);
+          }*/
+        }
+      }
     }
 };
 

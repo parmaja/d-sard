@@ -67,6 +67,7 @@ module sard.objects;
 
 import std.conv;
 import std.uni;
+import std.datetime;
 import sard.classes;
 
 import minilib.sets;
@@ -525,6 +526,10 @@ class SoSection: SoBlock { //Result was droped until using := assign in the firs
     this(){
       super();
       _declares = new SrdDeclares();
+    }
+
+    override int addDeclare(SoNamedObject executeObject, SoNamedObject callObject){
+      return super.addDeclare(executeObject, callObject);
     }
 
     override int addDeclare(SoDeclare vDeclare){
@@ -1395,14 +1400,66 @@ class RunReturn: SardStack!RunReturnItem {
 }
 
 class RunStack: SardObject {
-  public:
-    RunReturn ret;//todo make it property
+  private:
+    RunLocal _local;
+    RunShadow _shadow;
+    RunReturn _ret;
   public:  
-    RunLocal local;
-    /*RunShadow TouchMe(SoObject aObject) {
+    @property SrdEnvironment env() {return _env ;};
+    @property RunLocal local() {return _local;};
+    @property RunShadow shadow() {return _shadow ;};
+    @property RunReturn ret() {return _ret ;};
+
+  public:
+    SrdEnvironment _env; //TODO maybe struct not a class
+/*
+    RunShadow TouchMe(SoObject aObject) {
     }*/
+
+    this(){
+      super();
+      _local = new RunLocal();
+      _ret = new RunReturn();
+      _shadow = new RunShadow(null);
+
+      local.insert();
+      ret.insert();
+    }
+
+    ~this(){      
+      ret.pop();
+      local.pop();
+    }
 }
 
+class SoVersion_Const:SoNamedObject{
+protected:
+  override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+    vStack.ret.current.result.object = new SoText(sSardVersion);
+  }
+}
+
+class SoTime_Const: SoNamedObject{
+protected:
+  override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
+    vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
+  }
+}
+
+class SoMain: SoSection{
+  protected:
+    SoVersion_Const versionConst;
+  public:
+    this(){
+      versionConst = new SoVersion_Const();
+      versionConst.parent = this;
+      versionConst.name = "Version";
+      addDeclare(null, versionConst);
+    }
+}
+
+class SrdEngine: SardObject{  
+}
 
 //--------------------------------------
 //--------------  TODO  ----------------

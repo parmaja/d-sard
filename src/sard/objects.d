@@ -70,6 +70,7 @@ import std.uni;
 import sard.classes;
 
 import minilib.sets;
+import minilib.metaclasses;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
@@ -996,10 +997,235 @@ public:
 
 /** TODO: SoArray **/
 
-/*
-class SoArray ....
+/*TODO
+  class SoArray ....
 
 */
+
+
+/**---------------------------**/
+/**-------- Controls  --------**/
+/**---------------------------**/
+/**
+  This will used in the scanner
+*/
+
+//TODO maybe struct not a class
+class CtlControl: SardObject{
+  string name;
+  SardControl code;
+  int level;
+  string description;
+
+  this(){
+    super();
+  }
+
+  this(string aName, SardControl aCode){
+    this();
+    name = aName;
+    code = aCode;
+  }
+}
+
+alias ClassInfo ControlClass;//TODO maybe remove it idk
+
+/*****************/
+/** CtlControls **/
+/*****************/
+
+class CtlControls: SardNamedObjects!CtlControl{
+  CtlControl addCtl(string aName, SardControl aCode){
+    CtlControl c = new CtlControl(aName, aCode);    
+    add(c);
+    return c;
+  }
+
+  CtlControl scan(string text, int index){
+    int max = 0;
+    int i = 0;
+    while (i < count -1) {
+      if (scanCompare(this[i].name, text, index)) {
+        if (max < this[i].name.length) {
+          max = this[i].name.length;
+          return this[i];
+        }
+      }
+    }
+    return null;
+  }
+
+  bool isOpenBy(const char c){
+    int i = 0;
+    while (i < count){      
+      if (this[i].name[1] == toLower(c))
+        return true;          
+    }
+    return false;
+  }
+}
+
+class OpOperator: SardObject{
+  public:
+    string name;
+    string title;
+    int level;
+    string description;
+    SardControl control;// Fall back to control if is initial, only used for for = to fall back as := //TODO remove it :(
+  protected: 
+    bool doExecute(RunStack vStack, SoObject vObject){  //TODO maybe abstract function
+      return false;
+    }
+  public:
+    final bool execute(RunStack vStack, SoObject vObject){
+      return doExecute(vStack, vObject);
+    }
+}
+
+class OpOperators: SardNamedObjects!OpOperator{
+  public:
+    OpOperator findByTitle(string title){
+      int i = 0;
+      while (i<count){
+        if (icmp(title, this[i].title) == 0) {
+          return this[i];
+        }
+        i++;
+      }
+      return null;
+    }
+
+  int addOp(OpOperator operator){
+    return super.add(operator);
+  }
+
+  bool IsOpenBy(const char c){
+    int i = 0;
+    while (i<count){
+      if (this[i].name[0] == toLower(c)) {
+        return true;
+      }
+      i++;
+    }
+    return false;
+  }    
+
+  OpOperator scan(string text, int index){
+    OpOperator operator = null;
+    int max = 0;
+    int i = 0;
+    while (i<count){
+      if (scanCompare(this[i].name, text, index)) {
+        if (max < this[i].name.length) {
+          max = this[i].name.length;
+          operator = this[i];
+        }
+      }
+      i++;
+    }
+    return operator;
+  }    
+}
+
+class OpPlus: OpOperator{
+  this(){
+    name = "+";
+    title = "Plus";
+    level = 50;
+    description = "Add object to another object";
+  }
+}
+
+class OpMinus: OpOperator{
+  this(){
+    name = "-";
+    title = "Minus";
+    level = 50;
+    description = "Sub object to another object";
+  }
+}
+
+class OpMultiply: OpOperator{
+  this(){
+    name = "*";
+    title = "Multiply";
+    level = 51;
+    description = "";
+  }
+}
+
+class OpDivide: OpOperator{
+  this(){
+    name = "/";
+    title = "Divition";
+    level = 51;
+    description = "";
+  }
+}
+
+class OpPower: OpOperator{
+  this(){
+    name = "^";
+    title = "Power";
+    level = 52;
+    description = "";
+  }
+}
+
+class OpLesser: OpOperator{
+  this(){
+    name = "<";
+    title = "Lesser";
+    level = 51;
+    description = "";
+  }
+}
+
+class OpGreater: OpOperator{
+  this(){
+    name = ">";
+    title = "Greater";
+    level = 51;
+    description = "";
+  }
+}
+
+class OpEqual: OpOperator{
+  this(){
+    name = ":=";
+    title = "Equal";
+    level = 51;
+    description = "";
+    //control = ctlAssign; bad idea
+  }
+}
+
+class OpNot: OpOperator{
+  this(){
+    name = "!";
+    title = "Not";
+    level = 51;
+    description = "";
+  }
+}
+
+class OpAnd: OpOperator{
+  this(){
+    name = "&";
+    title = "And";
+    level = 51;
+    description = "";
+  }
+}
+
+class OpOr: OpOperator{
+  this(){
+    name = "|";
+    title = "Or";
+    level = 51;
+    description = "";
+  }
+}
 
 //--------------------------------------
 //--------------  TODO  ----------------
@@ -1104,8 +1330,3 @@ class RunStack: SardObject {
     /*RunShadow TouchMe(SoObject aObject) {
     }*/
 }
-
-class OpOperator:SardObject {
-  string name;
-}
-

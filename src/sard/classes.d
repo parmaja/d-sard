@@ -1,18 +1,17 @@
 module sard.classes;
+/**
+*  This file is part of the "SARD"
+*
+* @license   The MIT License (MIT)
+*            Included in this distribution
+* @author    Zaher Dirkey <zaher at parmaja dot com>
+*/
 
 import std.string;
 import std.uni;
 import std.array;
 import std.range;
 import minilib.metaclasses;
-
-/**
-  This file is part of the "SARD"
-
-  @license   The MIT License (MIT) Included in this distribution
-  @author    Zaher Dirkey <zaher at parmaja dot com>
-
-*/
 
 class SardException : Exception {
   private uint _code;

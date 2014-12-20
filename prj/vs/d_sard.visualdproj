@@ -50,7 +50,7 @@
   <compiler>0</compiler>
   <otherDMD>0</otherDMD>
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
-  <imppath>../../../</imppath>
+  <imppath />
   <fileImppath />
   <outdir>$(ConfigurationName)</outdir>
   <objdir>$(OutDir)</objdir>
@@ -198,6 +198,7 @@
  </Config>
  <Folder name="d_sard">
   <Folder name="minilib">
+   <File path="..\..\..\minilib\metaclasses.d" />
    <File path="..\..\..\minilib\package.d" />
    <File path="..\..\..\minilib\sets.d" />
   </Folder>

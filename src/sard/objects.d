@@ -1069,7 +1069,7 @@ class OpOperator: SardObject{
   public:
     string name;
     string title;
-    int level;
+    int level;//TODO it is bad idea, we need more intelligent way to define power of operators
     string description;
     SardControl control;// Fall back to control if is initial, only used for for = to fall back as := //TODO remove it :(
   protected: 
@@ -1227,6 +1227,66 @@ class OpOr: OpOperator{
   }
 }
 
+class RunShadow: SardNamedObjects!RunShadow{
+public:
+  string name;
+private:
+    SoObject _link;
+    public @property SoObject link() {return _link;}
+    public @property SoObject link(SoObject value) {
+      if (_link != value){
+        _link = value;        
+      }
+      return _link;
+    }
+    RunShadow _parent;
+    public @property RunShadow parent() {return _parent;}
+
+public:
+    this(RunShadow parent){
+      super();
+      _parent = parent;
+    }
+}
+
+class RunVariable: SardObject{
+  public:
+    string name;
+    RunVarKinds kind;
+private:
+
+    RunResult _value;
+    public @property RunResult value() { return _value; }
+    public @property RunResult value(RunResult newValue) { 
+      if (_value !is newValue){
+        //destory(_value);//TODO hmmm we must leave it to GC
+        _value =  newValue;
+      }
+      return _value; 
+    }
+}
+
+class RunVariables: SardNamedObjects!RunVariable{
+
+  RunVariable register(string vName, RunVarKinds vKind){
+    RunVariable result = find(vName);
+    if (result is null){      
+      result = new RunVariable();
+      result.name = vName;
+      result.kind = vKind;
+      add(result);
+    }
+    return result;
+  }
+
+  RunVariable setValue(string vName, SoObject newValue){
+    RunVariable v = find(vName);
+    if (v !is null)
+      v.value.object = newValue;
+    return v;
+  }
+}
+
 //--------------------------------------
 //--------------  TODO  ----------------
 //--------------------------------------
@@ -1286,30 +1346,6 @@ class RunReturn: SardStack!RunReturnItem {
 }
 
 class SrdDebugInfo: SardObject {
-}
-
-class RunVariable: SardNamedObject {
-  RunVarKinds kind;
-  RunResult value;
-}
-
-class RunVariables: SardNamedObjects!RunVariable{
-
-  RunVariable register(string vName, RunVarKinds vKind){
-    RunVariable result = find(vName);
-    if (result is null){      
-      result = new RunVariable();
-      result.name = vName;
-      result.kind = vKind;
-      add(result);
-    }
-    return result;
-  }
-
-  RunVariable setValue(string vName, SoObject vValue){
-    return null;//////////////////
-  }
-
 }
 
 class RunLocalItem: SardObject{

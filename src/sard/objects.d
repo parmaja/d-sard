@@ -499,6 +499,7 @@ abstract class SoBlock: SoNamedObject{
 }
 
 //Just a references not free inside objects, not sure how to do that in D
+
 class SrdDeclares: SardNamedObjects!SoDeclare {
 }
 

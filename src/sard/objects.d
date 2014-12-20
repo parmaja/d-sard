@@ -523,6 +523,7 @@ class SoSection: SoBlock { //Result was droped until using := assign in the firs
 
   public:
     this(){
+      super();
       _declares = new SrdDeclares();
     }
 
@@ -690,6 +691,7 @@ class SoDeclare: SoNamedObject{
     }
 
     this(){
+      super();
       _defines = new SrdDefines();
     }    
 }
@@ -1129,6 +1131,7 @@ class OpOperators: SardNamedObjects!OpOperator{
 
 class OpPlus: OpOperator{
   this(){
+    super();
     name = "+";
     title = "Plus";
     level = 50;
@@ -1138,6 +1141,7 @@ class OpPlus: OpOperator{
 
 class OpMinus: OpOperator{
   this(){
+    super();
     name = "-";
     title = "Minus";
     level = 50;
@@ -1147,6 +1151,7 @@ class OpMinus: OpOperator{
 
 class OpMultiply: OpOperator{
   this(){
+    super();
     name = "*";
     title = "Multiply";
     level = 51;
@@ -1156,6 +1161,7 @@ class OpMultiply: OpOperator{
 
 class OpDivide: OpOperator{
   this(){
+    super();
     name = "/";
     title = "Divition";
     level = 51;
@@ -1165,6 +1171,7 @@ class OpDivide: OpOperator{
 
 class OpPower: OpOperator{
   this(){
+    super();
     name = "^";
     title = "Power";
     level = 52;
@@ -1174,6 +1181,7 @@ class OpPower: OpOperator{
 
 class OpLesser: OpOperator{
   this(){
+    super();
     name = "<";
     title = "Lesser";
     level = 51;
@@ -1183,6 +1191,7 @@ class OpLesser: OpOperator{
 
 class OpGreater: OpOperator{
   this(){
+    super();
     name = ">";
     title = "Greater";
     level = 51;
@@ -1192,6 +1201,7 @@ class OpGreater: OpOperator{
 
 class OpEqual: OpOperator{
   this(){
+    super();
     name = ":=";
     title = "Equal";
     level = 51;
@@ -1200,8 +1210,19 @@ class OpEqual: OpOperator{
   }
 }
 
+class OpNotEqual: OpOperator{
+  this(){
+    super();
+    name = "<>";
+    title = "NotEqual";
+    level = 51;
+    description = "";    
+  }
+}
+
 class OpNot: OpOperator{
   this(){
+    super();
     name = "!";
     title = "Not";
     level = 51;
@@ -1211,6 +1232,7 @@ class OpNot: OpOperator{
 
 class OpAnd: OpOperator{
   this(){
+    super();
     name = "&";
     title = "And";
     level = 51;
@@ -1220,6 +1242,7 @@ class OpAnd: OpOperator{
 
 class OpOr: OpOperator{
   this(){
+    super();
     name = "|";
     title = "Or";
     level = 51;
@@ -1319,18 +1342,27 @@ class RunResult: SardObject{
     }
 }
 
-//--------------------------------------
-//--------------  TODO  ----------------
-//--------------------------------------
+class RunLocalItem: SardObject{
+  public:
+    RunVariables variables;
+    this(){
+      super();
+      variables = new RunVariables();
+    }
+}
 
-
+class RunLocal: SardStack!RunLocalItem {
+  void insert() {
+    push(new RunLocalItem());
+  }
+}
 
 class RunReturnItem: SardObject{
   public:
     private RunResult _result;
-    private RunResult _reference;
-
     @property RunResult result() { return _result; };
+
+    private RunResult _reference;
     @property RunResult reference() { return _reference; };
     @property RunResult reference(RunResult value) { 
         if (_reference != value) {
@@ -1348,6 +1380,11 @@ class RunReturnItem: SardObject{
       _result = null;
       return r;
     }
+
+    this(){
+      super();
+      _result = new RunResult();
+    }
 }
 
 class RunReturn: SardStack!RunReturnItem {
@@ -1357,19 +1394,6 @@ class RunReturn: SardStack!RunReturnItem {
     }
 }
 
-class SrdDebugInfo: SardObject {
-}
-
-class RunLocalItem: SardObject{
-  RunVariables variables;
-}
-
-class RunLocal: SardStack!RunLocalItem {
-  void insert() {
-    push(new RunLocalItem());
-  }
-}
-
 class RunStack: SardObject {
   public:
     RunReturn ret;//todo make it property
@@ -1377,4 +1401,45 @@ class RunStack: SardObject {
     RunLocal local;
     /*RunShadow TouchMe(SoObject aObject) {
     }*/
+}
+
+
+//--------------------------------------
+//--------------  TODO  ----------------
+//--------------------------------------
+
+
+class SrdEnvironment: SardObject{
+  private:
+  protected:
+    override void created(){
+      with (operators)
+      {
+        add(new OpPlus());
+        add(new OpMinus());
+        add(new OpMultiply());
+        add(new OpDivide());
+
+        add(new OpEqual());
+        add(new OpNotEqual());
+        add(new OpAnd());
+        add(new OpOr());
+        add(new OpNot());
+
+        add(new OpGreater());
+        add(new OpLesser());
+
+        add(new OpPower());
+      } 
+    }
+
+  public:
+    OpOperators operators;
+    this(){
+      super();
+      operators = new OpOperators();
+    }    
+}
+
+class SrdDebugInfo: SardObject {
 }

@@ -1287,31 +1287,43 @@ class RunVariables: SardNamedObjects!RunVariable{
   }
 }
 
-//--------------------------------------
-//--------------  TODO  ----------------
-//--------------------------------------
-
 class RunResult: SardObject{
   private:
     SoObject _object;
   public:
     @property SoObject object() { return _object; };
     @property SoObject object(SoObject value) { 
-      if (_object != value){
+      if (_object !is value){
         if (_object !is null) {
         }
-       _object = value;
+        _object = value;
       }
       return _object; 
     };
+  
+    @property bool hasValue(){
+      return object !is null;
+    }
 
-  public
+    void assign(RunResult fromResult){
+      if (fromResult.object is null)
+        object = null;
+      else
+        object = fromResult.object.clone();
+    }
+
     SoObject extract(){
       SoObject o = _object;
       _object = null;
       return o;
     }
 }
+
+//--------------------------------------
+//--------------  TODO  ----------------
+//--------------------------------------
+
+
 
 class RunReturnItem: SardObject{
   public:

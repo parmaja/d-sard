@@ -199,7 +199,7 @@ class SrdInstruction: SardObject
       return result;
     }
     
-    SoInstance SetInstance(string aIdentifier){
+    SoInstance setInstance(string aIdentifier){
         if (identifier == "")
         raiseError("Identifier is already set");
       SoInstance result = new SoInstance();
@@ -209,4 +209,48 @@ class SrdInstruction: SardObject
       return result;
     }
 
+	SoInstance setInstance(){
+	  if (identifier == "")
+		raiseError("Identifier is not set");
+	  SoInstance result = setInstance(identifier);
+	  identifier = "";	  
+	  return result;
+	}
+
+	SoStatement setStatment()//Statement object not srdStatement
+	{
+	  if (identifier != "")
+		raiseError("Identifier is already set");
+	  SoStatement result = new SoStatement();
+	  internalSetObject(result);
+	  setFlag(Flag.Statement);
+	  return result;
+	}
+	
+	SoAssign SetAssign(){
+    //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
+    SoAssign result = new SoAssign();
+    result.name = identifier;    
+    internalSetObject(result);
+    identifier = "";
+    setFlag(Flag.Assign);	
+    return result;
+	}
+	
+  SoDeclare SetDeclare(){
+    if (identifier == "")
+      raiseError("identifier is not set");
+    SoDeclare result = new SoDeclare();
+    result.name = identifier;    
+    internalSetObject(result);
+    identifier = "";
+    setFlag(Flag.Declare);
+    return result;
+  }
+  
+  void setObject(SoObject aObject){
+    if (identifier != "")
+      raiseError("Identifier is already set");
+    internalSetObject(aObject);  
+  }
 }

@@ -292,7 +292,7 @@ class SrdInterpreter: SardObject{
     void internalPost(){  //virtual
     }
 
-    ClassInfo GetControllerInfo(){
+    ClassInfo getControllerInfo(){
       return SrdControllerNormal.classinfo;
     }
 
@@ -458,6 +458,68 @@ class SrdInterpreterDeclare: SrdInterpreterStatement{
     }
 }
 
+class SrdInterpreterDefine: SrdInterpreter{
+  private:
+    enum State {Name, Type};
+  protected:
+    State state;
+    bool param;
+    SoDeclare declare;
+
+    this(SrdParser aParser){ //TODO BUG why i need to copy it?!
+      super(aParser);    
+    }
+
+    this(SrdParser aParser, SoDeclare aDeclare){
+      this(aParser);
+      declare = aDeclare;
+    }
+    
+    override void internalPost(){
+      if (instruction.identifier == "")
+        raiseError("Identifier not set"); //TODO maybe check if he post const or another things
+      if (param){
+        if (state == State.Name)
+          declare.defines.add(instruction.identifier, "");
+        else {
+          if (declare.defines.last.result != "") 
+            raiseError("Result type already set");
+          declare.defines.last.result = instruction.identifier;
+        }        
+      }
+      else 
+        declare.resultType = instruction.identifier;            
+    }
+
+    override ClassInfo getControllerInfo(){
+      return SrdControllerDefines.classinfo;
+    }
+  public:
+    override void reset(){
+      state = State.Name;
+      super.reset();
+    }
+
+    bool isInitial(){
+      return true;
+    }
+
+    override void control(SardControl aControl){
+      /*
+        x:int  (p1:int; p2:string);
+         ^typd (------Params-----)^
+         Declare  ^Declare
+         We end with ; or : or )
+      */
+      with(parser){
+        switch(aControl){
+          default:;
+        }
+      }
+      
+    }
+}
+
 /******************************/
 /********  TODO   *************/
 /******************************/
@@ -470,4 +532,7 @@ class SrdParser:SardObject{
 }
 
 class SrdControllerNormal{
+}
+
+class SrdControllerDefines{
 }

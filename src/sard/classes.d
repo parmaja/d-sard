@@ -80,7 +80,7 @@ class SardObjects(T: SardObject): SardObject {
       return _items.length;
     }
 
-    T last(){
+    @property T last(){
       if (_items.length == 0)
         return null;
       else

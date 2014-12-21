@@ -49,6 +49,7 @@ module sard.scanners;
 
 import std.conv;
 import std.array;
+import std.string;
 import std.algorithm;
 import std.uni;
 import std.datetime;
@@ -94,7 +95,7 @@ protected:
 class SrdInstruction: SardObject
 {
   protected:
-    void InternalSetObject(SoObject aObject)
+    void internalSetObject(SoObject aObject)
     {
       if ((object !is null) && (aObject !is null))
         raiseError("Object is already set");
@@ -142,5 +143,47 @@ class SrdInstruction: SardObject
 
     bool isEmpty(){
       return !((identifier != "") || (object !is null) || (operator !is null));
+    }
+
+    void setFlag(Flag aFlag){
+      flag = aFlag;
+    }
+
+    void setOperator(OpOperator aOperator){
+      if (operator !is null)
+        raiseError("Operator is already set");
+      operator = aOperator;
+    }
+
+    void setIdentifier(string aIdentifier){
+      if (identifier != "")
+        raiseError("Identifier is already set");
+      identifier = aIdentifier;
+      setFlag(Flag.Identifier);
+    }
+
+    SoBaseNumber setNumber(string aIdentifier){
+      if (identifier != "")
+        raiseError("Identifier is already set");
+      //TODO need to check anObject too
+      SoBaseNumber result;
+      if ((aIdentifier.indexOf(".") > 0) || ((aIdentifier.indexOf("E") > 0)))
+        result = new SoNumber(to!float(aIdentifier));
+      else
+        result = new SoInteger(to!int(aIdentifier));
+      internalSetObject(result);
+      setFlag(Flag.Const);
+      return result;
+    }
+
+    SoText setText(string aIdentifier){
+      if (identifier != "")
+        raiseError("Identifier is already set");
+      //TODO need to check anObject too
+      SoText result = new SoText(aIdentifier);
+      //result.value = AIdentifier;
+      internalSetObject(result);
+      setFlag(Flag.Const);
+      return result;
     }
 }

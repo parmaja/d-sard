@@ -86,8 +86,8 @@ protected:
   alias Set!Flag Flags;
 
   enum Action {
-        paPopInterpreter, //Pop the current interpreter
-        paBypass  //resend the control char to the next interpreter
+    PopInterpreter, //Pop the current interpreter
+    Bypass  //resend the control char to the next interpreter
   }
 
   alias Set!Action Actions;
@@ -373,6 +373,88 @@ class SrdInterpreter: SardObject{
 
     void control(SardControl aControl){
       controller.control(aControl);
+    }
+}
+
+class SrdInterpreterStatement: SrdInterpreter{
+  protected:
+    SrdStatement statement;
+
+    override void internalPost(){
+      super.internalPost();
+      statement.add(instruction.operator, instruction.object);
+    }
+  public:
+
+    this(SrdParser aParser){
+      super(aParser);
+    }
+
+    this(SrdParser aParser, SrdStatement aStatement){
+      super(aParser);
+      statement = aStatement;
+    }
+
+    override void next(){
+      super.next();
+      statement = null;
+    }
+
+    override void prepare(){
+      super.prepare();
+      if (instruction.identifier != "") {        
+        if (instruction.object !is null)
+          raiseError("Object is already set!");
+        instruction.setInstance();
+      }
+
+      bool isInitial(){
+        return (statement is null) || (statement.count == 0);
+      }
+    }
+}
+
+
+
+class SrdInterpreterBlock: SrdInterpreterStatement{
+protected:
+  SrdBlock block;
+
+public:
+
+  this(SrdParser aParser, SrdBlock aBlock){
+    super(aParser);
+    block = aBlock;
+  }
+
+  override void prepare(){
+    super.prepare();
+    if (statement is null) {        
+      if (block is null)
+        raiseError("Maybe you need to set a block, or it single statment block");
+      statement = block.add();
+    }
+  }
+}
+
+class SrdInterpreterDeclare: SrdInterpreterStatement{
+  protected:
+
+  public:
+
+    this(SrdParser aParser){
+      super(aParser);    
+    }
+
+    override void control(SardControl aControl){
+      switch (aControl){
+        case SardControl.End, SardControl.Next:          
+            post();
+            action(Actions([Action.PopInterpreter, Action.Bypass]));
+            break;
+        default:
+          super.control(aControl);
+      }
     }
 }
 

@@ -109,20 +109,20 @@ class SardNamedObjects(T: SardObject): SardObjects!T{
 }
 
 enum SardControl {
-  ctlNone,
-  ctlStart, //Start parsing
-  ctlStop, //Start parsing
-  ctlDeclare, //Declare a class of object
-  ctlAssign, //Assign to object/variable used as :=
-  //ctlLet, //Same as assign in the initial but is equal operator if not in initial statement used to be =
-  ctlNext, //End Params, Comma
-  ctlEnd, //End Statement Semicolon
-  ctlOpenBlock, // {
-  ctlCloseBlock, // }
-  ctlOpenParams, // (
-  ctlCloseParams, // )
-  ctlOpenArray, // [
-  ctlCloseArray // ]
+  None,
+  Start, //Start parsing
+  Stop, //Start parsing
+  Declare, //Declare a class of object
+  Assign, //Assign to object/variable used as :=
+  //Let, //Same as assign in the initial but is equal operator if not in initial statement used to be =
+  Next, //End Params, Comma
+  End, //End Statement Semicolon
+  OpenBlock, // {
+  CloseBlock, // }
+  OpenParams, // (
+  CloseParams, // )
+  OpenArray, // [
+  CloseArray // ]
 }
 
 class SardStack(T): SardObject {

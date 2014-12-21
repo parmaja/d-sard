@@ -186,4 +186,27 @@ class SrdInstruction: SardObject
       setFlag(Flag.Const);
       return result;
     }
+
+    SoComment setComment(string aIdentifier){
+      //We need to check if it the first expr in the statment
+      if (identifier != "")
+        raiseError("Identifier is already set");
+      //TODO need to check anObject too
+      SoComment result = new SoComment();
+      result.value = aIdentifier;
+      internalSetObject(result);
+      setFlag(Flag.Comment);
+      return result;
+    }
+    
+    SoInstance SetInstance(string aIdentifier){
+        if (identifier == "")
+        raiseError("Identifier is already set");
+      SoInstance result = new SoInstance();
+      result.name = aIdentifier;
+      internalSetObject(result);
+      setFlag(Flag.Instance);
+      return result;
+    }
+
 }

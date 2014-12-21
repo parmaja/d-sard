@@ -141,7 +141,7 @@ class SrdInstruction: SardObject
       return r;
     }
 
-    bool isEmpty(){
+    @property bool isEmpty(){
       return !((identifier != "") || (object !is null) || (operator !is null));
     }
 
@@ -252,5 +252,140 @@ class SrdInstruction: SardObject
     if (identifier != "")
       raiseError("Identifier is already set");
     internalSetObject(aObject);  
+  }  
+}
+
+class SrdController: SardObject{
+  protected:
+    SrdParser parser;
+  public:
+    this(SrdParser aParser){
+      parser = aParser;
+    }
+
+    abstract void control(SardControl aControl);    
+}
+
+class SrdControllers: SardObjects!SrdController{
+
+  SrdController findClass(const ClassInfo controllerClass) {
+    int i = 0;
+    while (i < count) {
+      if (this[i].classinfo == controllerClass) {
+        return this[i];
+      }
+      i++;
+    }
+    return null;
   }
+}
+
+class SrdInterpreter: SardObject{
+  private:
+    Flags _flags;
+  protected:
+    SrdInstruction instruction;
+    SrdController controller;
+
+    SrdParser parser;
+
+    void internalPost(){  //virtual
+    }
+
+    ClassInfo GetControllerInfo(){
+      return SrdControllerNormal.classinfo;
+    }
+
+  public:
+
+    this(SrdParser aParser){
+      super();
+      parser = aParser;
+    }
+
+    void setFlag(Flag aFlag){
+      _flags = _flags + aFlag;
+    }
+
+    //Push to the Parser immediately
+    void push(SrdInterpreter aItem){
+      parser.push(aItem);
+    }
+
+    //No pop, but when finish Parser will pop it
+    void action(Actions aActions = [], SrdInterpreter aNextInterpreter = null){
+      parser.actions = aActions;
+      parser.nextInterpreter = aNextInterpreter;
+    }
+
+    void reset(){      
+      instruction = new SrdInstruction();
+    }
+
+    void prepare(){            
+    }
+
+    void post(){            
+      if (!instruction.isEmpty) {      
+        prepare();
+        internalPost();
+        reset();
+      }
+    }
+
+    void next(){
+      _flags = [];
+    }
+
+    void addIdentifier(string aIdentifier, SrdType aType){
+      switch (aType) {
+        case SrdType.Number: 
+            instruction.setNumber(aIdentifier); 
+            break;
+        case SrdType.String: 
+            instruction.setText(aIdentifier);
+            break;
+        case SrdType.Comment: 
+            instruction.setComment(aIdentifier);
+            break;
+        default:
+           instruction.setIdentifier(aIdentifier);
+      }
+    }
+
+    void addOperator(OpOperator aOperator){
+      post();
+      instruction.setOperator(aOperator);
+    }
+
+    //IsInitial: check if the next object will be the first one, usefule for Assign and Declare
+    bool isInitial(){
+      return false;
+    }
+
+    void switchController(ClassInfo aControllerInfo){
+      if (aControllerInfo is null)
+        raiseError("ControllerClass must have a value!");
+      controller = parser.controllers.findClass(aControllerInfo.classinfo);
+      if (controller is null)
+        raiseError("Can not find this class!");
+    }
+
+    void control(SardControl aControl){
+      controller.control(aControl);
+    }
+}
+
+/******************************/
+/********  TODO   *************/
+/******************************/
+class SrdParser:SardObject{
+  Actions actions;
+  SrdInterpreter nextInterpreter;
+  SrdControllers controllers;
+  void push(SrdInterpreter aItem){
+  }
+}
+
+class SrdControllerNormal{
 }

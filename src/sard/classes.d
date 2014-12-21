@@ -467,7 +467,7 @@ class SardFeeder: SardObject {
     }
 };
 
-enum SrdType {tpNone, tpIdentifier, tpNumber, tpColor, tpString, tpComment }
+enum SrdType {None, Identifier, Number, Color, String, Comment }
 
 class SardParser {
   protected:

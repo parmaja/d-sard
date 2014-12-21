@@ -13,7 +13,7 @@ import std.array;
 import std.range;
 import minilib.metaclasses;
 
-class SardException : Exception {
+class SardException: Exception {
   private uint _code;
 
   @property uint code() { return _code; }
@@ -23,7 +23,7 @@ class SardException : Exception {
     }
 }
 
-class SardParserException : Exception {
+class SardParserException: Exception {
   private int _line;
   private int _column;
 
@@ -114,7 +114,7 @@ enum SardControl {
   ctlStop, //Start parsing
   ctlDeclare, //Declare a class of object
   ctlAssign, //Assign to object/variable used as :=
-  //ctlLet, //Same as assign in the initial but is equal operator if not in initial statment used to be =
+  //ctlLet, //Same as assign in the initial but is equal operator if not in initial statement used to be =
   ctlNext, //End Params, Comma
   ctlEnd, //End Statement Semicolon
   ctlOpenBlock, // {
@@ -407,7 +407,7 @@ class SardFeeder: SardObject {
     string _charset;
     SardLexical _lexical; //TODO: use stack to wrap the code inside <?sard ... ?>,
                           //the current one must detect ?> to stop scanning and pop
-                          //but the other lexcial will throw none code to output provider
+                          //but the other lexical will throw none code to output provider
 
   public:
     @property {
@@ -493,10 +493,6 @@ class SardParser {
     final void setOperator(SardObject aOperator){
       doSetOperator(aOperator);
     }
-};
-
-class SardCustomEngine : SardObject {
-
 };
 
 void raiseError(string error) {

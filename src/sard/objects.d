@@ -1255,8 +1255,8 @@ class OpOr: OpOperator{
     description = "";
   }
 }
-
-class RunShadow: SardNamedObjects!RunShadow{
+/*
+class RunShadows: SardNamedObjects!RunShadow{
 public:
   string name;
 private:
@@ -1277,6 +1277,7 @@ public:
       _parent = parent;
     }
 }
+*/
 
 class RunVariable: SardObject{
   public:
@@ -1403,12 +1404,12 @@ class RunReturn: SardStack!RunReturnItem {
 class RunStack: SardObject {
   private:
     RunLocal _local;
-    RunShadow _shadow;
+    //RunShadow _shadow;
     RunReturn _ret;
   public:  
     @property SrdEnvironment env() {return _env ;};
     @property RunLocal local() {return _local;};
-    @property RunShadow shadow() {return _shadow ;};
+//   @property RunShadow shadow() {return _shadow ;};
     @property RunReturn ret() {return _ret ;};
 
   public:
@@ -1421,7 +1422,7 @@ class RunStack: SardObject {
       super();
       _local = new RunLocal();
       _ret = new RunReturn();
-      _shadow = new RunShadow(null);
+      //_shadow = new RunShadow(null);
 
       local.insert();
       ret.insert();

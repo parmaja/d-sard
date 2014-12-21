@@ -54,7 +54,8 @@ class SardObject: Object {
   }
 }
 
-class SardObjects(T): SardObject {
+//class SardObjects(T): SardObject if(is(T: SardNamedObject)) {
+class SardObjects(T: SardObject): SardObject {
   private:
     T[] _items;
   public
@@ -91,7 +92,7 @@ class SardNamedObject: SardObject{
   string name;
 }
 
-class SardNamedObjects(T): SardObjects!T {//TODO check T is SardNamedObject
+class SardNamedObjects(T: SardObject): SardObjects!T{
 
   public:
     T find(string aName) {

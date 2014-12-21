@@ -48,18 +48,99 @@ module sard.scanners;
 */
 
 import std.conv;
+import std.array;
+import std.algorithm;
 import std.uni;
 import std.datetime;
 import sard.classes;
 import sard.objects;
+import minilib.sets;
 
-const sEOL = ["\0", "\n", "\r"];
+protected: 
+  const sEOL = ["\0", "\n", "\r"];
 
-const sWhitespace = sEOL ~ [" ", "\t"];
-const sNumberOpenChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-const sNumberChars = sNumberOpenChars ~ [".", "x", "h", "a", "b", "c", "d", "e", "f"];
+  const sWhitespace = sEOL ~ [" ", "\t"];
+  const sNumberOpenChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+  const sNumberChars = sNumberOpenChars ~ [".", "x", "h", "a", "b", "c", "d", "e", "f"];
 
-//const sColorOpenChars = ['#',];
-//const sColorChars = sColorOpenChars ~ ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+  //const sColorOpenChars = ['#',];
+  //const sColorChars = sColorOpenChars ~ ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 
-const sIdentifierSeparator = ".";
+  const sIdentifierSeparator = ".";
+
+  enum Flag {
+      None,
+      Instance,
+      Declare,
+      Assign,
+      Identifier,
+      Const,
+      Param,
+      Operator,
+      Comment,
+      Statement,
+      Block
+  }
+
+  alias Set!Flag Flags;
+
+  enum Action {
+        paPopInterpreter, //Pop the current interpreter
+        paBypass  //resend the control char to the next interpreter
+  }
+
+  alias Set!Action Actions;
+
+class SrdInstruction: SardObject
+{
+  protected:
+    void InternalSetObject(SoObject aObject)
+    {
+      if ((object !is null) && (aObject !is null))
+        raiseError("Object is already set");
+      object = aObject;
+    }
+
+  public:
+    Flag flag;
+    string identifier;
+    OpOperator operator;
+    SoObject object;
+
+    //Return true if Identifier is not empty and object is nil
+    bool checkIdentifier(in bool raise = false)
+    {
+      bool r = identifier != "";
+      if (raise && !r)
+        raiseError("Identifier is not set!");
+      r = r && (object is null);
+      if (raise && !r) 
+        raiseError("Object is already set!");
+      return r;
+    }
+
+    //Return true if Object is not nil and Identifier is empty
+    bool checkObject(in bool raise = false)
+    {
+      bool r = object !is null;
+      if (raise && !r)
+        raiseError("Object is not set!");
+      r = r && (identifier == "");
+      if (raise && !r) 
+        raiseError("Identifier is already set!");
+      return r;
+    }
+
+    //Return true if Operator is not nil
+    bool CheckOperator(in bool raise = false)
+    {
+      bool r = operator !is null;
+      if (raise && !r)
+        raiseError("Operator is not set!");
+      return r;
+    }
+
+    bool isEmpty(){
+      return !((identifier != "") || (object !is null) || (operator !is null));
+    }
+}

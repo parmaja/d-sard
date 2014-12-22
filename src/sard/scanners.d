@@ -794,18 +794,17 @@ class SrdLexical: SardLexical{
         add(":", SardControl.Declare);
         add(":=", SardControl.Assign);
       }
-///////////TODO
-      /*addScanner(new SrdWhitespace_Scanner());
-      addScanner(new SrdBlockComment_Scanner());
-      addScanner(new SrdComment_Scanner());
-      addScanner(new SrdLineComment_Scanner());
-      addScanner(new SrdNumber_Scanner());
-      addScanner(new SrdSQString_Scanner());
-      addScanner(new SrdDQString_Scanner());
-      addScanner(new SrdControl_Scanner());
-      addScanner(new SrdOperator_Scanner()); //Register it after comment because comment take /*
-      addScanner(new SrdIdentifier_Scanner());//Last one
-      */
+
+      add(new SrdWhitespace_Scanner());
+      add(new SrdBlockComment_Scanner());
+      add(new SrdComment_Scanner());
+      add(new SrdLineComment_Scanner());
+      add(new SrdNumber_Scanner());
+      add(new SrdSQString_Scanner());
+      add(new SrdDQString_Scanner());
+      add(new SrdControl_Scanner());
+      add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
+      add(new SrdIdentifier_Scanner());//Last one      
     }
 
     public:
@@ -932,31 +931,118 @@ protected:
   }
 }
 
+class SrdLineComment_Scanner: SardScanner
+{
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      while ((column < text.length) && (sEOL.indexOf(text[column]) > 0))
+        column++;
+      return true;
+    }
 
+    override bool accept(const string text, ref int column){
+      return scanText("//", text, column);
+    }
+}
+
+class SrdBlockComment_Scanner: SardScanner
+{
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      while (column < text.length) {      
+        if (scanText("*/", text, column))
+          return true;
+        column++;
+      }
+      return false;
+    }
+
+    override bool accept(const string text, ref int column){
+      return scanText("/*", text, column);
+    }
+}
+
+class SrdComment_Scanner: SardScanner
+{
+  protected:
+    string buffer;
+
+    override bool scan(const string text, ref int column)
+    {
+      int c = column;    
+      while (column < text.length) {
+        if (scanCompare("*}", text, column)){
+          buffer = buffer ~ text[c..column - c];
+          column = column + 2;
+          lexical.parser.setToken(buffer, SrdType.Comment);
+          buffer = "";
+          return true;
+        }
+        column++;
+      }
+      buffer = buffer ~ text[c..column - c];
+      return false;
+    }
+
+    override bool accept(const string text, ref int column){
+      return scanText("{*", text, column);
+    }
+}
+
+abstract class SrdString_Scanner: SardScanner
+{
+  protected:
+    char quote;
+    string buffer; //<- not sure it is good idea
+
+    override bool scan(const string text, ref int column)
+    {
+      int c = column;    
+      while (column < text.length) {      
+        if (text[column] == quote) { //TODO Escape, not now
+          buffer = buffer ~ text[c..column - c];        
+          lexical.parser.setToken(buffer, SrdType.String);
+          column++;
+          buffer = "";
+          return true;
+        }
+        column++;
+      }
+      buffer = buffer ~ text[c..column - c];
+      return false;
+    }
+
+    override bool accept(const string text, ref int column){    
+      return scanText(to!string(quote), text, column);
+    }
+}
+
+/* Single Quote String */
+
+class SrdSQString_Scanner: SrdString_Scanner{
+  protected:
+    override void created(){
+      super.created();
+      quote = '\'';
+    }
+  public:
+}
+
+/* Double Quote String */
+
+class SrdDQString_Scanner: SrdString_Scanner{
+  protected:
+    override void created(){
+      super.created();
+      quote = '"';
+    }
+  public:
+}
 
 /******************************/
 /********  TODO   *************/
 /******************************/
 
 
-class SrdBlockComment_Scanner: SardScanner{}
-class SrdComment_Scanner: SardScanner{}
-class SrdLineComment_Scanner: SardScanner{}
-class SrdSQString_Scanner: SardScanner{}
-class SrdDQString_Scanner: SardScanner{}
-
-/+
-
-{
-protected:
-  override bool scan(const string text, ref int column)
-  {
-
-  }
-
-  bool accept(const string text, ref int column){
-    return false;
-  }
-}
-
-+/

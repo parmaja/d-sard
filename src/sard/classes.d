@@ -360,17 +360,6 @@ class SardLexical: SardObjects!SardScanner{
       switchScanner(aScanner);
     }
 
-    SardScanner addScanner(ClassInfo scannerClass) {
-      SardScanner scanner;
-      //scanner = new typeof(scannerClass);
-      //pragma(msg, "Need to review");
-      scanner = cast(SardScanner)scannerClass.create(); 
-      scanner.set(this);
-
-      add(scanner);
-      return scanner;
-    }
-
     void scanLine(const string text, const int aLine) {
       int _line = aLine;
       int column = 1; //start of pascal string is 1

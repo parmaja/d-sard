@@ -293,12 +293,12 @@ class SardLexical: SardObjects!SardScanner{
       SardScanner scanner() { return _scanner; } ;
     }
 
-    SardParser _parser;
+    ISardParser _parser;
 
   protected:
     @property {
-      SardParser parser() { return _parser; };
-      SardParser parser(SardParser value) { return _parser = value; }
+      ISardParser  parser() { return _parser; };
+      ISardParser  parser(ISardParser  value) { return _parser = value; }
     }
 
   public:
@@ -469,20 +469,17 @@ class SardFeeder: SardObject {
 
 enum SrdType {None, Identifier, Number, Color, String, Comment }
 
-class SardParser {
+interface ISardParser {
   protected:
-    void start(){
-    }
-
-    void stop(){
-    }
+    abstract void start();
+    abstract void stop();    
 
     abstract void doSetControl(SardControl aControl);
     abstract void doSetToken(string aToken, SrdType aType);
     abstract void doSetOperator(SardObject aOperator);
 
   public:
-    void setControl(SardControl aControl){
+    final void setControl(SardControl aControl){
       doSetControl(aControl);
     }
 

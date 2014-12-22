@@ -422,7 +422,7 @@ class SoNamedObject: SoObject {
     }
 
     this(SoObject vParent, string vName){
-      super();
+      this();
       name = vName;
       parent = vParent;
     }
@@ -606,7 +606,7 @@ class SoInstance: SoBlock{
 }
 
 
-class SoVariable: SoNamedObject{ ///////////////
+class SoVariable: SoNamedObject{ 
 protected:
   override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
     RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));
@@ -620,17 +620,25 @@ protected:
 public:
   ClassInfo resultType;
 //  SardMetaClass resultType; OUTCH
+
+  this(){
+    super();
+  }
+
+  this(SoObject vParent, string vName){ //not auto inherited
+    super(vParent, vName);
+  }
 }
 
 /** It is assign a variable value, x:=10 + y */
 
 class SoAssign: SoNamedObject{
-  protected
+  protected:
     override void doSetParent(SoObject value) {
       super.doSetParent(value);
     }
 
-  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
       //super.doExecute(vStack, aOperator, done);
       /** if not name it assign to parent result */
       done = true;
@@ -658,6 +666,16 @@ class SoAssign: SoNamedObject{
     override void created(){
       super.created();
       objectType = ObjectType.otVariable;
+    }
+
+  public:  
+
+    this(){
+      super();
+    }
+
+    this(SoObject vParent, string vName){ //not auto inherited, OH Deee
+      super(vParent, vName);
     }
 }
 

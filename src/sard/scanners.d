@@ -220,14 +220,14 @@ class SrdInstruction: SardObject
 	SoStatement setStatment()//Statement object not srdStatement
 	{
 	  if (identifier != "")
-		raiseError("Identifier is already set");
+		  raiseError("Identifier is already set");
 	  SoStatement result = new SoStatement();
 	  internalSetObject(result);
 	  setFlag(Flag.Statement);
 	  return result;
 	}
 	
-	SoAssign SetAssign(){
+	SoAssign setAssign(){
     //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
     SoAssign result = new SoAssign();
     result.name = identifier;    
@@ -237,7 +237,7 @@ class SrdInstruction: SardObject
     return result;
 	}
 	
-  SoDeclare SetDeclare(){
+  SoDeclare setDeclare(){
     if (identifier == "")
       raiseError("identifier is not set");
     SoDeclare result = new SoDeclare();
@@ -298,9 +298,15 @@ class SrdInterpreter: SardObject{
 
   public:
 
+    void set(SrdParser aParser){
+      parser = aParser;
+      switchController(getControllerInfo());
+      reset();
+    }
+
     this(SrdParser aParser){
       super();
-      parser = aParser;
+      set(aParser);
     }
 
     void setFlag(Flag aFlag){
@@ -359,7 +365,7 @@ class SrdInterpreter: SardObject{
     }
 
     //IsInitial: check if the next object will be the first one, usefule for Assign and Declare
-    bool isInitial(){
+    @property bool isInitial(){
       return false;
     }
 
@@ -407,11 +413,11 @@ class SrdInterpreterStatement: SrdInterpreter{
           raiseError("Object is already set!");
         instruction.setInstance();
       }
-
-      bool isInitial(){
-        return (statement is null) || (statement.count == 0);
-      }
     }
+
+    override bool isInitial(){
+       return (statement is null) || (statement.count == 0);
+    }    
 }
 
 
@@ -495,15 +501,6 @@ class SrdInterpreterDefine: SrdInterpreter{
       return SrdControllerDefines.classinfo;
     }
   public:
-    override void reset(){
-      state = State.Name;
-      super.reset();
-    }
-
-    bool isInitial(){
-      return true;
-    }
-
     override void control(SardControl aControl){
       /*
         x:int  (p1:int; p2:string);
@@ -513,26 +510,253 @@ class SrdInterpreterDefine: SrdInterpreter{
       */
       with(parser){
         switch(aControl){
-          default:;
+          case SardControl.OpenBlock:
+            post();
+            SoSection aSection = new SoSection();
+            aSection.parent = declare;
+            declare.callObject = aSection;
+            //We will pass the control to the next interpreter
+            action(Actions([Action.PopInterpreter]), new SrdInterpreterBlock(parser, aSection.block));
+            break;
+          case SardControl.Declare:
+            if (param){
+              post();
+              state = State.Type;
+            }
+            else {
+              post();
+              action(Actions([Action.PopInterpreter]));
+            }
+            break;
+
+          case SardControl.Assign:
+            post();
+            declare.executeObject = new SoAssign(declare, declare.name);            
+            declare.callObject = new SoVariable(declare, declare.name);
+            action(Actions([Action.PopInterpreter])); //Finish it, mean there is no body/statment for the declare
+            break;
+          case SardControl.End:
+            if (param){
+              post();
+              state = State.Name;
+            }
+            else {
+              post();
+              action(Actions([Action.PopInterpreter]));
+            }
+            break;
+          case SardControl.Next:
+              post();
+              state = State.Name;
+            break;
+          case SardControl.OpenParams:
+            post();
+            if (declare.defines.count > 0)
+              raiseError("You already define params! we expected open block.");
+            param = true;
+            break;
+          case SardControl.CloseParams:
+            post();
+            //pop(); //Finish it
+            param = false;
+            //action(Actions([paPopInterpreter]), new SrdInterpreterBlock(parser, declare.block)); //return to the statment
+            break;
+          default: 
+              super.control(aControl);
         }
-      }
-      
+      }      
+    }
+
+    override void prepare(){
+      super.prepare();
+    }
+
+    override void next(){
+      super.next();
+    }
+
+    override void reset(){
+      state = State.Name;
+      super.reset();
+    }
+
+    override bool isInitial(){
+      return true;
     }
 }
+
+class SrdControllerNormal: SrdController{
+  public:
+    this(SrdParser aParser){ //TODO BUG why i need to copy it?!
+      super(aParser);    
+    }
+
+    override void control(SardControl aControl){
+      with(parser.current){
+        switch(aControl){
+          case SardControl.Assign:
+            if (isInitial){
+              instruction.setAssign();
+              post();
+            } else {
+              raiseError("You can not use assignment here!");
+            }
+            break;
+
+          case SardControl.Declare:
+            if (isInitial){
+              SoDeclare aDeclare = instruction.setDeclare();
+              post();
+              push(new SrdInterpreterDefine(parser, aDeclare));
+            } else {
+              raiseError("You can not use assignment here!");
+            }
+            break;
+
+          case SardControl.OpenBlock:
+            SoSection aSection = new SoSection();
+            instruction.setObject(aSection);
+            push(new SrdInterpreterBlock(parser, aSection.block));
+            break;
+
+          case SardControl.CloseBlock:
+            post();
+            if (parser.count == 1)
+              raiseError("Maybe you closed not opened Curly");
+            action(Actions([Action.PopInterpreter]));
+            break;
+
+          case SardControl.OpenParams:
+            //params of function or object like: Sin(10)
+            if (instruction.checkIdentifier())
+            {
+              with (instruction.setInstance())
+                push(new SrdInterpreterBlock(parser, block));
+            }
+            else //No it is just sub statment like: 10+(5*5)
+              with (instruction.setStatment())
+                push(new SrdInterpreterStatement(parser, statement));
+            break;
+
+          case SardControl.CloseParams:
+            post();
+            if (parser.count == 1)
+              raiseError("Maybe you closed not opened Bracket");
+            action(Actions([Action.PopInterpreter]));
+            break;
+
+          case SardControl.Start:            
+            break;
+          case SardControl.Stop:            
+              post();
+            break;
+          case SardControl.End:            
+              post();
+              next();
+            break;
+          case SardControl.Next:            
+              post();
+              next();
+            break;
+          default:
+            raiseError("Not implemented yet :(");
+        }
+      }
+    }
+}
+
+class SrdControllerDefines: SrdControllerNormal{
+  public:
+    this(SrdParser aParser){ //TODO BUG why i need to copy it?!
+      super(aParser);    
+    }
+
+    override void control(SardControl aControl){
+      //nothing O.o
+    }
+}
+
+class SrdParser: SardStack!SrdInterpreter, ISardParser {
+  protected:
+    override void doSetToken(string aToken, SrdType aType){
+      current.addIdentifier(aToken, aType);
+      actionStack();
+      actions = [];
+    }
+
+    override void doSetOperator(SardObject aOperator){
+      OpOperator o = cast(OpOperator)aOperator; //TODO do something i hate typecasting
+      if (o is null) 
+        raiseError("aOperator not OpOperator");
+      current.addOperator(o);
+      actionStack();
+      actions = [];
+    }
+
+    override void doSetControl(SardControl aControl){
+      current.control(aControl);
+      actionStack();
+      if (Action.Bypass in actions)//TODO check if Set work good here
+        current.control(aControl); 
+      actions = [];
+    }
+
+    override void afterPush(){
+      super.afterPush();
+      //WriteLn('Push: '+Current.ClassName);
+    }
+
+    override void beforePop(){
+      super.beforePop();
+      //WriteLn('Pop: '+Current.ClassName);
+    }
+
+    void actionStack(){
+      if (Action.PopInterpreter in actions){      
+        actions = actions - Action.PopInterpreter;
+        pop();
+      }
+
+      if (nextInterpreter is null) {      
+        push(nextInterpreter);
+        nextInterpreter = null;
+      }
+    }
+
+  public:
+    Actions actions;
+    SrdInterpreter nextInterpreter;
+    SrdControllers controllers;
+
+    this(SrdBlock aBlock){
+      super();      
+
+      if (aBlock is null)
+        raiseError("You must set a block");
+      controllers = new SrdControllers();
+      controllers.add(new SrdControllerNormal(this));
+      controllers.add(new SrdControllerDefines(this));
+      push(new SrdInterpreterBlock(this, aBlock));
+
+    }
+
+    override void start(){
+    }
+
+    override void stop(){
+    }
+
+    SrdInterpreter pushIt(ClassInfo info){
+      SrdInterpreter result = cast(SrdInterpreter)info.create();//this is buggy
+      if (result is null)
+        raiseError("Invalid type casting SrdInterpreter");
+      result.set(this);
+      push(result);
+      return result;
+    }
+}
+
 
 /******************************/
 /********  TODO   *************/
 /******************************/
-class SrdParser:SardObject{
-  Actions actions;
-  SrdInterpreter nextInterpreter;
-  SrdControllers controllers;
-  void push(SrdInterpreter aItem){
-  }
-}
-
-class SrdControllerNormal{
-}
-
-class SrdControllerDefines{
-}

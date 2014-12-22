@@ -892,61 +892,60 @@ public:
 /** SoBool **/
 
 class SoBool: SoBaseNumber {
-protected:
-  override void created(){
-    super.created();
-    objectType = ObjectType.otBoolean;
-  }
-public:
-  bool value;
-
-  this(bool aValue){
-    value = aValue;
-  }
-
-  override void assign(SoObject fromObject){      
-    value = fromObject.asBool;
-  }    
-
-  override bool operate(SoObject aObject, OpOperator aOperator){
-
-    switch(aOperator.name){
-      case "+": 
-        value = value && aObject.asBool;
-        return true;
-      case "-": 
-        value = value != aObject.asBool; //xor //LOL
-        return true; 
-      case "*": 
-        value = value || aObject.asBool;
-        return true;
-      /*case "/": 
-        value = value  aObject.asBool;
-        return true;*/
-      default:
-        return false;
+  protected:
+    override void created(){
+      super.created();
+      objectType = ObjectType.otBoolean;
     }
-  }
+  public:
+    bool value;
+    this(bool aValue){
+      value = aValue;
+    }
 
-  override bool toText(out string outValue){
-    outValue = to!text(value);
-    return true;
-  }
+    override void assign(SoObject fromObject){      
+      value = fromObject.asBool;
+    }    
 
-  override bool toNumber(out number outValue){
-    outValue = value;
-    return true;
-  }
+    override bool operate(SoObject aObject, OpOperator aOperator)
+    {
+      switch(aOperator.name){
+        case "+": 
+          value = value && aObject.asBool;
+          return true;
+        case "-": 
+          value = value != aObject.asBool; //xor //LOL
+          return true; 
+        case "*": 
+          value = value || aObject.asBool;
+          return true;
+        /*case "/": 
+          value = value  aObject.asBool;
+          return true;*/
+        default:
+          return false;
+      }
+    }
 
-  override bool toInteger(out integer outValue){
-    outValue = to!integer(value);
-    return true;
-  }
+    override bool toText(out string outValue){
+      outValue = to!text(value);
+      return true;
+    }
 
-  override bool toBool(out bool outValue){
-    outValue = value != 0;
-    return true;
-  }
+    override bool toNumber(out number outValue){
+      outValue = value;
+      return true;
+    }
+
+    override bool toInteger(out integer outValue){
+      outValue = to!integer(value);
+      return true;
+    }
+
+    override bool toBool(out bool outValue){
+      outValue = value != 0;
+      return true;
+    }
 }
 
 /** SoText **/
@@ -1060,8 +1059,10 @@ alias ClassInfo ControlClass;//TODO maybe remove it idk
 /** CtlControls **/
 /*****************/
 
-class CtlControls: SardNamedObjects!CtlControl{
-  CtlControl add(string aName, SardControl aCode){
+class CtlControls: SardNamedObjects!CtlControl
+{
+  CtlControl add(string aName, SardControl aCode)
+  {
     CtlControl c = new CtlControl(aName, aCode);    
     super.add(c);
     return c;
@@ -1112,7 +1113,7 @@ class OpOperators: SardNamedObjects!OpOperator{
   public:
     OpOperator findByTitle(string title){
       int i = 0;
-      while (i<count){
+      while (i < count){
         if (icmp(title, this[i].title) == 0) {
           return this[i];
         }
@@ -1125,7 +1126,7 @@ class OpOperators: SardNamedObjects!OpOperator{
     return super.add(operator);
   }
 
-  bool IsOpenBy(const char c){
+  bool isOpenBy(const char c){
     int i = 0;
     while (i<count){
       if (this[i].name[0] == toLower(c)) {
@@ -1466,9 +1467,11 @@ protected:
   }
 }
 
-class SoMain: SoSection{
+class SoMain: SoSection
+{
   protected:
     SoVersion_Const versionConst;
+
   public:
     this(){
       versionConst = new SoVersion_Const();

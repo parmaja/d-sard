@@ -50,7 +50,7 @@ module sard.scanners;
 import std.conv;
 import std.array;
 import std.string;
-import std.algorithm;
+//import std.algorithm;
 import std.uni;
 import std.datetime;
 import sard.classes;
@@ -58,14 +58,15 @@ import sard.objects;
 import minilib.sets;
 
 protected: 
-  const sEOL = ["\0", "\n", "\r"];
 
-  const sWhitespace = sEOL ~ [" ", "\t"];
-  const sNumberOpenChars = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-  const sNumberChars = sNumberOpenChars ~ [".", "x", "h", "a", "b", "c", "d", "e", "f"];
+  const char[] sEOL = ['\0', '\n', '\r'];
+
+  const char[] sWhitespace = sEOL ~ [' ', '\t'];
+  const sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  const sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
 
   //const sColorOpenChars = ['#',];
-  //const sColorChars = sColorOpenChars ~ ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+  //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
   const sIdentifierSeparator = ".";
 
@@ -774,11 +775,14 @@ class SrdFeeder: SardFeeder{
 
 class SrdLexical: SardLexical{
   private:
-    CtlControls controls;
     SrdEnvironment env;
+    CtlControls _controls = new CtlControls();
+    @property public CtlControls controls() { return _controls; }
+
   protected:
+
     override void created(){
-      with (controls){      
+      with (_controls){      
         add("(", SardControl.OpenParams);
         add("[", SardControl.OpenArray);
         add("{", SardControl.OpenBlock);
@@ -790,32 +794,169 @@ class SrdLexical: SardLexical{
         add(":", SardControl.Declare);
         add(":=", SardControl.Assign);
       }
+///////////TODO
+      /*addScanner(new SrdWhitespace_Scanner());
+      addScanner(new SrdBlockComment_Scanner());
+      addScanner(new SrdComment_Scanner());
+      addScanner(new SrdLineComment_Scanner());
+      addScanner(new SrdNumber_Scanner());
+      addScanner(new SrdSQString_Scanner());
+      addScanner(new SrdDQString_Scanner());
+      addScanner(new SrdControl_Scanner());
+      addScanner(new SrdOperator_Scanner()); //Register it after comment because comment take /*
+      addScanner(new SrdIdentifier_Scanner());//Last one
+      */
+    }
 
-      addScanner(SadWhitespace_Scanner);
-      addScanner(SrdBlockComment_Scanner);
-      addScanner(SrdComment_Scanner);
-      addScanner(SrdLineComment_Scanner);
-      addScanner(SrdNumber_Scanner);
-      addScanner(SrdSQString_Scanner);
-      addScanner(SrdDQString_Scanner);
-      addScanner(SrdControl_Scanner);
-      addScanner(SrdOperator_Scanner); //Register it after comment because comment take /*
-      addScanner(SrdIdentifier_Scanner);//Last one
+    public:
+      override bool isWhiteSpace(char vChar, bool vOpen = true)
+      {
+        return sWhitespace.indexOf(vChar) > 0;
+      }
+
+      override bool isControl(char vChar)
+      {
+        return _controls.isOpenBy(vChar);
+      }
+
+      override bool isOperator(char vChar)
+      {
+        return env.operators.isOpenBy(vChar);
+      }
+
+      override bool isNumber(char vChar, bool vOpen = true)
+      {
+        if (vOpen)
+          return sNumberOpenChars.indexOf(vChar) > 0;
+        else
+          return sNumberChars.indexOf(vChar) > 0;
+      }
+
+      override bool isIdentifier(char vChar, bool vOpen = true)
+      {
+        return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
+      }
+
+}
+
+class SrdWhitespace_Scanner: SardScanner
+{
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      while ((column < text.length) && (sWhitespace.indexOf(text[column])))
+        column++;
+       return true;
+    }
+
+    override bool accept(const string text, ref int column){
+      return sWhitespace.indexOf(text[column]) > 0;
     }
 }
+
+class SrdIdentifier_Scanner: SardScanner
+{
+protected:
+  override bool scan(const string text, ref int column)
+  {
+    int c = column;
+    while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
+      column++;
+    lexical.parser.setToken(text[c..column - c], SrdType.Identifier);
+    return true;
+  }
+
+  override bool accept(const string text, ref int column){
+    return lexical.isIdentifier(text[column], true);   
+  }
+}
+
+class SrdNumber_Scanner: SardScanner
+{
+protected:
+  override bool scan(const string text, ref int column)
+  {
+    int c = column;
+    int l = text.length;
+    while ((column < text.length) && (lexical.isNumber(text[column], false)))
+      column++;
+    lexical.parser.setToken(text[c..column - c], SrdType.Number);
+    return true;
+  }
+
+  override bool accept(const string text, ref int column){
+    return lexical.isNumber(text[column], true);   
+  }
+}
+
+class SrdControl_Scanner: SardScanner
+{
+protected:
+  override bool scan(const string text, ref int column)
+  {
+    CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
+    if (control is null)
+      column = column + control.name.length;
+    else
+      raiseError("Unkown control started with " ~ text[column]);
+    
+    lexical.parser.setControl(control.code);
+    return true;
+  }
+
+  override bool accept(const string text, ref int column){
+    return lexical.isControl(text[column]);   
+  }
+}
+
+class SrdOperator_Scanner: SardScanner
+{
+protected:
+  override bool scan(const string text, ref int column)
+  {
+    OpOperator operator = (cast(SrdLexical)lexical).env.operators.scan(text, column);//TODO need new way to access lexical without typecasting
+    if (operator is null)
+      column = column + operator.name.length;
+    else
+      raiseError("Unkown operator started with " ~ text[column]);
+
+    /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
+      lexical.parser.setControl(lOperator.Control)
+    else*/
+    lexical.parser.setOperator(operator);
+    return true;
+  }
+
+  override bool accept(const string text, ref int column){
+    return lexical.isOperator(text[column]);   
+  }
+}
+
+
 
 /******************************/
 /********  TODO   *************/
 /******************************/
 
 
-struct SadWhitespace_Scanner{}
-struct SrdBlockComment_Scanner{}
-struct SrdComment_Scanner{}
-struct SrdLineComment_Scanner{}
-struct SrdNumber_Scanner{}
-struct SrdSQString_Scanner{}
-struct SrdDQString_Scanner{}
-struct SrdControl_Scanner{}
-struct SrdOperator_Scanner{}
-struct SrdIdentifier_Scanner{}
+class SrdBlockComment_Scanner: SardScanner{}
+class SrdComment_Scanner: SardScanner{}
+class SrdLineComment_Scanner: SardScanner{}
+class SrdSQString_Scanner: SardScanner{}
+class SrdDQString_Scanner: SardScanner{}
+
+/+
+
+{
+protected:
+  override bool scan(const string text, ref int column)
+  {
+
+  }
+
+  bool accept(const string text, ref int column){
+    return false;
+  }
+}
+
++/

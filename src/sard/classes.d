@@ -256,8 +256,9 @@ class SardScanner: SardObject {
 
   protected:
     //Return true if it done, next will auto detect it detect
-    abstract bool Scan(const string text, inout int Column);
-    bool accept(const string text, inout int column){
+    abstract bool scan(const string text, ref int column);
+
+    bool accept(const string text, ref int column){
       return false;
     }
     //This function call when switched to it
@@ -273,12 +274,16 @@ class SardScanner: SardObject {
       _lexical = lexical;
     }
 
-    this(SardLexical lexical){ 
+    this(){
       super();
-      set(lexical); //TODO check it for MetaClass
     }
 
     ~this(){
+    }
+
+    this(SardLexical lexical){ 
+      this();
+      set(lexical); //TODO check it for MetaClass
     }
 }
 
@@ -300,7 +305,7 @@ class SardLexical: SardObjects!SardScanner{
     abstract bool isOperator(char vChar);
     abstract bool isNumber(char vChar, bool vOpen = true);
 
-    abstract bool isIdentifier(char vChar, bool vOpen = true){
+    bool isIdentifier(char vChar, bool vOpen = true){
       bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar);
       if (vOpen)
         r = r && !isNumber(vChar, vOpen);
@@ -308,7 +313,7 @@ class SardLexical: SardObjects!SardScanner{
     }
 
   public:
-    SardScanner detectScanner(const string text, inout int column) {
+    SardScanner detectScanner(const string text, ref int column) {
       SardScanner r = null;
 
       int i = 0;
@@ -377,7 +382,7 @@ class SardLexical: SardObjects!SardScanner{
         int oldColumn = column;
         SardScanner oldScanner = _scanner;
         try {
-          if (scanner.Scan(text, column))
+          if (scanner.scan(text, column))
             detectScanner(text, column);
 
           if ((oldColumn == column) && (oldScanner == _scanner))

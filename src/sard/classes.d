@@ -7,6 +7,7 @@ module sard.classes;
 * @author    Zaher Dirkey <zaher at parmaja dot com>
 */
 
+import std.stream;
 import std.string;
 import std.uni;
 import std.array;
@@ -431,6 +432,28 @@ class SardFeeder: SardObject {
       if (!active)
         raiseError("Feeder not started");
       lexical.scanLine(text, line);
+    }
+
+    void scan(const string[] lines)
+    {
+      start();
+      int i = 0;
+      while(i < lines.count()){
+        scanLine(lines[i], i);
+        i++;
+      }
+      stop();
+    }
+
+    void scan(const File file)
+    {
+      //todo  
+    }
+
+    void scan(const string text)
+    {      
+      string[] lines = text.split("\n");      
+      scan(lines);
     }
 
     //void scan(const string fileName);

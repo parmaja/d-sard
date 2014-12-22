@@ -16,19 +16,36 @@ import sard.classes;
 import sard.scanners;
 import sard.objects;
 
-class SardRun = class(SardObject)
+class SardRun: SardObject
 {
   protected:
+
   public:
     SrdEnvironment env;
     SoMain main;
     string result;//Temp
+
     this(){
       super();
-      env = SrdEnvironment();
+      env = new SrdEnvironment();
     }
     
     void compile(string text){
+
+      //writeln("-------------------------------");
+
+      main = new SoMain(); //destory the old compile and create new
+
+      /* Compile */
+
+      SrdParser parser = new SrdParser(main.block);
+      SrdLexical lexical = new SrdLexical();
+      lexical.parser = parser;
+      lexical.env = env;
+      SrdFeeder feeder = new SrdFeeder(lexical);
+
+      feeder.scan(text);
+
     }
 
     void run(){

@@ -12,15 +12,19 @@ import std.conv;
 import std.array;
 import std.range;
 import sard.classes;
+import sard.process;
 
 int main(string[] argv) {
+  SardRun run = new SardRun();
   writeln("---------------");
-  ///testunit
-  //writeln(stringRepeat("test", 2));
-  int i = 0;
-  auto s = scanText("hello", "hello world, i hate you", i);
+  string source = "  x := 10; 
+ := x";
+  run.compile(source);
+  run.run();
+  string s = run.result;
   writeln(s);
 
   writeln("---------------");
+  readln();
   return 0;
 }

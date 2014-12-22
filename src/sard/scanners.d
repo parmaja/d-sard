@@ -775,7 +775,6 @@ class SrdFeeder: SardFeeder{
 
 class SrdLexical: SardLexical{
   private:
-    SrdEnvironment env;
     CtlControls _controls = new CtlControls();
     @property public CtlControls controls() { return _controls; }
 
@@ -808,6 +807,8 @@ class SrdLexical: SardLexical{
     }
 
     public:
+      SrdEnvironment env;
+
       override bool isWhiteSpace(char vChar, bool vOpen = true)
       {
         return sWhitespace.indexOf(vChar) > 0;

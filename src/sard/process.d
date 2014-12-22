@@ -21,13 +21,12 @@ class SardRun: SardObject
   protected:
 
   public:
-    SrdEnvironment env;
+    SrdEnvironment env = new SrdEnvironment();
     SoMain main;
     string result;//Temp
 
     this(){
       super();
-      env = new SrdEnvironment();
     }
     
     void compile(string text){

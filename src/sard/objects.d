@@ -65,6 +65,7 @@ module sard.objects;
     return -> ret
 */
 
+import std.stdio;
 import std.conv;
 import std.uni;
 import std.datetime;
@@ -1385,7 +1386,7 @@ class RunLocal: SardStack!RunLocalItem {
 
 class RunReturnItem: SardObject{
   public:
-    private RunResult _result;
+    private RunResult _result = new RunResult();
     @property RunResult result() { return _result; };
 
     private RunResult _reference;
@@ -1408,8 +1409,7 @@ class RunReturnItem: SardObject{
     }
 
     this(){
-      super();
-      _result = new RunResult();
+      super();      
     }
 }
 
@@ -1422,26 +1422,21 @@ class RunReturn: SardStack!RunReturnItem {
 
 class RunStack: SardObject {
   private:
-    RunLocal _local;
-    //RunShadow _shadow;
-    RunReturn _ret;
-  public:  
-    @property SrdEnvironment env() {return _env ;};
-    @property RunLocal local() {return _local;};
-//   @property RunShadow shadow() {return _shadow ;};
-    @property RunReturn ret() {return _ret ;};
-
+    RunLocal _local = new RunLocal();
+    RunReturn _ret = new RunReturn();
+    //RunShadow _shadow = new RunShadow(null);
   public:
-    SrdEnvironment _env; //TODO maybe struct not a class
-/*
+    SrdEnvironment env; //TODO maybe struct not a class
+    //@property SrdEnvironment env() {return _env ;};
+    @property RunLocal local() {return _local;};
+    //   @property RunShadow shadow() {return _shadow ;};
+    @property RunReturn ret() {return _ret ;};
+    /*
     RunShadow TouchMe(SoObject aObject) {
     }*/
 
     this(){
       super();
-      _local = new RunLocal();
-      _ret = new RunReturn();
-      //_shadow = new RunShadow(null);
 
       local.insert();
       ret.insert();
@@ -1470,11 +1465,11 @@ protected:
 class SoMain: SoSection
 {
   protected:
-    SoVersion_Const versionConst;
+    SoVersion_Const versionConst = new SoVersion_Const();
 
   public:
     this(){
-      versionConst = new SoVersion_Const();
+      super();
       versionConst.parent = this;
       versionConst.name = "Version";
       addDeclare(null, versionConst);
@@ -1495,7 +1490,8 @@ class SrdEnvironment: SardObject{
     override void created(){
       with (operators)
       {
-        add(new OpPlus());
+
+        add(new OpPlus);
         add(new OpMinus());
         add(new OpMultiply());
         add(new OpDivide());
@@ -1514,10 +1510,9 @@ class SrdEnvironment: SardObject{
     }
 
   public:
-    OpOperators operators;
+    OpOperators operators = new OpOperators();
     this(){
       super();
-      operators = new OpOperators();
     }    
 }
 

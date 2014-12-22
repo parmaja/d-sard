@@ -50,7 +50,7 @@ class SardObject: Object {
   void created() {
   };
 
-  this(){    
+  this(){
     created(); 
   }
 }

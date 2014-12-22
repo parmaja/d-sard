@@ -727,14 +727,14 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
   public:
     Actions actions;
     SrdInterpreter nextInterpreter;
-    SrdControllers controllers;
+    SrdControllers controllers = new SrdControllers();
 
     this(SrdBlock aBlock){
       super();      
 
       if (aBlock is null)
         raiseError("You must set a block");
-      controllers = new SrdControllers();
+      
       controllers.add(new SrdControllerNormal(this));
       controllers.add(new SrdControllerDefines(this));
       push(new SrdInterpreterBlock(this, aBlock));

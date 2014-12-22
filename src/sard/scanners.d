@@ -847,7 +847,7 @@ class SrdWhitespace_Scanner: SardScanner
   protected:
     override bool scan(const string text, ref int column)
     {
-      while ((column < text.length) && (sWhitespace.indexOf(text[column])))
+      while ((column < text.length) && (sWhitespace.indexOf(text[column]) > 0))
         column++;
        return true;
     }

@@ -363,7 +363,7 @@ class SardLexical: SardObjects!SardScanner{
 
     void scanLine(const string text, const int aLine) {
       int _line = aLine;
-      int column = 1; //start of pascal string is 1
+      int column = 0; 
       int l = text.length;
       if (scanner is null)
         detectScanner(text, column);

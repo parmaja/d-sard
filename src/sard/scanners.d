@@ -50,6 +50,7 @@ module sard.scanners;
 import std.conv;
 import std.array;
 import std.string;
+import std.stdio;
 //import std.algorithm;
 import std.uni;
 import std.datetime;
@@ -272,7 +273,7 @@ class SrdControllers: SardObjects!SrdController{
   SrdController findClass(const ClassInfo controllerClass) {
     int i = 0;
     while (i < count) {
-      if (this[i].classinfo == controllerClass) {
+      if (this[i].classinfo.name == controllerClass.name) {
         return this[i];
       }
       i++;
@@ -373,7 +374,7 @@ class SrdInterpreter: SardObject{
     void switchController(ClassInfo aControllerInfo){
       if (aControllerInfo is null)
         raiseError("ControllerClass must have a value!");
-      controller = parser.controllers.findClass(aControllerInfo.classinfo);
+      controller = parser.controllers.findClass(aControllerInfo);
       if (controller is null)
         raiseError("Can not find this class!");
     }
@@ -501,6 +502,7 @@ class SrdInterpreterDefine: SrdInterpreter{
     override ClassInfo getControllerInfo(){
       return SrdControllerDefines.classinfo;
     }
+
   public:
     override void control(SardControl aControl){
       /*
@@ -736,7 +738,8 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
         raiseError("You must set a block");
       
       controllers.add(new SrdControllerNormal(this));
-      controllers.add(new SrdControllerDefines(this));
+      controllers.add(new SrdControllerDefines(this));      
+
       push(new SrdInterpreterBlock(this, aBlock));
 
     }

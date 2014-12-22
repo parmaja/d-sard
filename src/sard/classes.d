@@ -286,21 +286,14 @@ class SardLexical: SardObjects!SardScanner{
   private:
     int _line;
     SardScanner _scanner;
-
-  public:
-    @property {
-      int line() { return _line; };
-      SardScanner scanner() { return _scanner; } ;
-    }
-
     ISardParser _parser;
 
-  protected:
-    @property {
-      ISardParser  parser() { return _parser; };
-      ISardParser  parser(ISardParser  value) { return _parser = value; }
-    }
+  public:
+    @property int line() { return _line; };
+    @property SardScanner scanner() { return _scanner; } ;      
 
+    @property ISardParser  parser() { return _parser; };
+    @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
   public:
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
     abstract bool isControl(char vChar);
@@ -410,20 +403,21 @@ class SardFeeder: SardObject {
                           //but the other lexical will throw none code to output provider
 
   public:
-    @property {
-      bool active() { return _active; }
-      string ver() { return _ver; }
-      string charset() { return _charset; }
+    
+    @property bool active() { return _active; }
+    @property string ver() { return _ver; }
+    @property string charset() { return _charset; }
 
-      SardLexical lexical() { return _lexical; }
-      SardLexical lexical(SardLexical value) {
-      if (_lexical == value)
-        return _lexical;
-      if (active)
-        raiseError("You can not set scanner when started!");
-      return _lexical = value;
+    @property SardLexical lexical() { return _lexical; }
+    @property SardLexical lexical(SardLexical value) {
+        if (_lexical == value)
+          return _lexical;
+        if (active)
+          raiseError("You can not set scanner when started!");
+        return _lexical = value;
+      
       }
-    }
+
   protected:
 
     void doStart() {

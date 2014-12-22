@@ -1061,9 +1061,9 @@ alias ClassInfo ControlClass;//TODO maybe remove it idk
 /*****************/
 
 class CtlControls: SardNamedObjects!CtlControl{
-  CtlControl addCtl(string aName, SardControl aCode){
+  CtlControl add(string aName, SardControl aCode){
     CtlControl c = new CtlControl(aName, aCode);    
-    add(c);
+    super.add(c);
     return c;
   }
 

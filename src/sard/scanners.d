@@ -756,7 +756,66 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
     }
 }
 
+class SrdFeeder: SardFeeder{
+  protected:
+    override void doStart(){
+      lexical.parser.setControl(SardControl.Start);
+    }
+
+    override void doStop(){
+      lexical.parser.setControl(SardControl.Stop);
+    }
+
+  public:
+    this(SardLexical lexical) {
+      super(lexical);      
+    }
+}
+
+class SrdLexical: SardLexical{
+  private:
+    CtlControls controls;
+    SrdEnvironment env;
+  protected:
+    override void created(){
+      with (controls){      
+        add("(", SardControl.OpenParams);
+        add("[", SardControl.OpenArray);
+        add("{", SardControl.OpenBlock);
+        add(")", SardControl.CloseParams);
+        add("]", SardControl.CloseArray);
+        add("}", SardControl.CloseBlock);
+        add(";", SardControl.End);
+        add(",", SardControl.Next);
+        add(":", SardControl.Declare);
+        add(":=", SardControl.Assign);
+      }
+
+      addScanner(SadWhitespace_Scanner);
+      addScanner(SrdBlockComment_Scanner);
+      addScanner(SrdComment_Scanner);
+      addScanner(SrdLineComment_Scanner);
+      addScanner(SrdNumber_Scanner);
+      addScanner(SrdSQString_Scanner);
+      addScanner(SrdDQString_Scanner);
+      addScanner(SrdControl_Scanner);
+      addScanner(SrdOperator_Scanner); //Register it after comment because comment take /*
+      addScanner(SrdIdentifier_Scanner);//Last one
+    }
+}
 
 /******************************/
 /********  TODO   *************/
 /******************************/
+
+
+struct SadWhitespace_Scanner{}
+struct SrdBlockComment_Scanner{}
+struct SrdComment_Scanner{}
+struct SrdLineComment_Scanner{}
+struct SrdNumber_Scanner{}
+struct SrdSQString_Scanner{}
+struct SrdDQString_Scanner{}
+struct SrdControl_Scanner{}
+struct SrdOperator_Scanner{}
+struct SrdIdentifier_Scanner{}

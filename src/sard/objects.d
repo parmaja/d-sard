@@ -144,10 +144,9 @@ class SrdDefines: SardObjects!SrdDefine {
 /** SrdClause */
 
 class SrdClause: SardObject {
-  private
+  private:
     OpOperator _operator;
     SoObject _object;
-
   public:
     @property OpOperator operator() { return _operator; }
     @property SoObject object() { return _object; }
@@ -284,7 +283,7 @@ abstract class SoObject: SardObject {
       return false;
     }
 
-  protected:
+  public:
     @property final text asText(){
       string o;
       if (toText(o))
@@ -340,7 +339,8 @@ abstract class SoObject: SardObject {
     void doSetParent(SoObject aParent){
     }
  
-    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null) {
+  public:
+      bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null) {
       //vStack.TouchMe(Self);
       bool result = false;
       beforeExecute(vStack, aOperator);

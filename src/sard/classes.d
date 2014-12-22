@@ -7,7 +7,8 @@ module sard.classes;
 * @author    Zaher Dirkey <zaher at parmaja dot com>
 */
 
-import std.stream;
+import std.stdio;
+//import std.stream;
 import std.string;
 import std.uni;
 import std.array;
@@ -126,8 +127,8 @@ enum SardControl {
   CloseArray // ]
 }
 
-class SardStack(T): SardObject {
-
+class SardStack(T): SardObject 
+{
   static class SardStackItem: SardObject {
     protected {
       T object; //renamed it to object
@@ -140,12 +141,11 @@ class SardStack(T): SardObject {
     }
   }
 
-  private {
+  private:
     int _count;
-    SardStackItem _currentItem;
-  }
+    SardStackItem _currentItem; 
 
-  public {
+  public:
     @property {
       int count() {
         return _count;
@@ -154,8 +154,7 @@ class SardStack(T): SardObject {
       SardStackItem currentItem() {
         return _currentItem;
       }
-    }
-  }
+    } 
 
   protected {
     T getParent() {
@@ -194,7 +193,7 @@ class SardStack(T): SardObject {
       if (vObject is null)
         raiseError("Can't push null");
 
-      aItem = new SardStackItem;
+      aItem = new SardStackItem();
       aItem.object = vObject;
       aItem.parent = _currentItem;
       aItem.owner = this;
@@ -314,22 +313,23 @@ class SardLexical: SardObjects!SardScanner{
     }
 
   public:
-    SardScanner detectScanner(const string text, ref int column) {
-      SardScanner r = null;
+    SardScanner detectScanner(const string text, ref int column) 
+    {
+      SardScanner result = null;
 
       int i = 0;
       while (i < count) {
-        if ((this[i] != r) && this[i].accept(text, column)) {
-          r = this[i];
+        if ((this[i] != result) && this[i].accept(text, column)) {
+          result = this[i];
           break;
         }
         i++;
       }
 
-      if (r is null)
-        raiseError("Scanner not found:" ~ text[column]);
-      switchScanner(r);
-      return r;
+      if (result is null)
+        raiseError("Scanner not found: " ~ text[column]);
+      switchScanner(result);
+      return result;
     }
 
     void switchScanner(SardScanner nextScanner) {
@@ -367,7 +367,7 @@ class SardLexical: SardObjects!SardScanner{
       int l = text.length;
       if (scanner is null)
         detectScanner(text, column);
-      while (column <= l)
+      while (column < l)
       {
         int oldColumn = column;
         SardScanner oldScanner = _scanner;
@@ -378,11 +378,9 @@ class SardLexical: SardObjects!SardScanner{
           if ((oldColumn == column) && (oldScanner == _scanner))
             raiseError("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
         }
-        catch {
-          /*on E: EsardException do
-          {
-            raise EsardParserException.Create(E.Message, Column, Line);
-          }*/
+        catch(Exception exc) {
+          writeln(exc.msg);
+          //throw new Exception(exc.msg);
         }
       }
     }
@@ -503,10 +501,6 @@ interface ISardParser {
     }
 };
 
-void raiseError(string error) {
-  throw new SardException(error);
-}
-
 bool scanCompare(string s, const string text, int index){
   return scanText(s, text, index);
 }
@@ -527,3 +521,8 @@ bool scanText(string s, const string text, ref int index) {
 string stringRepeat(string s, int count){
   return replicate(s, count);
 }
+
+void raiseError(string error) {
+  throw new SardException(error);
+}
+

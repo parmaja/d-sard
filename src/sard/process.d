@@ -48,6 +48,13 @@ class SardRun: SardObject
     }
 
     void run(){
+      RunStack stack = new RunStack();
+      main.execute(stack, null);
+      string result;
+      if (stack.ret.current.result.object !is null) {        
+        result = stack.ret.current.result.object.asText();
+        writeln("=== Result:  " ~ stack.ret.current.result.object.asText ~ "  ===");
+      }
 
     };
 }

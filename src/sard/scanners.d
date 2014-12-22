@@ -60,16 +60,16 @@ import minilib.sets;
 
 protected: 
 
-  const char[] sEOL = ['\0', '\n', '\r'];
+  static const char[] sEOL = ['\0', '\n', '\r'];
 
-  const char[] sWhitespace = sEOL ~ [' ', '\t'];
-  const sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  const sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
+  static const char[] sWhitespace = sEOL ~ [' ', '\t'];
+  static const sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  static const sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
 
   //const sColorOpenChars = ['#',];
   //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
-  const sIdentifierSeparator = ".";
+  static const sIdentifierSeparator = ".";
 
   enum Flag {
       None,
@@ -720,7 +720,7 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
         pop();
       }
 
-      if (nextInterpreter is null) {      
+      if (nextInterpreter !is null) {      
         push(nextInterpreter);
         nextInterpreter = null;
       }

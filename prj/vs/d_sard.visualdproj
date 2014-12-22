@@ -8,13 +8,13 @@
   <multiobj>0</multiobj>
   <singleFileCompilation>0</singleFileCompilation>
   <oneobj>0</oneobj>
-  <trace>0</trace>
+  <trace>1</trace>
   <quiet>0</quiet>
   <verbose>0</verbose>
   <vtls>0</vtls>
   <vgc>0</vgc>
   <symdebug>1</symdebug>
-  <optimize>1</optimize>
+  <optimize>0</optimize>
   <cpu>0</cpu>
   <isX86_64>0</isX86_64>
   <isLinux>0</isLinux>
@@ -39,14 +39,14 @@
   <warnings>1</warnings>
   <infowarnings>1</infowarnings>
   <checkProperty>1</checkProperty>
-  <genStackFrame>0</genStackFrame>
+  <genStackFrame>1</genStackFrame>
   <pic>0</pic>
-  <cov>0</cov>
+  <cov>1</cov>
   <nofloat>0</nofloat>
   <Dversion>2</Dversion>
   <ignoreUnsupportedPragmas>0</ignoreUnsupportedPragmas>
   <allinst>1</allinst>
-  <stackStomp>0</stackStomp>
+  <stackStomp>1</stackStomp>
   <compiler>0</compiler>
   <otherDMD>0</otherDMD>
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
@@ -81,7 +81,7 @@
   <runCv2pdb>1</runCv2pdb>
   <pathCv2pdb>$(VisualDInstallDir)cv2pdb\cv2pdb.exe</pathCv2pdb>
   <cv2pdbPre2043>0</cv2pdbPre2043>
-  <cv2pdbNoDemangle>0</cv2pdbNoDemangle>
+  <cv2pdbNoDemangle>1</cv2pdbNoDemangle>
   <cv2pdbEnumType>0</cv2pdbEnumType>
   <cv2pdbOptions />
   <objfiles />

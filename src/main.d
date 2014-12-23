@@ -16,8 +16,7 @@ import sard.process;
 
 int main(string[] argv) {
 
-  SardRun run = new SardRun();
-  writeln("---------------");
+  SardRun run = new SardRun();  
   //string source = ""; //Empty
   //string source = "   "; //3 spaces
   string source = ":=10;"; //simple result
@@ -26,12 +25,15 @@ int main(string[] argv) {
 
 /*  string source = "  x := 10; 
  := x";*/
+  writeln("--- Compile ---");
   run.compile(source);
+  writeln("----- Run -----");
   run.run();
+  writeln("----- Result -----");
   string s = run.result;
-  writeln(s);
-
+  writeln(s);  
   writeln("---------------");
+  writeln("Press enter to stop");
   readln();
   return 0;
 }

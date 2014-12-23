@@ -44,18 +44,22 @@ class SardRun: SardObject
       SrdFeeder feeder = new SrdFeeder(lexical);
 
       feeder.scan(text);
-
+      debug{
+        main.debugWrite(0);
+      }
     }
 
-    void run(){
+    void run()
+    {
       RunStack stack = new RunStack();
       main.execute(stack, null);
       string result;
-      if (stack.ret.current.result.object !is null) {        
+      if (stack.ret.current.result.object !is null) 
+      {
+        debug {
+          writeln("We have value");
+        }
         result = stack.ret.current.result.object.asText();
-        writeln("=== Result:  " ~ stack.ret.current.result.object.asText ~ "  ===");
       }
-
     };
 }
-

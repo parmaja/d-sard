@@ -14,7 +14,7 @@ module sard.objects;
   The main object is TsoMain
 
   Object have Execute and Operate
-  Some objects (like Section) have a Block, and some have one Statment
+  Some objects (like Section) have a Block, and some have one Statement
   Block have Statements
     Statement: haves Clauses
       Clause: Operator,Modifier,Object
@@ -41,7 +41,7 @@ module sard.objects;
   TtpType:    Type like integer, float, string, color or datetime, it is global, and limited
 
   TsoArray:   From the name, object have another objects, a list of objectd without execute it,
-              it is save the result of statment come from the parser
+              it is save the result of statement come from the parser
 
 * TsrdShadow: This object shadow of another object, he resposible of the memory storage like a varible
               When need to execute an object it will done by this shadow and insure it is exist before run
@@ -89,7 +89,7 @@ enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
 //alias bool[RunVarKind] RunVarKinds;
 alias RunVarKinds = Set!RunVarKind;
 
-class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
+class SrdObjects(T): SardObjects!T { //TODO rename it to SoObjects
 
   private:
     SoObject _parent;
@@ -100,7 +100,7 @@ class SrdObjectList(T): SardObjects!T { //TODO rename it to SoObjects
   public:
   /**BUG1
     We need default constructor to resolve this error
-    Error	1	Error: class sard.objects.SrdStatement Cannot implicitly generate a default ctor when base class sard.objects.SrdObjectList!(SrdClause).SrdObjectList is missing a default ctor	W:\home\d\lib\sard\src\sard\objects.d	151	
+    Error	1	Error: class sard.objects.SrdStatement Cannot implicitly generate a default ctor when base class sard.objects.SrdObjects!(SrdClause).SrdObjects is missing a default ctor	W:\home\d\lib\sard\src\sard\objects.d	151	
     
     add this to your subclass
   
@@ -166,7 +166,7 @@ class SrdClause: SardObject {
 
 /** SrdStatement */
 
-class SrdStatement: SrdObjectList!SrdClause {
+class SrdStatement: SrdObjects!SrdClause {
   //check BUG1
   this(SoObject aParent){
     super(aParent);    
@@ -198,7 +198,7 @@ class SrdStatement: SrdObjectList!SrdClause {
   public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
-class SrdBlock: SrdObjectList!SrdStatement {
+class SrdBlock: SrdObjects!SrdStatement {
 
   //check BUG1
   this(SoObject aParent){
@@ -228,7 +228,7 @@ class SrdBlock: SrdObjectList!SrdStatement {
       int i = 0;
       while (i < count) {
         this[i].execute(aStack);
-        //if the current statment assigned to parent or variable result "Reference" here have this object, or we will throw the result
+        //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
         i++;
       }
       return true;
@@ -238,7 +238,6 @@ class SrdBlock: SrdObjectList!SrdStatement {
 
 class SrdBlockStack:SardStack!SrdBlock {
 }
-
 
 /** SoObject */
 
@@ -269,6 +268,7 @@ abstract class SoObject: SardObject {
       };
 
   public:
+
     bool toBool(out bool outValue){
       return false;
     }
@@ -405,9 +405,6 @@ abstract class SoObject: SardObject {
     }
 }
 
-class SrdObjects: SardObjects!SoObject{
-}
-
 class SoNamedObject: SoObject {
   private:
     int _id;
@@ -435,7 +432,8 @@ class SoNamedObject: SoObject {
     }
 }
 
-abstract class SoConstObject: SoObject{
+abstract class SoConstObject: SoObject
+{
   override final void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
     if ((vStack.ret.current.result.object is null) && (aOperator is null)) {
       vStack.ret.current.result.object = clone();
@@ -486,6 +484,13 @@ abstract class SoBlock: SoNamedObject{
     }
 
   public:
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        _block.debugWrite(level + 1);
+      }
+    }
+
     override void created(){
       super.created();
       _objectType = ObjectType.otBlock;
@@ -509,9 +514,9 @@ class SrdDeclares: SardNamedObjects!SoDeclare {
 /** SoSection */
 /** Used by { } */
 
-class SoSection: SoBlock { //Result was droped until using := assign in the first of statment
+class SoSection: SoBlock { //Result was droped until using := assign in the first of statement
   private:
-    SrdDeclares _declares; //It is cache of objects listed inside statments, it is for fast find the object
+    SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
     
     public @property SrdDeclares declares() { return _declares; };
 
@@ -548,7 +553,8 @@ class SoSection: SoBlock { //Result was droped until using := assign in the firs
     }
 }
 
-class SoCustomStatement: SoObject{
+class SoCustomStatement: SoObject
+{
   protected:
     SrdStatement _statement;
     public @property SrdStatement statement() { return _statement; };
@@ -570,13 +576,16 @@ class SoCustomStatement: SoObject{
       statement.call(vStack);
       done = true;
     }
+  public:
+
 }
 
-class SoStatement: SoCustomStatement{
-public:
-  this(){
-    super();
-    _statement = new SrdStatement(parent);
+class SoStatement: SoCustomStatement
+{
+  public:
+    this(){
+      super();
+      _statement = new SrdStatement(parent);
   }
 }
 
@@ -609,7 +618,8 @@ class SoInstance: SoBlock{
 }
 
 
-class SoVariable: SoNamedObject{ 
+class SoVariable: SoNamedObject
+{ 
 protected:
   override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
     RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));
@@ -651,14 +661,14 @@ class SoAssign: SoNamedObject{
         SoDeclare aDeclare = findDeclare(name);//TODO: maybe we can cashe it
         if (aDeclare !is null) {
           if (aDeclare.callObject !is null){
-            RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal])); //parent becuase we are in the statment
+            RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal])); //parent becuase we are in the statement
             if (v is null)
               raiseError("Variable not found!");
             vStack.ret.current.reference = v.value;
           }
         }
         else { //Ok let is declare it locally
-          RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));//parent becuase we are in the statment
+          RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));//parent becuase we are in the statement
           if (v is null)
             raiseError("Variable not found!");
           vStack.ret.current.reference = v.value;

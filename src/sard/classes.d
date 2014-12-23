@@ -10,12 +10,14 @@ module sard.classes;
 import std.stdio;
 //import std.stream;
 import std.string;
+import std.conv;
 import std.uni;
 import std.array;
 import std.range;
 import minilib.metaclasses;
 
-class SardException: Exception {
+class SardException: Exception 
+{
   private uint _code;
 
   @property uint code() { return _code; }
@@ -46,7 +48,13 @@ class SardParserException: Exception {
   }
 }
 
-class SardObject: Object {
+class SardObject: Object 
+{
+  debug{
+    void debugWrite(int level){
+      writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
+    }
+  }
 
   void created() {
   };
@@ -88,9 +96,20 @@ class SardObjects(T: SardObject): SardObject {
       else
         return _items[_items.length - 1];
     }
+
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        writeln("Count: " ~ to!string(count));
+        int i = 0;
+        while (i < count) {
+          this[i].debugWrite(level + 1);
+        }
+      }
+    }
 }
 
-class SardNamedObject: SardObject{
+class SardNamedObject: SardObject{ //TODO try remove this class
   string name;
 }
 
@@ -388,9 +407,8 @@ class SardLexical: SardObjects!SardScanner{
           if ((oldColumn == column) && (oldScanner == _scanner))
             raiseError("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
         }
-        catch(Exception exc) {
-          writeln(exc.msg);
-          //throw new Exception(exc.msg);
+        catch(Exception exc) {          
+          throw new SardParserException(exc.msg, aLine, column);
         }
       }
     }

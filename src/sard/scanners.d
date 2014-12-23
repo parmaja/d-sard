@@ -105,6 +105,7 @@ class SrdInstruction: SardObject
     }
 
   public:
+
     Flag flag;
     string identifier;
     OpOperator operator;
@@ -143,15 +144,18 @@ class SrdInstruction: SardObject
       return r;
     }
 
-    @property bool isEmpty(){
+    @property bool isEmpty() 
+    {
       return !((identifier != "") || (object !is null) || (operator !is null));
     }
 
-    void setFlag(Flag aFlag){
+    void setFlag(Flag aFlag)
+    {
       flag = aFlag;
     }
 
-    void setOperator(OpOperator aOperator){
+    void setOperator(OpOperator aOperator)
+    {
       if (operator !is null)
         raiseError("Operator is already set");
       operator = aOperator;
@@ -164,7 +168,8 @@ class SrdInstruction: SardObject
       setFlag(Flag.Identifier);
     }
 
-    SoBaseNumber setNumber(string aIdentifier){
+    SoBaseNumber setNumber(string aIdentifier)
+    {
       if (identifier != "")
         raiseError("Identifier is already set");
       //TODO need to check anObject too
@@ -178,7 +183,8 @@ class SrdInstruction: SardObject
       return result;
     }
 
-    SoText setText(string aIdentifier){
+    SoText setText(string aIdentifier)
+    {
       if (identifier != "")
         raiseError("Identifier is already set");
       //TODO need to check anObject too
@@ -201,15 +207,15 @@ class SrdInstruction: SardObject
       return result;
     }
     
-    SoInstance setInstance(string aIdentifier){
-        if (identifier == "")
-        raiseError("Identifier is already set");
-      SoInstance result = new SoInstance();
-      result.name = aIdentifier;
-      internalSetObject(result);
-      setFlag(Flag.Instance);
-      return result;
-    }
+  SoInstance setInstance(string aIdentifier){
+      if (identifier == "")
+      raiseError("Identifier is already set");
+    SoInstance result = new SoInstance();
+    result.name = aIdentifier;
+    internalSetObject(result);
+    setFlag(Flag.Instance);
+    return result;
+  }
 
 	SoInstance setInstance(){
 	  if (identifier == "")
@@ -219,8 +225,7 @@ class SrdInstruction: SardObject
 	  return result;
 	}
 
-	SoStatement setStatment()//Statement object not srdStatement
-	{
+	SoStatement setStatment(){ //Statement object not srdStatement	
 	  if (identifier != "")
 		  raiseError("Identifier is already set");
 	  SoStatement result = new SoStatement();
@@ -235,7 +240,7 @@ class SrdInstruction: SardObject
     result.name = identifier;    
     internalSetObject(result);
     identifier = "";
-    setFlag(Flag.Assign);	
+    setFlag(Flag.Assign);
     return result;
 	}
 	
@@ -260,12 +265,13 @@ class SrdInstruction: SardObject
 class SrdController: SardObject{
   protected:
     SrdParser parser;
+
   public:
     this(SrdParser aParser){
       parser = aParser;
     }
 
-    abstract void control(SardControl aControl);    
+    abstract void control(SardControl aControl);
 }
 
 class SrdControllers: SardObjects!SrdController{
@@ -430,25 +436,26 @@ class SrdInterpreterStatement: SrdInterpreter{
 
 
 
-class SrdInterpreterBlock: SrdInterpreterStatement{
-protected:
-  SrdBlock block;
+class SrdInterpreterBlock: SrdInterpreterStatement
+{
+  protected:
+    SrdBlock block;
 
-public:
+  public:
 
-  this(SrdParser aParser, SrdBlock aBlock){
-    super(aParser);
-    block = aBlock;
-  }
-
-  override void prepare(){
-    super.prepare();
-    if (statement is null) {        
-      if (block is null)
-        raiseError("Maybe you need to set a block, or it single statment block");
-      statement = block.add();
+    this(SrdParser aParser, SrdBlock aBlock){
+      super(aParser);
+      block = aBlock;
     }
-  }
+
+    override void prepare(){
+      super.prepare();
+      if (statement is null) {        
+        if (block is null)
+          raiseError("Maybe you need to set a block, or it single statment block");
+        statement = block.add();
+      }
+    }
 }
 
 class SrdInterpreterDeclare: SrdInterpreterStatement{

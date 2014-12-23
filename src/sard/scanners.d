@@ -852,7 +852,7 @@ class SrdWhitespace_Scanner: SardScanner
        return true;
     }
 
-    override bool accept(const string text, ref int column){
+    override bool accept(const string text, int column){
       return sWhitespace.indexOf(text[column]) > 0;
     }
 }
@@ -869,7 +869,7 @@ protected:
     return true;
   }
 
-  override bool accept(const string text, ref int column){
+  override bool accept(const string text, int column){
     return lexical.isIdentifier(text[column], true);   
   }
 }
@@ -887,7 +887,7 @@ protected:
     return true;
   }
 
-  override bool accept(const string text, ref int column){
+  override bool accept(const string text, int column){
     return lexical.isNumber(text[column], true);   
   }
 }
@@ -907,7 +907,7 @@ protected:
     return true;
   }
 
-  override bool accept(const string text, ref int column){
+  override bool accept(const string text, int column){
     return lexical.isControl(text[column]);   
   }
 }
@@ -930,7 +930,7 @@ protected:
     return true;
   }
 
-  override bool accept(const string text, ref int column){
+  override bool accept(const string text, int column){
     return lexical.isOperator(text[column]);   
   }
 }
@@ -945,7 +945,7 @@ class SrdLineComment_Scanner: SardScanner
       return true;
     }
 
-    override bool accept(const string text, ref int column){
+    override bool accept(const string text, int column){
       return scanText("//", text, column);
     }
 }
@@ -963,7 +963,7 @@ class SrdBlockComment_Scanner: SardScanner
       return false;
     }
 
-    override bool accept(const string text, ref int column){
+    override bool accept(const string text, int column){
       return scanText("/*", text, column);
     }
 }
@@ -990,7 +990,7 @@ class SrdComment_Scanner: SardScanner
       return false;
     }
 
-    override bool accept(const string text, ref int column){
+    override bool accept(const string text, int column){
       return scanText("{*", text, column);
     }
 }
@@ -1018,7 +1018,7 @@ abstract class SrdString_Scanner: SardScanner
       return false;
     }
 
-    override bool accept(const string text, ref int column){    
+    override bool accept(const string text, int column){    
       return scanText(to!string(quote), text, column);
     }
 }
@@ -1044,9 +1044,3 @@ class SrdDQString_Scanner: SrdString_Scanner{
     }
   public:
 }
-
-/******************************/
-/********  TODO   *************/
-/******************************/
-
-

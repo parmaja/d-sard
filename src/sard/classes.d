@@ -252,13 +252,15 @@ class SardScanner: SardObject {
   private:
     SardLexical _lexical;
 
-    public @property SardLexical lexical() { return _lexical; } ;
+    public @property SardLexical lexical() { 
+      return _lexical; 
+    } ;
 
   protected:
     //Return true if it done, next will auto detect it detect
     abstract bool scan(const string text, ref int column);
 
-    bool accept(const string text, ref int column){
+    bool accept(const string text, int column){
       return false;
     }
     //This function call when switched to it
@@ -266,6 +268,7 @@ class SardScanner: SardObject {
     void switched() {
       //Maybe reseting buffer or something
     }
+
   public:
     string collected; //buffer
     SardScanner scanner;
@@ -278,19 +281,16 @@ class SardScanner: SardObject {
       super();
     }
 
-    ~this(){
-    }
-
     this(SardLexical lexical){ 
       this();
-      set(lexical); //TODO check it for MetaClass
+      set(lexical);
     }
 }
 
 class SardLexical: SardObjects!SardScanner{
   private:
     int _line;
-    SardScanner _scanner;
+    SardScanner _scanner; //current scanner
     ISardParser _parser;
 
   public:
@@ -313,23 +313,32 @@ class SardLexical: SardObjects!SardScanner{
     }
 
   public:
-    SardScanner detectScanner(const string text, ref int column) 
+    final override int add(SardScanner scanner){
+      scanner._lexical = this;
+      return super.add(scanner);
+    }
+    SardScanner detectScanner(const string text, int column) 
     {
-      SardScanner result = null;
-
-      int i = 0;
-      while (i < count) {
-        if ((this[i] != result) && this[i].accept(text, column)) {
-          result = this[i];
-          break;
-        }
-        i++;
+      if (column >= text.length){
+        //do i need to switchScanner?
+        return null; //no scanner for empty line or EOL
       }
+      else {
+        SardScanner result = null;
+        int i = 0;
+        while (i < count) {
+          if ((this[i] != result) && this[i].accept(text, column)) {
+            result = this[i];
+            break;
+          }
+          i++;
+        }
 
-      if (result is null)
-        raiseError("Scanner not found: " ~ text[column]);
-      switchScanner(result);
-      return result;
+        if (result is null)
+          raiseError("Scanner not found: " ~ text[column]);
+        switchScanner(result);
+        return result;
+      }
     }
 
     void switchScanner(SardScanner nextScanner) {
@@ -364,10 +373,10 @@ class SardLexical: SardObjects!SardScanner{
     void scanLine(const string text, const int aLine) {
       int _line = aLine;
       int column = 0; 
-      int l = text.length;
+      int len = text.length;
       if (scanner is null)
         detectScanner(text, column);
-      while (column < l)
+      while (column < len)
       {
         int oldColumn = column;
         SardScanner oldScanner = _scanner;
@@ -401,15 +410,18 @@ class SardFeeder: SardObject {
     @property string ver() { return _ver; }
     @property string charset() { return _charset; }
 
-    @property SardLexical lexical() { return _lexical; }
+    @property SardLexical lexical() { 
+      return _lexical; 
+    }
+
+    /*
     @property SardLexical lexical(SardLexical value) {
         if (_lexical == value)
           return _lexical;
         if (active)
           raiseError("You can not set scanner when started!");
-        return _lexical = value;
-      
-      }
+        return _lexical = value;      
+      }*/
 
   protected:
 
@@ -511,9 +523,9 @@ bool scanCompare(string s, const string text, int index){
 bool scanText(string s, const string text, ref int index) {
   bool r = (text.length - index) >= s.length;
   if (r) {
-    r = toLower(text[index..s.length]) == toLower(s); //case*in*sensitive
+    r = toLower(text[index..s.length - 1]) == toLower(s); //case*in*sensitive
     if (r)
-      index = index + s.length;
+      index = index + s.length - 1;
   }
   return r;
 }
@@ -525,4 +537,3 @@ string stringRepeat(string s, int count){
 void raiseError(string error) {
   throw new SardException(error);
 }
-

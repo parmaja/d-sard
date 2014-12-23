@@ -15,10 +15,17 @@ import sard.classes;
 import sard.process;
 
 int main(string[] argv) {
+
   SardRun run = new SardRun();
   writeln("---------------");
-  string source = "  x := 10; 
- := x";
+  //string source = ""; //Empty
+  //string source = "   "; //3 spaces
+  string source = ":=10;"; //simple result
+  //string source = "  :=10;"; //simple result started with space
+  //string source = "x:=10;"; //simple assign
+
+/*  string source = "  x := 10; 
+ := x";*/
   run.compile(source);
   run.run();
   string s = run.result;

@@ -898,7 +898,7 @@ protected:
   override bool scan(const string text, ref int column)
   {
     CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
-    if (control is null)
+    if (control !is null)
       column = column + control.name.length;
     else
       raiseError("Unkown control started with " ~ text[column]);

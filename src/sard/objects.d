@@ -191,6 +191,7 @@ class SrdStatement: SrdObjectList!SrdClause {
     int i = 0;
     while (i < count) {
       this[i].execute(aStack);
+      i++;
     }
   }
 
@@ -228,6 +229,7 @@ class SrdBlock: SrdObjectList!SrdStatement {
       while (i < count) {
         this[i].execute(aStack);
         //if the current statment assigned to parent or variable result "Reference" here have this object, or we will throw the result
+        i++;
       }
       return true;
     }
@@ -459,15 +461,15 @@ abstract class SoBlock: SoNamedObject{
       super.executeParams(vStack, vDefines, vParameters);
       if (vParameters !is null) { //TODO we need to check if it is a block?      
         int i = 0;
-        while (i < vParameters.count -1) {
+        while (i < vParameters.count) { //here i was added -1 to the count | while (i < vParameters.count -1)
           vStack.ret.insert();
           vParameters[i].call(vStack);
           if (i < vDefines.count){      
             RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.vtLocal, RunVarKind.vtParam])); //must find it locally//bug//todo
-              v.value = vStack.ret.current.releaseResult();
-            }
-            vStack.ret.pop();
-            i++;
+            v.value = vStack.ret.current.releaseResult();
+          }
+          vStack.ret.pop();
+          i++;
         }        
       }
     }
@@ -1069,25 +1071,29 @@ class CtlControls: SardNamedObjects!CtlControl
     return c;
   }
 
-  CtlControl scan(string text, int index){
+  CtlControl scan(string text, int index)
+  {
+    CtlControl result = null;
     int max = 0;
     int i = 0;
-    while (i < count -1) {
+    while (i < count) {
       if (scanCompare(this[i].name, text, index)) {
         if (max < this[i].name.length) {
           max = this[i].name.length;
-          return this[i];
+          result = this[i];
         }
       }
+      i++;
     }
-    return null;
+    return result;
   }
 
   bool isOpenBy(const char c){
     int i = 0;
     while (i < count){      
-      if (this[i].name[1] == toLower(c))
+      if (this[i].name[0] == toLower(c))
         return true;          
+      i++;
     }
     return false;
   }
@@ -1129,7 +1135,7 @@ class OpOperators: SardNamedObjects!OpOperator{
 
   bool isOpenBy(const char c){
     int i = 0;
-    while (i<count){
+    while (i < count){
       if (this[i].name[0] == toLower(c)) {
         return true;
       }
@@ -1142,7 +1148,7 @@ class OpOperators: SardNamedObjects!OpOperator{
     OpOperator operator = null;
     int max = 0;
     int i = 0;
-    while (i<count){
+    while (i < count){
       if (scanCompare(this[i].name, text, index)) {
         if (max < this[i].name.length) {
           max = this[i].name.length;

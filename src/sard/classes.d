@@ -105,6 +105,7 @@ class SardNamedObjects(T: SardObject): SardObjects!T{
           result = this[i];
           break;
         }
+        i++;
       }
       return result;
     }
@@ -468,8 +469,7 @@ class SardFeeder: SardObject {
 
     //void scan(const string fileName);
     //void scan(const Stream stream);
-    //void scan(const Stream stream);
-
+ 
     void start(){
       if (_active)
         raiseError("File already opened");
@@ -523,9 +523,10 @@ bool scanCompare(string s, const string text, int index){
 bool scanText(string s, const string text, ref int index) {
   bool r = (text.length - index) >= s.length;
   if (r) {
-    r = toLower(text[index..s.length - 1]) == toLower(s); //case*in*sensitive
+    string w = text[index..s.length];
+    r = toLower(w) == toLower(s); //case *in*sensitive
     if (r)
-      index = index + s.length - 1;
+      index = index + s.length;
   }
   return r;
 }
@@ -535,5 +536,8 @@ string stringRepeat(string s, int count){
 }
 
 void raiseError(string error) {
+  debug{
+    writeln(error);
+  }
   throw new SardException(error);
 }

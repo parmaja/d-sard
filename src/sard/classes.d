@@ -27,7 +27,8 @@ class SardException: Exception
     }
 }
 
-class SardParserException: Exception {
+class SardParserException: Exception 
+{
   private int _line;
   private int _column;
 
@@ -65,7 +66,8 @@ class SardObject: Object
 }
 
 //class SardObjects(T): SardObject if(is(T: SardNamedObject)) {
-class SardObjects(T: SardObject): SardObject {
+class SardObjects(T: SardObject): SardObject 
+{
   private:
     T[] _items;
   public
@@ -109,10 +111,6 @@ class SardObjects(T: SardObject): SardObject {
     }
 }
 
-class SardNamedObject: SardObject{ //TODO try remove this class
-  string name;
-}
-
 class SardNamedObjects(T: SardObject): SardObjects!T{
 
   public:
@@ -151,7 +149,7 @@ class SardStack(T): SardObject
 {
   static class SardStackItem: SardObject {
     protected {
-      T object; //renamed it to object
+      T object; 
       SardStackItem parent;
     }
 

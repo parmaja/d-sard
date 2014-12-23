@@ -321,7 +321,10 @@ class SrdInterpreter: SardObject{
     }
 
     //No pop, but when finish Parser will pop it
-    void action(Actions aActions = [], SrdInterpreter aNextInterpreter = null){
+    void setAction(Actions aActions = [], SrdInterpreter aNextInterpreter = null){
+      debug{
+        writeln(aActions);
+      }
       parser.actions = aActions;
       parser.nextInterpreter = aNextInterpreter;
     }
@@ -334,6 +337,9 @@ class SrdInterpreter: SardObject{
     }
 
     void post(){            
+      debug{
+        writeln("post()");
+      }
       if (!instruction.isEmpty) {      
         prepare();
         internalPost();
@@ -458,7 +464,7 @@ class SrdInterpreterDeclare: SrdInterpreterStatement{
       switch (aControl){
         case SardControl.End, SardControl.Next:          
             post();
-            action(Actions([Action.PopInterpreter, Action.Bypass]));
+            setAction(Actions([Action.PopInterpreter, Action.Bypass]));
             break;
         default:
           super.control(aControl);
@@ -519,7 +525,7 @@ class SrdInterpreterDefine: SrdInterpreter{
             aSection.parent = declare;
             declare.callObject = aSection;
             //We will pass the control to the next interpreter
-            action(Actions([Action.PopInterpreter]), new SrdInterpreterBlock(parser, aSection.block));
+            setAction(Actions([Action.PopInterpreter]), new SrdInterpreterBlock(parser, aSection.block));
             break;
           case SardControl.Declare:
             if (param){
@@ -528,7 +534,7 @@ class SrdInterpreterDefine: SrdInterpreter{
             }
             else {
               post();
-              action(Actions([Action.PopInterpreter]));
+              setAction(Actions([Action.PopInterpreter]));
             }
             break;
 
@@ -536,7 +542,7 @@ class SrdInterpreterDefine: SrdInterpreter{
             post();
             declare.executeObject = new SoAssign(declare, declare.name);            
             declare.callObject = new SoVariable(declare, declare.name);
-            action(Actions([Action.PopInterpreter])); //Finish it, mean there is no body/statment for the declare
+            setAction(Actions([Action.PopInterpreter])); //Finish it, mean there is no body/statment for the declare
             break;
           case SardControl.End:
             if (param){
@@ -545,7 +551,7 @@ class SrdInterpreterDefine: SrdInterpreter{
             }
             else {
               post();
-              action(Actions([Action.PopInterpreter]));
+              setAction(Actions([Action.PopInterpreter]));
             }
             break;
           case SardControl.Next:
@@ -626,7 +632,7 @@ class SrdControllerNormal: SrdController{
             post();
             if (parser.count == 1)
               raiseError("Maybe you closed not opened Curly");
-            action(Actions([Action.PopInterpreter]));
+            setAction(Actions([Action.PopInterpreter]));
             break;
 
           case SardControl.OpenParams:
@@ -645,7 +651,7 @@ class SrdControllerNormal: SrdController{
             post();
             if (parser.count == 1)
               raiseError("Maybe you closed not opened Bracket");
-            action(Actions([Action.PopInterpreter]));
+            setAction(Actions([Action.PopInterpreter]));
             break;
 
           case SardControl.Start:            
@@ -682,6 +688,9 @@ class SrdControllerDefines: SrdControllerNormal{
 class SrdParser: SardStack!SrdInterpreter, ISardParser {
   protected:
     override void doSetToken(string aToken, SrdType aType){
+      debug{        
+        writeln("SetToken:" ~ aToken ~ " Type:" ~ to!string(aType));
+      }
       current.addIdentifier(aToken, aType);
       actionStack();
       actions = [];
@@ -706,12 +715,16 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
 
     override void afterPush(){
       super.afterPush();
-      //WriteLn('Push: '+Current.ClassName);
+      debug{
+        writeln("Push: " ~ current.classinfo.name);
+      }
     }
 
     override void beforePop(){
       super.beforePop();
-      //WriteLn('Pop: '+Current.ClassName);
+      debug{
+        writeln("Pop: " ~ current.classinfo.name);
+      }      
     }
 
     void actionStack(){
@@ -865,7 +878,8 @@ protected:
     int c = column;
     while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
       column++;
-    lexical.parser.setToken(text[c..column + 1], SrdType.Identifier);
+    column++;
+    lexical.parser.setToken(text[c..column], SrdType.Identifier);
     return true;
   }
 
@@ -882,8 +896,9 @@ protected:
     int c = column;
     int l = text.length;
     while ((column < text.length) && (lexical.isNumber(text[column], false)))
-      column++;
-    lexical.parser.setToken(text[c..column + 1], SrdType.Number);
+      column++;    
+    column++;
+    lexical.parser.setToken(text[c..column], SrdType.Number);
     return true;
   }
 
@@ -897,14 +912,8 @@ class SrdControl_Scanner: SardScanner
 protected:
   override bool scan(const string text, ref int column)
   {
-    debug{
-      
-    }
     CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
     if (control !is null){
-      debug{
-        writeln("found control: " ~ control.name);
-      }
       column = column + control.name.length;
     }
     else
@@ -949,6 +958,7 @@ class SrdLineComment_Scanner: SardScanner
     {
       while ((column < text.length) && (sEOL.indexOf(text[column]) > 0))
         column++;
+      column++;////////////////
       return true;
     }
 
@@ -967,6 +977,7 @@ class SrdBlockComment_Scanner: SardScanner
           return true;
         column++;
       }
+      column++;///////////////////////
       return false;
     }
 
@@ -993,7 +1004,8 @@ class SrdComment_Scanner: SardScanner
         }
         column++;
       }
-      buffer = buffer ~ text[c..column + 1];
+      column++;
+      buffer = buffer ~ text[c..column];
       return false;
     }
 
@@ -1021,7 +1033,8 @@ abstract class SrdString_Scanner: SardScanner
         }
         column++;
       }
-      buffer = buffer ~ text[c..column + 1];
+      column++;
+      buffer = buffer ~ text[c..column];
       return false;
     }
 

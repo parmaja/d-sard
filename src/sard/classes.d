@@ -536,8 +536,5 @@ string stringRepeat(string s, int count){
 }
 
 void raiseError(string error) {
-  debug{
-    writeln(error);
-  }
   throw new SardException(error);
 }

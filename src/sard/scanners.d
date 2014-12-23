@@ -51,7 +51,6 @@ import std.conv;
 import std.array;
 import std.string;
 import std.stdio;
-//import std.algorithm;
 import std.uni;
 import std.datetime;
 import sard.utils;
@@ -64,13 +63,13 @@ protected:
   static const char[] sEOL = ['\0', '\n', '\r'];
 
   static const char[] sWhitespace = sEOL ~ [' ', '\t'];
-  static const sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  static const sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
+  static const char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  static const char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
 
   //const sColorOpenChars = ['#',];
   //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
-  static const sIdentifierSeparator = ".";
+  static const char[] sIdentifierSeparator = ".";
 
   enum Flag {
       None,
@@ -263,7 +262,8 @@ class SrdInstruction: SardObject
   }  
 }
 
-class SrdController: SardObject{
+class SrdController: SardObject
+{
   protected:
     SrdParser parser;
 
@@ -275,8 +275,8 @@ class SrdController: SardObject{
     abstract void control(SardControl aControl);
 }
 
-class SrdControllers: SardObjects!SrdController{
-
+class SrdControllers: SardObjects!SrdController
+{
   SrdController findClass(const ClassInfo controllerClass) {
     int i = 0;
     while (i < count) {
@@ -289,7 +289,8 @@ class SrdControllers: SardObjects!SrdController{
   }
 }
 
-class SrdInterpreter: SardObject{
+class SrdInterpreter: SardObject
+{
   private:
     Flags _flags;
   protected:
@@ -397,7 +398,8 @@ class SrdInterpreter: SardObject{
     }
 }
 
-class SrdInterpreterStatement: SrdInterpreter{
+class SrdInterpreterStatement: SrdInterpreter
+{
   protected:
     SrdStatement statement;
 
@@ -435,8 +437,6 @@ class SrdInterpreterStatement: SrdInterpreter{
     }    
 }
 
-
-
 class SrdInterpreterBlock: SrdInterpreterStatement
 {
   protected:
@@ -459,7 +459,8 @@ class SrdInterpreterBlock: SrdInterpreterStatement
     }
 }
 
-class SrdInterpreterDeclare: SrdInterpreterStatement{
+class SrdInterpreterDeclare: SrdInterpreterStatement
+{
   protected:
 
   public:
@@ -480,7 +481,8 @@ class SrdInterpreterDeclare: SrdInterpreterStatement{
     }
 }
 
-class SrdInterpreterDefine: SrdInterpreter{
+class SrdInterpreterDefine: SrdInterpreter
+{
   private:
     enum State {Name, Type};
   protected:
@@ -602,7 +604,8 @@ class SrdInterpreterDefine: SrdInterpreter{
     }
 }
 
-class SrdControllerNormal: SrdController{
+class SrdControllerNormal: SrdController
+{
   public:
     this(SrdParser aParser){ //TODO BUG why i need to copy it?!
       super(aParser);    
@@ -682,7 +685,8 @@ class SrdControllerNormal: SrdController{
     }
 }
 
-class SrdControllerDefines: SrdControllerNormal{
+class SrdControllerDefines: SrdControllerNormal
+{
   public:
     this(SrdParser aParser){ //TODO BUG why i need to copy it?!
       super(aParser);    
@@ -693,7 +697,8 @@ class SrdControllerDefines: SrdControllerNormal{
     }
 }
 
-class SrdParser: SardStack!SrdInterpreter, ISardParser {
+class SrdParser: SardStack!SrdInterpreter, ISardParser 
+{
   protected:
     override void doSetToken(string aToken, SardType aType){
       debug{        
@@ -781,7 +786,8 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
     }
 }
 
-class SrdFeeder: SardFeeder{
+class SrdFeeder: SardFeeder
+{
   protected:
     override void doStart(){
       lexical.parser.setControl(SardControl.Start);
@@ -797,7 +803,8 @@ class SrdFeeder: SardFeeder{
     }
 }
 
-class SrdLexical: SardLexical{
+class SrdLexical: SardLexical
+{
   private:
     CtlControls _controls = new CtlControls();
     @property public CtlControls controls() { return _controls; }
@@ -880,83 +887,83 @@ class SrdWhitespace_Scanner: SardScanner
 
 class SrdIdentifier_Scanner: SardScanner
 {
-protected:
-  override bool scan(const string text, ref int column)
-  {
-    int c = column;
-    while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      int c = column;
+      while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
+        column++;
       column++;
-    column++;
-    lexical.parser.setToken(text[c..column], SardType.Identifier);
-    return true;
-  }
+      lexical.parser.setToken(text[c..column], SardType.Identifier);
+      return true;
+    }
 
-  override bool accept(const string text, int column){
-    return lexical.isIdentifier(text[column], true);   
-  }
+    override bool accept(const string text, int column){
+      return lexical.isIdentifier(text[column], true);   
+    }
 }
 
 class SrdNumber_Scanner: SardScanner
 {
-protected:
-  override bool scan(const string text, ref int column)
-  {
-    int c = column;
-    int l = text.length;
-    while ((column < text.length) && (lexical.isNumber(text[column], false)))
-      column++;    
-    column++;
-    lexical.parser.setToken(text[c..column], SardType.Number);
-    return true;
-  }
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      int c = column;
+      int l = text.length;
+      while ((column < text.length) && (lexical.isNumber(text[column], false)))
+        column++;    
+      column++;
+      lexical.parser.setToken(text[c..column], SardType.Number);
+      return true;
+    }
 
-  override bool accept(const string text, int column){
-    return lexical.isNumber(text[column], true);   
-  }
+    override bool accept(const string text, int column){
+      return lexical.isNumber(text[column], true);   
+    }
 }
 
 class SrdControl_Scanner: SardScanner
 {
-protected:
-  override bool scan(const string text, ref int column)
-  {
-    CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
-    if (control !is null){
-      column = column + control.name.length;
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
+      if (control !is null){
+        column = column + control.name.length;
+      }
+      else
+        error("Unkown control started with " ~ text[column]);
+      
+      lexical.parser.setControl(control.code);
+      return true;
     }
-    else
-      error("Unkown control started with " ~ text[column]);
-    
-    lexical.parser.setControl(control.code);
-    return true;
-  }
 
-  override bool accept(const string text, int column){
-    return lexical.isControl(text[column]);   
-  }
+    override bool accept(const string text, int column){
+      return lexical.isControl(text[column]);   
+    }
 }
 
 class SrdOperator_Scanner: SardScanner
 {
-protected:
-  override bool scan(const string text, ref int column)
-  {
-    OpOperator operator = (cast(SrdLexical)lexical).env.operators.scan(text, column);//TODO need new way to access lexical without typecasting
-    if (operator is null)
-      column = column + operator.name.length;
-    else
-      error("Unkown operator started with " ~ text[column]);
+  protected:
+    override bool scan(const string text, ref int column)
+    {
+      OpOperator operator = (cast(SrdLexical)lexical).env.operators.scan(text, column);//TODO need new way to access lexical without typecasting
+      if (operator is null)
+        column = column + operator.name.length;
+      else
+        error("Unkown operator started with " ~ text[column]);
 
-    /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
-      lexical.parser.setControl(lOperator.Control)
-    else*/
-    lexical.parser.setOperator(operator);
-    return true;
-  }
+      /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
+        lexical.parser.setControl(lOperator.Control)
+      else*/
+      lexical.parser.setOperator(operator);
+      return true;
+    }
 
-  override bool accept(const string text, int column){
-    return lexical.isOperator(text[column]);   
-  }
+    override bool accept(const string text, int column){
+      return lexical.isOperator(text[column]);   
+    }
 }
 
 class SrdLineComment_Scanner: SardScanner
@@ -1053,7 +1060,8 @@ abstract class SrdString_Scanner: SardScanner
 
 /* Single Quote String */
 
-class SrdSQString_Scanner: SrdString_Scanner{
+class SrdSQString_Scanner: SrdString_Scanner
+{
   protected:
     override void created(){
       super.created();
@@ -1064,7 +1072,8 @@ class SrdSQString_Scanner: SrdString_Scanner{
 
 /* Double Quote String */
 
-class SrdDQString_Scanner: SrdString_Scanner{
+class SrdDQString_Scanner: SrdString_Scanner
+{
   protected:
     override void created(){
       super.created();

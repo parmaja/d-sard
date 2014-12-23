@@ -14,6 +14,7 @@ import std.conv;
 import std.uni;
 import std.array;
 import std.range;
+import sard.utils;
 import minilib.metaclasses;
 
 class SardException: Exception 
@@ -51,18 +52,25 @@ class SardParserException: Exception
 
 class SardObject: Object 
 {
-  debug{
-    void debugWrite(int level){
-      writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
+  protected:
+    void created() {
+    };
+
+  public:
+
+    debug{
+      void debugWrite(int level){
+        writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
+      }
     }
-  }
 
-  void created() {
-  };
+    this(){
+      created(); 
+    }
 
-  this(){
-    created(); 
-  }
+    void error(string error) {
+      throw new SardException(error);
+    }
 }
 
 //class SardObjects(T): SardObject if(is(T: SardNamedObject)) {
@@ -111,8 +119,8 @@ class SardObjects(T: SardObject): SardObject
     }
 }
 
-class SardNamedObjects(T: SardObject): SardObjects!T{
-
+class SardNamedObjects(T: SardObject): SardObjects!T
+{
   public:
     T find(string aName) {
       int i = 0;
@@ -128,7 +136,8 @@ class SardNamedObjects(T: SardObject): SardObjects!T{
     }
 }
 
-enum SardControl {
+enum SardControl 
+{
   None,
   Start, //Start parsing
   Stop, //Start parsing
@@ -209,7 +218,7 @@ class SardStack(T): SardObject
       SardStackItem aItem;
 
       if (vObject is null)
-        raiseError("Can't push null");
+        error("Can't push null");
 
       aItem = new SardStackItem();
       aItem.object = vObject;
@@ -226,7 +235,7 @@ class SardStack(T): SardObject
 
     T pull(){
       if (currentItem is null)
-        raiseError("Stack is empty");
+        error("Stack is empty");
       beforePop();
       T aObject = currentItem.object;
       SardStackItem aItem = currentItem;
@@ -237,13 +246,13 @@ class SardStack(T): SardObject
 
     T peek(){
       if (currentItem is null)
-        raiseError("Stack is empty"); //TODO maybe return nil
+        error("Stack is empty"); //TODO maybe return nil
       return currentItem.object;
     }
 
     void pop() {
       if (currentItem is null)
-        raiseError("Stack is empty");
+        error("Stack is empty");
       beforePop();
       T aObject = currentItem.object;
       SardStackItem aItem = currentItem;
@@ -266,7 +275,8 @@ class SardStack(T): SardObject
   }
 }
 
-class SardScanner: SardObject {
+class SardScanner: SardObject 
+{
   private:
     SardLexical _lexical;
 
@@ -305,7 +315,8 @@ class SardScanner: SardObject {
     }
 }
 
-class SardLexical: SardObjects!SardScanner{
+class SardLexical: SardObjects!SardScanner
+{
   private:
     int _line;
     SardScanner _scanner; //current scanner
@@ -353,7 +364,7 @@ class SardLexical: SardObjects!SardScanner{
         }
 
         if (result is null)
-          raiseError("Scanner not found: " ~ text[column]);
+          error("Scanner not found: " ~ text[column]);
         switchScanner(result);
         return result;
       }
@@ -384,7 +395,7 @@ class SardLexical: SardObjects!SardScanner{
     void SelectScanner(ClassInfo scannerClass) {
       SardScanner aScanner = findClass(scannerClass);
       if (aScanner is null)
-        raiseError("Scanner not found");
+        error("Scanner not found");
       switchScanner(aScanner);
     }
 
@@ -403,7 +414,7 @@ class SardLexical: SardObjects!SardScanner{
             detectScanner(text, column);
 
           if ((oldColumn == column) && (oldScanner == _scanner))
-            raiseError("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
+            error("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
         }
         catch(Exception exc) {          
           throw new SardParserException(exc.msg, aLine, column);
@@ -412,7 +423,8 @@ class SardLexical: SardObjects!SardScanner{
     }
 };
 
-class SardFeeder: SardObject {
+class SardFeeder: SardObject 
+{
   private:
     bool _active;
     string _ver;
@@ -436,7 +448,7 @@ class SardFeeder: SardObject {
         if (_lexical == value)
           return _lexical;
         if (active)
-          raiseError("You can not set scanner when started!");
+          error("You can not set scanner when started!");
         return _lexical = value;      
       }*/
 
@@ -457,7 +469,7 @@ class SardFeeder: SardObject {
 
     void scanLine(const string text, const int line) {
       if (!active)
-        raiseError("Feeder not started");
+        error("Feeder not started");
       lexical.scanLine(text, line);
     }
 
@@ -488,7 +500,7 @@ class SardFeeder: SardObject {
  
     void start(){
       if (_active)
-        raiseError("File already opened");
+        error("File already opened");
       _active = true;
       doStart();
       lexical.parser.start();
@@ -496,7 +508,7 @@ class SardFeeder: SardObject {
 
     void stop(){
       if (!_active)
-        raiseError("File already closed");
+        error("File already closed");
       lexical.parser.stop();
       doStop();
       _active = false;
@@ -528,29 +540,3 @@ interface ISardParser {
       doSetOperator(aOperator);
     }
 };
-
-bool scanCompare(string s, const string text, int index){
-  return scanText(s, text, index);
-}
-
-/**
-  return true if s is founded in text at index
-*/
-bool scanText(string s, const string text, ref int index) {
-  bool r = (text.length - index) >= s.length;
-  if (r) {
-    string w = text[index..index + s.length];
-    r = toLower(w) == toLower(s); //case *in*sensitive
-    if (r)
-      index = index + s.length;
-  }
-  return r;
-}
-
-string stringRepeat(string s, int count){
-  return replicate(s, count);
-}
-
-void raiseError(string error) {
-  throw new SardException(error);
-}

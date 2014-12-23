@@ -69,6 +69,7 @@ import std.stdio;
 import std.conv;
 import std.uni;
 import std.datetime;
+import sard.utils;
 import sard.classes;
 
 import minilib.sets;
@@ -159,7 +160,7 @@ class SrdClause: SardObject {
 
     bool execute(RunStack aStack) {
       if (_object is null)
-        raiseError("Object not set!");
+        error("Object not set!");
       return _object.execute(aStack, _operator);
     }
 }
@@ -261,7 +262,7 @@ abstract class SoObject: SardObject {
     @property 
       SoObject parent(SoObject value) {
         if (_parent !is null) 
-          raiseError("Already have a parent");
+          error("Already have a parent");
         _parent = value;
         doSetParent(_parent);
         return _parent; 
@@ -372,7 +373,7 @@ abstract class SoObject: SardObject {
     SoObject clone(bool withValue = true){
       SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
 	    if (object is null)
-		    raiseError("Error when clongin");      
+		    error("Error when clongin");      
 	  
       if (withValue)
         object.assign(this);
@@ -605,7 +606,7 @@ class SoInstance: SoBlock{
       else {
         RunVariable v = vStack.local.current.variables.find(name);
         if (v is null)
-          raiseError("Can not find a variable: " ~ name);
+          error("Can not find a variable: " ~ name);
         done = v.value.object.execute(vStack, aOperator);
       }      
     }
@@ -624,9 +625,9 @@ protected:
   override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
     RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));
       if (v is null)
-        raiseError("Can not register a varibale: " ~ name) ;
+        error("Can not register a varibale: " ~ name) ;
       if (v.value.object is null)
-        raiseError(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
+        error(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
     done = v.value.object.execute(vStack, aOperator);
   }
 
@@ -663,14 +664,14 @@ class SoAssign: SoNamedObject{
           if (aDeclare.callObject !is null){
             RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal])); //parent becuase we are in the statement
             if (v is null)
-              raiseError("Variable not found!");
+              error("Variable not found!");
             vStack.ret.current.reference = v.value;
           }
         }
         else { //Ok let is declare it locally
           RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));//parent becuase we are in the statement
           if (v is null)
-            raiseError("Variable not found!");
+            error("Variable not found!");
           vStack.ret.current.reference = v.value;
         }
       }
@@ -1411,7 +1412,7 @@ class RunReturnItem: SardObject{
     @property RunResult reference(RunResult value) { 
         if (_reference != value) {
           if (_reference !is null) 
-            raiseError("Already set a reference");
+            error("Already set a reference");
           _reference = value;
         }
 

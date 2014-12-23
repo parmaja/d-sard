@@ -54,6 +54,7 @@ import std.stdio;
 //import std.algorithm;
 import std.uni;
 import std.datetime;
+import sard.utils;
 import sard.classes;
 import sard.objects;
 import minilib.sets;
@@ -100,7 +101,7 @@ class SrdInstruction: SardObject
     void internalSetObject(SoObject aObject)
     {
       if ((object !is null) && (aObject !is null))
-        raiseError("Object is already set");
+        error("Object is already set");
       object = aObject;
     }
 
@@ -116,10 +117,10 @@ class SrdInstruction: SardObject
     {
       bool r = identifier != "";
       if (raise && !r)
-        raiseError("Identifier is not set!");
+        error("Identifier is not set!");
       r = r && (object is null);
       if (raise && !r) 
-        raiseError("Object is already set!");
+        error("Object is already set!");
       return r;
     }
 
@@ -128,10 +129,10 @@ class SrdInstruction: SardObject
     {
       bool r = object !is null;
       if (raise && !r)
-        raiseError("Object is not set!");
+        error("Object is not set!");
       r = r && (identifier == "");
       if (raise && !r) 
-        raiseError("Identifier is already set!");
+        error("Identifier is already set!");
       return r;
     }
 
@@ -140,7 +141,7 @@ class SrdInstruction: SardObject
     {
       bool r = operator !is null;
       if (raise && !r)
-        raiseError("Operator is not set!");
+        error("Operator is not set!");
       return r;
     }
 
@@ -157,13 +158,13 @@ class SrdInstruction: SardObject
     void setOperator(OpOperator aOperator)
     {
       if (operator !is null)
-        raiseError("Operator is already set");
+        error("Operator is already set");
       operator = aOperator;
     }
 
     void setIdentifier(string aIdentifier){
       if (identifier != "")
-        raiseError("Identifier is already set");
+        error("Identifier is already set");
       identifier = aIdentifier;
       setFlag(Flag.Identifier);
     }
@@ -171,7 +172,7 @@ class SrdInstruction: SardObject
     SoBaseNumber setNumber(string aIdentifier)
     {
       if (identifier != "")
-        raiseError("Identifier is already set");
+        error("Identifier is already set");
       //TODO need to check anObject too
       SoBaseNumber result;
       if ((aIdentifier.indexOf(".") > 0) || ((aIdentifier.indexOf("E") > 0)))
@@ -186,7 +187,7 @@ class SrdInstruction: SardObject
     SoText setText(string aIdentifier)
     {
       if (identifier != "")
-        raiseError("Identifier is already set");
+        error("Identifier is already set");
       //TODO need to check anObject too
       SoText result = new SoText(aIdentifier);
       //result.value = AIdentifier;
@@ -198,7 +199,7 @@ class SrdInstruction: SardObject
     SoComment setComment(string aIdentifier){
       //We need to check if it the first expr in the statment
       if (identifier != "")
-        raiseError("Identifier is already set");
+        error("Identifier is already set");
       //TODO need to check anObject too
       SoComment result = new SoComment();
       result.value = aIdentifier;
@@ -209,7 +210,7 @@ class SrdInstruction: SardObject
     
   SoInstance setInstance(string aIdentifier){
       if (identifier == "")
-      raiseError("Identifier is already set");
+      error("Identifier is already set");
     SoInstance result = new SoInstance();
     result.name = aIdentifier;
     internalSetObject(result);
@@ -219,7 +220,7 @@ class SrdInstruction: SardObject
 
 	SoInstance setInstance(){
 	  if (identifier == "")
-		raiseError("Identifier is not set");
+		error("Identifier is not set");
 	  SoInstance result = setInstance(identifier);
 	  identifier = "";	  
 	  return result;
@@ -227,7 +228,7 @@ class SrdInstruction: SardObject
 
 	SoStatement setStatment(){ //Statement object not srdStatement	
 	  if (identifier != "")
-		  raiseError("Identifier is already set");
+		  error("Identifier is already set");
 	  SoStatement result = new SoStatement();
 	  internalSetObject(result);
 	  setFlag(Flag.Statement);
@@ -246,7 +247,7 @@ class SrdInstruction: SardObject
 	
   SoDeclare setDeclare(){
     if (identifier == "")
-      raiseError("identifier is not set");
+      error("identifier is not set");
     SoDeclare result = new SoDeclare();
     result.name = identifier;    
     internalSetObject(result);
@@ -257,7 +258,7 @@ class SrdInstruction: SardObject
   
   void setObject(SoObject aObject){
     if (identifier != "")
-      raiseError("Identifier is already set");
+      error("Identifier is already set");
     internalSetObject(aObject);  
   }  
 }
@@ -385,10 +386,10 @@ class SrdInterpreter: SardObject{
 
     void switchController(ClassInfo aControllerInfo){
       if (aControllerInfo is null)
-        raiseError("ControllerClass must have a value!");
+        error("ControllerClass must have a value!");
       controller = parser.controllers.findClass(aControllerInfo);
       if (controller is null)
-        raiseError("Can not find this class!");
+        error("Can not find this class!");
     }
 
     void control(SardControl aControl){
@@ -424,7 +425,7 @@ class SrdInterpreterStatement: SrdInterpreter{
       super.prepare();
       if (instruction.identifier != "") {        
         if (instruction.object !is null)
-          raiseError("Object is already set!");
+          error("Object is already set!");
         instruction.setInstance();
       }
     }
@@ -452,7 +453,7 @@ class SrdInterpreterBlock: SrdInterpreterStatement
       super.prepare();
       if (statement is null) {        
         if (block is null)
-          raiseError("Maybe you need to set a block, or it single statment block");
+          error("Maybe you need to set a block, or it single statment block");
         statement = block.add();
       }
     }
@@ -498,13 +499,13 @@ class SrdInterpreterDefine: SrdInterpreter{
     
     override void internalPost(){
       if (instruction.identifier == "")
-        raiseError("Identifier not set"); //TODO maybe check if he post const or another things
+        error("Identifier not set"); //TODO maybe check if he post const or another things
       if (param){
         if (state == State.Name)
           declare.defines.add(instruction.identifier, "");
         else {
           if (declare.defines.last.result != "") 
-            raiseError("Result type already set");
+            error("Result type already set");
           declare.defines.last.result = instruction.identifier;
         }        
       }
@@ -568,7 +569,7 @@ class SrdInterpreterDefine: SrdInterpreter{
           case SardControl.OpenParams:
             post();
             if (declare.defines.count > 0)
-              raiseError("You already define params! we expected open block.");
+              error("You already define params! we expected open block.");
             param = true;
             break;
           case SardControl.CloseParams:
@@ -615,7 +616,7 @@ class SrdControllerNormal: SrdController{
               instruction.setAssign();
               post();
             } else {
-              raiseError("You can not use assignment here!");
+              error("You can not use assignment here!");
             }
             break;
 
@@ -625,7 +626,7 @@ class SrdControllerNormal: SrdController{
               post();
               push(new SrdInterpreterDefine(parser, aDeclare));
             } else {
-              raiseError("You can not use assignment here!");
+              error("You can not use assignment here!");
             }
             break;
 
@@ -638,7 +639,7 @@ class SrdControllerNormal: SrdController{
           case SardControl.CloseBlock:
             post();
             if (parser.count == 1)
-              raiseError("Maybe you closed not opened Curly");
+              error("Maybe you closed not opened Curly");
             setAction(Actions([Action.PopInterpreter]));
             break;
 
@@ -657,7 +658,7 @@ class SrdControllerNormal: SrdController{
           case SardControl.CloseParams:
             post();
             if (parser.count == 1)
-              raiseError("Maybe you closed not opened Bracket");
+              error("Maybe you closed not opened Bracket");
             setAction(Actions([Action.PopInterpreter]));
             break;
 
@@ -675,7 +676,7 @@ class SrdControllerNormal: SrdController{
               next();
             break;
           default:
-            raiseError("Not implemented yet :(");
+            error("Not implemented yet :(");
         }
       }
     }
@@ -706,7 +707,7 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
     override void doSetOperator(SardObject aOperator){
       OpOperator o = cast(OpOperator)aOperator; //TODO do something i hate typecasting
       if (o is null) 
-        raiseError("aOperator not OpOperator");
+        error("aOperator not OpOperator");
       current.addOperator(o);
       actionStack();
       actions = [];
@@ -755,7 +756,7 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
       super();      
 
       if (aBlock is null)
-        raiseError("You must set a block");
+        error("You must set a block");
       
       controllers.add(new SrdControllerNormal(this));
       controllers.add(new SrdControllerDefines(this));      
@@ -773,7 +774,7 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser {
     SrdInterpreter pushIt(ClassInfo info){
       SrdInterpreter result = cast(SrdInterpreter)info.create();//this is buggy
       if (result is null)
-        raiseError("Invalid type casting SrdInterpreter");
+        error("Invalid type casting SrdInterpreter");
       result.set(this);
       push(result);
       return result;
@@ -924,7 +925,7 @@ protected:
       column = column + control.name.length;
     }
     else
-      raiseError("Unkown control started with " ~ text[column]);
+      error("Unkown control started with " ~ text[column]);
     
     lexical.parser.setControl(control.code);
     return true;
@@ -944,7 +945,7 @@ protected:
     if (operator is null)
       column = column + operator.name.length;
     else
-      raiseError("Unkown operator started with " ~ text[column]);
+      error("Unkown operator started with " ~ text[column]);
 
     /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
       lexical.parser.setControl(lOperator.Control)

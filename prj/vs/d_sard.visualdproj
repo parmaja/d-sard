@@ -208,6 +208,7 @@
    <File path="..\..\src\sard\package.d" />
    <File path="..\..\src\sard\process.d" />
    <File path="..\..\src\sard\scanners.d" />
+   <File path="..\..\src\sard\utils.d" />
   </Folder>
   <File path="..\..\src\main.d" />
  </Folder>

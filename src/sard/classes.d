@@ -523,7 +523,7 @@ bool scanCompare(string s, const string text, int index){
 bool scanText(string s, const string text, ref int index) {
   bool r = (text.length - index) >= s.length;
   if (r) {
-    string w = text[index..s.length];
+    string w = text[index..index + s.length];
     r = toLower(w) == toLower(s); //case *in*sensitive
     if (r)
       index = index + s.length;

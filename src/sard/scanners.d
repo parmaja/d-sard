@@ -865,7 +865,7 @@ protected:
     int c = column;
     while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
       column++;
-    lexical.parser.setToken(text[c..column - c], SrdType.Identifier);
+    lexical.parser.setToken(text[c..column + 1], SrdType.Identifier);
     return true;
   }
 
@@ -883,7 +883,7 @@ protected:
     int l = text.length;
     while ((column < text.length) && (lexical.isNumber(text[column], false)))
       column++;
-    lexical.parser.setToken(text[c..column - c], SrdType.Number);
+    lexical.parser.setToken(text[c..column + 1], SrdType.Number);
     return true;
   }
 
@@ -897,9 +897,16 @@ class SrdControl_Scanner: SardScanner
 protected:
   override bool scan(const string text, ref int column)
   {
+    debug{
+      
+    }
     CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
-    if (control !is null)
+    if (control !is null){
+      debug{
+        writeln("found control: " ~ control.name);
+      }
       column = column + control.name.length;
+    }
     else
       raiseError("Unkown control started with " ~ text[column]);
     
@@ -978,7 +985,7 @@ class SrdComment_Scanner: SardScanner
       int c = column;    
       while (column < text.length) {
         if (scanCompare("*}", text, column)){
-          buffer = buffer ~ text[c..column - c];
+          buffer = buffer ~ text[c..column + 1];
           column = column + 2;
           lexical.parser.setToken(buffer, SrdType.Comment);
           buffer = "";
@@ -986,7 +993,7 @@ class SrdComment_Scanner: SardScanner
         }
         column++;
       }
-      buffer = buffer ~ text[c..column - c];
+      buffer = buffer ~ text[c..column + 1];
       return false;
     }
 
@@ -1006,7 +1013,7 @@ abstract class SrdString_Scanner: SardScanner
       int c = column;    
       while (column < text.length) {      
         if (text[column] == quote) { //TODO Escape, not now
-          buffer = buffer ~ text[c..column - c];        
+          buffer = buffer ~ text[c..column + 1];
           lexical.parser.setToken(buffer, SrdType.String);
           column++;
           buffer = "";
@@ -1014,7 +1021,7 @@ abstract class SrdString_Scanner: SardScanner
         }
         column++;
       }
-      buffer = buffer ~ text[c..column - c];
+      buffer = buffer ~ text[c..column + 1];
       return false;
     }
 

@@ -979,9 +979,9 @@ public:
 
       case "-": 
         if (cast(SoBaseNumber)aObject !is null) {
-          int c = value.length;
-          c =c - to!int((cast(SoBaseNumber)aObject).asInteger);
-          value = value[0..c];
+          int c = value.length -1;
+          c = c - to!int((cast(SoBaseNumber)aObject).asInteger);
+          value = value[0..c + 1];
           return true;
         }
         else
@@ -1077,7 +1077,8 @@ class CtlControls: SardNamedObjects!CtlControl
     int max = 0;
     int i = 0;
     while (i < count) {
-      if (scanCompare(this[i].name, text, index)) {
+      string w = this[i].name;
+      if (scanCompare(w, text, index)) {
         if (max < this[i].name.length) {
           max = this[i].name.length;
           result = this[i];

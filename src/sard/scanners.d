@@ -358,15 +358,15 @@ class SrdInterpreter: SardObject{
       _flags = [];
     }
 
-    void addIdentifier(string aIdentifier, SrdType aType){
+    void addIdentifier(string aIdentifier, SardType aType){
       switch (aType) {
-        case SrdType.Number: 
+        case SardType.Number: 
             instruction.setNumber(aIdentifier); 
             break;
-        case SrdType.String: 
+        case SardType.String: 
             instruction.setText(aIdentifier);
             break;
-        case SrdType.Comment: 
+        case SardType.Comment: 
             instruction.setComment(aIdentifier);
             break;
         default:
@@ -695,7 +695,7 @@ class SrdControllerDefines: SrdControllerNormal{
 
 class SrdParser: SardStack!SrdInterpreter, ISardParser {
   protected:
-    override void doSetToken(string aToken, SrdType aType){
+    override void doSetToken(string aToken, SardType aType){
       debug{        
         writeln("SetToken:" ~ aToken ~ " Type:" ~ to!string(aType));
       }
@@ -887,7 +887,7 @@ protected:
     while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
       column++;
     column++;
-    lexical.parser.setToken(text[c..column], SrdType.Identifier);
+    lexical.parser.setToken(text[c..column], SardType.Identifier);
     return true;
   }
 
@@ -906,7 +906,7 @@ protected:
     while ((column < text.length) && (lexical.isNumber(text[column], false)))
       column++;    
     column++;
-    lexical.parser.setToken(text[c..column], SrdType.Number);
+    lexical.parser.setToken(text[c..column], SardType.Number);
     return true;
   }
 
@@ -1006,7 +1006,7 @@ class SrdComment_Scanner: SardScanner
         if (scanCompare("*}", text, column)){
           buffer = buffer ~ text[c..column + 1];
           column = column + 2;
-          lexical.parser.setToken(buffer, SrdType.Comment);
+          lexical.parser.setToken(buffer, SardType.Comment);
           buffer = "";
           return true;
         }
@@ -1034,7 +1034,7 @@ abstract class SrdString_Scanner: SardScanner
       while (column < text.length) {      
         if (text[column] == quote) { //TODO Escape, not now
           buffer = buffer ~ text[c..column + 1];
-          lexical.parser.setToken(buffer, SrdType.String);
+          lexical.parser.setToken(buffer, SardType.String);
           column++;
           buffer = "";
           return true;

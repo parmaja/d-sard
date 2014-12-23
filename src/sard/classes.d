@@ -516,7 +516,7 @@ class SardFeeder: SardObject
     }
 };
 
-enum SrdType {None, Identifier, Number, Color, String, Comment }
+enum SardType {None, Identifier, Number, Color, String, Comment }
 
 interface ISardParser {
   protected:
@@ -524,7 +524,7 @@ interface ISardParser {
     abstract void stop();    
 
     abstract void doSetControl(SardControl aControl);
-    abstract void doSetToken(string aToken, SrdType aType);
+    abstract void doSetToken(string aToken, SardType aType);
     abstract void doSetOperator(SardObject aOperator);
 
   public:
@@ -532,7 +532,7 @@ interface ISardParser {
       doSetControl(aControl);
     }
 
-    final void setToken(string aToken, SrdType aType){
+    final void setToken(string aToken, SardType aType){
       doSetToken(aToken, aType);
     }
 

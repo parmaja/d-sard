@@ -85,13 +85,15 @@ alias string text;
 enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otObject, otClass, otVariable};
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
-enum RunVarKind {vtLocal, vtParam};//Ok there is more in the future
+enum RunVarKind {Local, Param}; //Ok there is more in the future
 
-//alias bool[RunVarKind] RunVarKinds;
 alias RunVarKinds = Set!RunVarKind;
 
-class SrdObjects(T): SardObjects!T { //TODO rename it to SoObjects
+class SrdDebugInfo: SardObject {
+}
 
+class SrdObjects(T): SardObjects!T 
+{ 
   private:
     SoObject _parent;
 
@@ -116,8 +118,8 @@ class SrdObjects(T): SardObjects!T { //TODO rename it to SoObjects
     }   
 }
 
-class SrdDebug: SardObject {
-
+class SrdDebug: SardObject 
+{
   public:
     int line;
     int column;
@@ -125,7 +127,8 @@ class SrdDebug: SardObject {
     //bool breakPoint; //not sure, do not laugh
 }
 
-class SrdDefine: SardObject {
+class SrdDefine: SardObject 
+{
   public:
     string name;
     string result;
@@ -135,8 +138,8 @@ class SrdDefine: SardObject {
     }
 }
 
-class SrdDefines: SardObjects!SrdDefine {
-
+class SrdDefines: SardObjects!SrdDefine 
+{
   void add(string aName, string aResult) {
     super.add(new SrdDefine(aName, aResult));
   }
@@ -144,7 +147,8 @@ class SrdDefines: SardObjects!SrdDefine {
 
 /** SrdClause */
 
-class SrdClause: SardObject {
+class SrdClause: SardObject 
+{
   private:
     OpOperator _operator;
     SoObject _object;
@@ -167,7 +171,8 @@ class SrdClause: SardObject {
 
 /** SrdStatement */
 
-class SrdStatement: SrdObjects!SrdClause {
+class SrdStatement: SrdObjects!SrdClause 
+{
   //check BUG1
   this(SoObject aParent){
     super(aParent);    
@@ -199,8 +204,8 @@ class SrdStatement: SrdObjects!SrdClause {
   public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
-class SrdBlock: SrdObjects!SrdStatement {
-
+class SrdBlock: SrdObjects!SrdStatement 
+{
   //check BUG1
   this(SoObject aParent){
     super(aParent);    
@@ -237,12 +242,10 @@ class SrdBlock: SrdObjects!SrdStatement {
   }
 }
 
-class SrdBlockStack:SardStack!SrdBlock {
-}
-
 /** SoObject */
 
-abstract class SoObject: SardObject {
+abstract class SoObject: SardObject 
+{
   private:
     SoObject _parent;
 
@@ -406,7 +409,8 @@ abstract class SoObject: SardObject {
     }
 }
 
-class SoNamedObject: SoObject {
+class SoNamedObject: SoObject 
+{
   private:
     int _id;
     string _name;
@@ -432,6 +436,8 @@ class SoNamedObject: SoObject {
       return vStack.local.current.variables.register(name, vKind);
     }
 }
+
+/*--------------------------------------------*/
 
 abstract class SoConstObject: SoObject
 {
@@ -464,7 +470,7 @@ abstract class SoBlock: SoNamedObject{
           vStack.ret.insert();
           vParameters[i].call(vStack);
           if (i < vDefines.count){      
-            RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.vtLocal, RunVarKind.vtParam])); //must find it locally//bug//todo
+            RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //must find it locally//bug//todo
             v.value = vStack.ret.current.releaseResult();
           }
           vStack.ret.pop();
@@ -507,6 +513,8 @@ abstract class SoBlock: SoNamedObject{
     }
 }
 
+/*--------------------------------------------*/
+
 //Just a references not free inside objects, not sure how to do that in D
 
 class SrdDeclares: SardNamedObjects!SoDeclare {
@@ -515,7 +523,8 @@ class SrdDeclares: SardNamedObjects!SoDeclare {
 /** SoSection */
 /** Used by { } */
 
-class SoSection: SoBlock { //Result was droped until using := assign in the first of statement
+class SoSection: SoBlock  //Result was droped until using := assign in the first of statement
+{ 
   private:
     SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
     
@@ -596,7 +605,8 @@ class SoStatement: SoCustomStatement
 
 /** it is a variable value like x in this "10 + x + 5" */
 
-class SoInstance: SoBlock{
+class SoInstance: SoBlock
+{
   protected:
     override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
 
@@ -621,32 +631,33 @@ class SoInstance: SoBlock{
 
 class SoVariable: SoNamedObject
 { 
-protected:
-  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
-    RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));
-      if (v is null)
-        error("Can not register a varibale: " ~ name) ;
-      if (v.value.object is null)
-        error(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
-    done = v.value.object.execute(vStack, aOperator);
-  }
+  protected:
+    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
+      RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));
+        if (v is null)
+          error("Can not register a varibale: " ~ name) ;
+        if (v.value.object is null)
+          error(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
+      done = v.value.object.execute(vStack, aOperator);
+    }
 
-public:
-  ClassInfo resultType;
-//  SardMetaClass resultType; OUTCH
+  public:
+    ClassInfo resultType;
+  //  SardMetaClass resultType; OUTCH
 
-  this(){
-    super();
-  }
+    this(){
+      super();
+    }
 
-  this(SoObject vParent, string vName){ //not auto inherited
-    super(vParent, vName);
-  }
+    this(SoObject vParent, string vName){ //not auto inherited
+      super(vParent, vName);
+    }
 }
 
 /** It is assign a variable value, x:=10 + y */
 
-class SoAssign: SoNamedObject{
+class SoAssign: SoNamedObject
+{
   protected:
     override void doSetParent(SoObject value) {
       super.doSetParent(value);
@@ -662,14 +673,14 @@ class SoAssign: SoNamedObject{
         SoDeclare aDeclare = findDeclare(name);//TODO: maybe we can cashe it
         if (aDeclare !is null) {
           if (aDeclare.callObject !is null){
-            RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal])); //parent becuase we are in the statement
+            RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
             if (v is null)
               error("Variable not found!");
             vStack.ret.current.reference = v.value;
           }
         }
         else { //Ok let is declare it locally
-          RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.vtLocal]));//parent becuase we are in the statement
+          RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
           if (v is null)
             error("Variable not found!");
           vStack.ret.current.reference = v.value;
@@ -693,7 +704,8 @@ class SoAssign: SoNamedObject{
     }
 }
 
-class SoDeclare: SoNamedObject{
+class SoDeclare: SoNamedObject
+{
   private:
     SrdDefines _defines;
     public @property SrdDefines defines(){ return _defines; }
@@ -740,27 +752,29 @@ class SoDeclare: SoNamedObject{
 
 /** SoNone **/
 
-class SoNone: SoConstObject{ //None it is not Null, it is an initial value we sart it
+class SoNone: SoConstObject  //None it is not Null, it is an initial value we sart it
+{ 
   //Do operator
   //Convert to 0 or ''
 }
 
 /** SoComment **/
 
-class SoComment: SoObject{
-protected:
-  override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
-    //Guess what!, we will not to execute the comment ;)
-    done = true;
-  }
+class SoComment: SoObject
+{
+  protected:
+    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+      //Guess what!, we will not to execute the comment ;)
+      done = true;
+    }
 
-  override void created(){
-    super.created();
-    objectType = ObjectType.otComment;
-  }
+    override void created(){
+      super.created();
+      objectType = ObjectType.otComment;
+    }
 
-public:
-  string value;
+  public:
+    string value;
 }
 
 /** SoPreprocessor **/
@@ -781,131 +795,136 @@ public:
 }
 */
 
-abstract class SoBaseNumber: SoConstObject{ //base class for Number and Integer
+abstract class SoBaseNumber: SoConstObject //base class for Number and Integer
+{ 
 }
 
 /** SoInteger **/
 
-class SoInteger: SoBaseNumber {
-protected:
-  override void created(){
-    super.created();
-    objectType = ObjectType.otInteger;
-  }
-public:
-  integer value;
-
-  this(integer aValue){
-    value = aValue;
-  }
-
-  override void assign(SoObject fromObject){      
-    value = fromObject.asInteger;      
-  }    
-
-  override bool operate(SoObject aObject, OpOperator aOperator){
-
-    switch(aOperator.name){
-      case "+": 
-        value = value + aObject.asInteger;
-        return true;
-      case "-": 
-        value = value - aObject.asInteger;
-        return true;
-      case "*": 
-        value = value * aObject.asInteger;
-        return true;
-      case "/": 
-        value = value % aObject.asInteger;
-        return true;
-      default:
-        return false;
+class SoInteger: SoBaseNumber 
+{
+  protected:
+    override void created(){
+      super.created();
+      objectType = ObjectType.otInteger;
     }
-  }
+  public:
+    integer value;
 
-  override bool toText(out string outValue){
-    outValue = to!text(value);
-    return true;
-  }
+    this(integer aValue){
+      value = aValue;
+    }
 
-  override bool toNumber(out number outValue){
-    outValue = to!number(value);
-    return true;
-  }
+    override void assign(SoObject fromObject){      
+      value = fromObject.asInteger;      
+    }    
 
-  override bool toInteger(out integer outValue){
-    outValue = value;
-    return true;
-  }
+    override bool operate(SoObject aObject, OpOperator aOperator){
 
-  override bool toBool(out bool outValue){
-    outValue = value != 0;
-    return true;
-  }
+      switch(aOperator.name){
+        case "+": 
+          value = value + aObject.asInteger;
+          return true;
+        case "-": 
+          value = value - aObject.asInteger;
+          return true;
+        case "*": 
+          value = value * aObject.asInteger;
+          return true;
+        case "/": 
+          value = value % aObject.asInteger;
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    override bool toText(out string outValue){
+      outValue = to!text(value);
+      return true;
+    }
+
+    override bool toNumber(out number outValue){
+      outValue = to!number(value);
+      return true;
+    }
+
+    override bool toInteger(out integer outValue){
+      outValue = value;
+      return true;
+    }
+
+    override bool toBool(out bool outValue){
+      outValue = value != 0;
+      return true;
+    }
 }
 
 /** SoNumber **/
 
-class SoNumber: SoBaseNumber {
-protected:
-  override void created(){
-    super.created();
-    objectType = ObjectType.otNumber;
-  }
-public:
-  number value;
-
-  this(number aValue){
-    value = aValue;
-  }
-
-  override void assign(SoObject fromObject){      
-    value = fromObject.asNumber;      
-  }    
-
-  override bool operate(SoObject aObject, OpOperator aOperator){
-
-    switch(aOperator.name){
-      case "+": 
-        value = value + aObject.asNumber;
-        return true;
-      case "-": 
-        value = value - aObject.asNumber;
-        return true;
-      case "*": 
-        value = value * aObject.asNumber;
-        return true;
-      case "/": 
-        value = value / aObject.asNumber;
-        return true;
-      default:
-        return false;
+class SoNumber: SoBaseNumber 
+{
+  protected:
+    override void created(){
+      super.created();
+      objectType = ObjectType.otNumber;
     }
-  }
+  public:
+    number value;
 
-  override bool toText(out string outValue){
-    outValue = to!text(value);
-    return true;
-  }
+    this(number aValue){
+      value = aValue;
+    }
 
-  override bool toNumber(out number outValue){
-    outValue = value;
-    return true;
-  }
+    override void assign(SoObject fromObject){      
+      value = fromObject.asNumber;      
+    }    
 
-  override bool toInteger(out integer outValue){
-    outValue = to!integer(value);
-    return true;
-  }
+    override bool operate(SoObject aObject, OpOperator aOperator){
 
-  override bool toBool(out bool outValue){
-    outValue = value != 0;
-    return true;
-  }
+      switch(aOperator.name){
+        case "+": 
+          value = value + aObject.asNumber;
+          return true;
+        case "-": 
+          value = value - aObject.asNumber;
+          return true;
+        case "*": 
+          value = value * aObject.asNumber;
+          return true;
+        case "/": 
+          value = value / aObject.asNumber;
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    override bool toText(out string outValue){
+      outValue = to!text(value);
+      return true;
+    }
+
+    override bool toNumber(out number outValue){
+      outValue = value;
+      return true;
+    }
+
+    override bool toInteger(out integer outValue){
+      outValue = to!integer(value);
+      return true;
+    }
+
+    override bool toBool(out bool outValue){
+      outValue = value != 0;
+      return true;
+    }
 }
+
 /** SoBool **/
 
-class SoBool: SoBaseNumber {
+class SoBool: SoBaseNumber 
+{
   protected:
     override void created(){
       super.created();
@@ -1317,11 +1336,12 @@ public:
 }
 */
 
-class RunVariable: SardObject{
+class RunVariable: SardObject
+{
   public:
     string name;
     RunVarKinds kind;
-private:
+  private:
 
     RunResult _value;
     public @property RunResult value() { return _value; }
@@ -1334,8 +1354,8 @@ private:
     }
 }
 
-class RunVariables: SardNamedObjects!RunVariable{
-
+class RunVariables: SardNamedObjects!RunVariable
+{
   RunVariable register(string vName, RunVarKinds vKind){
     RunVariable result = find(vName);
     if (result is null){      
@@ -1355,7 +1375,8 @@ class RunVariables: SardNamedObjects!RunVariable{
   }
 }
 
-class RunResult: SardObject{
+class RunResult: SardObject
+{
   private:
     SoObject _object;
   public:
@@ -1387,7 +1408,8 @@ class RunResult: SardObject{
     }
 }
 
-class RunLocalItem: SardObject{
+class RunLocalItem: SardObject
+{
   public:
     RunVariables variables;
     this(){
@@ -1396,13 +1418,15 @@ class RunLocalItem: SardObject{
     }
 }
 
-class RunLocal: SardStack!RunLocalItem {
+class RunLocal: SardStack!RunLocalItem 
+{
   void insert() {
     push(new RunLocalItem());
   }
 }
 
-class RunReturnItem: SardObject{
+class RunReturnItem: SardObject
+{
   public:
     private RunResult _result = new RunResult();
     @property RunResult result() { return _result; };
@@ -1431,21 +1455,23 @@ class RunReturnItem: SardObject{
     }
 }
 
-class RunReturn: SardStack!RunReturnItem {
+class RunReturn: SardStack!RunReturnItem 
+{
   public:        
     void insert() {
       push(new RunReturnItem());
     }
 }
 
-class RunStack: SardObject {
+class RunStack: SardObject 
+{
   private:
     RunLocal _local = new RunLocal();
     RunReturn _ret = new RunReturn();
     //RunShadow _shadow = new RunShadow(null);
   public:
-    SrdEnvironment env; //TODO maybe struct not a class
-    //@property SrdEnvironment env() {return _env ;};
+    SrdEnvironment env; 
+    
     @property RunLocal local() {return _local;};
     //   @property RunShadow shadow() {return _shadow ;};
     @property RunReturn ret() {return _ret ;};
@@ -1465,42 +1491,6 @@ class RunStack: SardObject {
       local.pop();
     }
 }
-
-class SoVersion_Const:SoNamedObject{
-protected:
-  override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-    vStack.ret.current.result.object = new SoText(sSardVersion);
-  }
-}
-
-class SoTime_Const: SoNamedObject{
-protected:
-  override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
-    vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
-  }
-}
-
-class SoMain: SoSection
-{
-  protected:
-    SoVersion_Const versionConst = new SoVersion_Const();
-
-  public:
-    this(){
-      super();
-      versionConst.parent = this;
-      versionConst.name = "Version";
-      addDeclare(null, versionConst);
-    }
-}
-
-class SrdEngine: SardObject{  
-}
-
-//--------------------------------------
-//--------------  TODO  ----------------
-//--------------------------------------
-
 
 class SrdEnvironment: SardObject{
   private:
@@ -1532,7 +1522,4 @@ class SrdEnvironment: SardObject{
     this(){
       super();
     }    
-}
-
-class SrdDebugInfo: SardObject {
 }

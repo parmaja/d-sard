@@ -89,7 +89,8 @@ enum RunVarKind {Local, Param}; //Ok there is more in the future
 
 alias RunVarKinds = Set!RunVarKind;
 
-class SrdDebugInfo: SardObject {
+class SrdDebugInfo: SardObject 
+{
 }
 
 class SrdObjects(T): SardObjects!T 
@@ -147,7 +148,7 @@ class SrdDefines: SardObjects!SrdDefine
 
 /** SrdClause */
 
-class SrdClause: SardObject 
+class SrdClause: SardObject
 {
   private:
     OpOperator _operator;
@@ -179,32 +180,34 @@ class SrdStatement: SrdObjects!SrdClause
   }   
 
   public:
-    void add(OpOperator aOperator, SoObject aObject){
+    void add(OpOperator aOperator, SoObject aObject)
+    {
       SrdClause clause = new SrdClause(aOperator, aObject);
       aObject.parent = parent;
       super.add(clause);    
     }
 
-  void execute(RunStack aStack){
-    aStack.ret.insert(); //Each statement have own result
-    call(aStack);
-    if (aStack.ret.current.reference is null)
-      aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
-    aStack.ret.pop();
-  }
-
-  void call(RunStack aStack){
-    int i = 0;
-    while (i < count) {
-      this[i].execute(aStack);
-      i++;
+    void execute(RunStack aStack)
+    {
+      aStack.ret.insert(); //Each statement have own result
+      call(aStack);
+      if (aStack.ret.current.reference is null)
+        aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
+      aStack.ret.pop();
     }
-  }
 
-  public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
+    void call(RunStack aStack){
+      int i = 0;
+      while (i < count) {
+        this[i].execute(aStack);
+        i++;
+      }
+    }
+
+    public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
-class SrdBlock: SrdObjects!SrdStatement 
+class SrdBlock: SrdObjects!SrdStatement
 {
   //check BUG1
   this(SoObject aParent){

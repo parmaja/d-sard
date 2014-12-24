@@ -128,24 +128,6 @@ class SrdDebug: SardObject
     //bool breakPoint; //not sure, do not laugh
 }
 
-class SrdDefine: SardObject 
-{
-  public:
-    string name;
-    string result;
-    this(string aName, string aResult){
-      super();
-      name = aName;
-    }
-}
-
-class SrdDefines: SardObjects!SrdDefine 
-{
-  void add(string aName, string aResult) {
-    super.add(new SrdDefine(aName, aResult));
-  }
-}
-
 /** SrdClause */
 
 class SrdClause: SardObject
@@ -518,6 +500,24 @@ abstract class SoBlock: SoNamedObject{
 
 /*--------------------------------------------*/
 
+class SrdDefine: SardObject 
+{
+public:
+  string name;
+  string result;
+  this(string aName, string aResult){
+    super();
+    name = aName;
+  }
+}
+
+class SrdDefines: SardObjects!SrdDefine 
+{
+  void add(string aName, string aResult) {
+    super.add(new SrdDefine(aName, aResult));
+  }
+}
+
 //Just a references not free inside objects, not sure how to do that in D
 
 class SrdDeclares: SardNamedObjects!SoDeclare {
@@ -747,6 +747,12 @@ class SoDeclare: SoNamedObject
       super();
       _defines = new SrdDefines();
     }    
+
+    debug{
+      override void debugWrite(int level){
+        _defines.debugWrite(level + 1);
+      }
+    }
 }
 
 /**-------------------------------**/

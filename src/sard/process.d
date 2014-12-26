@@ -78,6 +78,7 @@ class SardRun: SardObject
       SrdFeeder feeder = new SrdFeeder(lexical);
 
       feeder.scan(text);
+
       debug{
         main.debugWrite(0);
       }

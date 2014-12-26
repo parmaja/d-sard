@@ -1479,7 +1479,7 @@ class RunStack: SardObject
     RunReturn _ret = new RunReturn();
     //RunShadow _shadow = new RunShadow(null);
   public:
-    SrdEnvironment env; 
+    //SrdEnvironment env; 
     
     @property RunLocal local() {return _local;};
     //   @property RunShadow shadow() {return _shadow ;};
@@ -1501,7 +1501,8 @@ class RunStack: SardObject
     }
 }
 
-class SrdEnvironment: SardObject{ //TODO move it to process.d
+class SrdEnvironment: SardObject //TODO move it to process.d
+{
   private:
     OpOperators _operators = new OpOperators();
     @property public OpOperators operators () { return _operators; }
@@ -1510,21 +1511,23 @@ class SrdEnvironment: SardObject{ //TODO move it to process.d
 
   protected:
 
-   override void created(){
-     with(_controls){
-       add("(", SardControl.OpenParams);
-       add("[", SardControl.OpenArray);
-       add("{", SardControl.OpenBlock);
-       add(")", SardControl.CloseParams);
-       add("]", SardControl.CloseArray);
-       add("}", SardControl.CloseBlock);
-       add(";", SardControl.End);
-       add(",", SardControl.Next);
-       add(":", SardControl.Declare);
-       add(":=", SardControl.Assign);
+    override void created(){
+      //writeln("test");
+      with(_controls){
+
+        add("(", SardControl.OpenParams);
+        add("[", SardControl.OpenArray);
+        add("{", SardControl.OpenBlock);
+        add(")", SardControl.CloseParams);
+        add("]", SardControl.CloseArray);
+        add("}", SardControl.CloseBlock);
+        add(";", SardControl.End);
+        add(",", SardControl.Next);
+        add(":", SardControl.Declare);
+        add(":=", SardControl.Assign);
      }
 
-     /*with (operators)
+     with (operators)
       {
         add(new OpPlus);
         add(new OpMinus());
@@ -1541,12 +1544,12 @@ class SrdEnvironment: SardObject{ //TODO move it to process.d
         add(new OpLesser());
 
         add(new OpPower());
-      } */
+      }
     }
 
   public:
 
     this(){
       super();
-    }    
+    }
 }

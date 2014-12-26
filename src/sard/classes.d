@@ -89,8 +89,10 @@ class SardObjects(T: SardObject): SardObject
     }
 
     void afterAdd(T object){
-      //writeln(this.classinfo.name ~ ".add:" ~ object.classinfo.name);
-      writeln("This is not compiled line");
+      debug{
+        //not compiled :(
+        //writeln(this.classinfo.name ~ ".add:" ~ object.classinfo.name);
+      }
     }
 
     int add(T object) {      

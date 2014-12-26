@@ -812,8 +812,8 @@ class SrdLexical: SardLexical
 
   protected:
 
-    override void created(){
-
+    override void created()
+    {      
       add(new SrdWhitespace_Scanner());
       add(new SrdBlockComment_Scanner());
       add(new SrdComment_Scanner());

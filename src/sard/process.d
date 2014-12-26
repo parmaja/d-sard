@@ -61,6 +61,7 @@ class SardRun: SardObject
 
     this(){
       super();
+      env = new SrdEnvironment();
     }
     
     void compile(string text){
@@ -71,7 +72,6 @@ class SardRun: SardObject
 
       /* Compile */
 
-      env = new SrdEnvironment();
       SrdParser parser = new SrdParser(main.block);
       SrdLexical lexical = new SrdLexical();
       lexical.parser = parser;

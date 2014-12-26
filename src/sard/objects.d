@@ -1512,7 +1512,6 @@ class SrdEnvironment: SardObject //TODO move it to process.d
   protected:
 
     override void created(){
-      //writeln("test");
       with(_controls){
 
         add("(", SardControl.OpenParams);

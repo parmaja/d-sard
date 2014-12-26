@@ -91,7 +91,7 @@ class SardObjects(T: SardObject): SardObject
     void afterAdd(T object){
       debug{
         //not compiled :(
-        //writeln(this.classinfo.name ~ ".add:" ~ object.classinfo.name);
+        writeln(this.classinfo.name ~ ".add:" ~ object.classinfo.name);
       }
     }
 

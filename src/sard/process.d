@@ -55,7 +55,7 @@ class SardRun: SardObject
   protected:
 
   public:
-    SrdEnvironment env = new SrdEnvironment();
+    SrdEnvironment env;
     SoMain main;
     string result;//Temp
 
@@ -71,6 +71,7 @@ class SardRun: SardObject
 
       /* Compile */
 
+      env = new SrdEnvironment();
       SrdParser parser = new SrdParser(main.block);
       SrdLexical lexical = new SrdLexical();
       lexical.parser = parser;

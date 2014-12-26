@@ -78,19 +78,28 @@ class SardObjects(T: SardObject): SardObject
 {
   private:
     T[] _items;
-  public
+
+  public:
     alias _items this;
 
   protected:
-    int add(T object) {
-      _items = _items  ~ object;
+    T getItem(int index) {
+
+      return _items[index];
+    }
+
+    void afterAdd(T object){
+      //writeln(this.classinfo.name ~ ".add:" ~ object.classinfo.name);
+      writeln("This is not compiled line");
+    }
+
+    int add(T object) {      
+      _items = _items  ~ object;            
+      afterAdd(object);
       return _items.length - 1;
     }
 
   public:
-    T getItem(int index) {
-      return _items[index];
-    }
 
     T opIndex(size_t index) {
       return getItem(index);

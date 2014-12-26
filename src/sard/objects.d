@@ -38,22 +38,22 @@ module sard.objects;
 */
 
 /**TODO:
-  TtpType:    Type like integer, float, string, color or datetime, it is global, and limited
+  tpType:    Type like integer, float, string, color or datetime, it is global, and limited
 
-  TsoArray:   From the name, object have another objects, a list of objectd without execute it,
+  SoArray:   From the name, object have another objects, a list of objectd without execute it,
               it is save the result of statement come from the parser
 
-* TsrdShadow: This object shadow of another object, he resposible of the memory storage like a varible
+* SrdShadow: This object shadow of another object, he resposible of the memory storage like a varible
               When need to execute an object it will done by this shadow and insure it is exist before run
               Also we can make muliple shadow of one object when creating link to it, i mean creating another object based on first one
               Also it is made for dynamic scoping, we can access the value in it instead of local variable
 
-  TrunEngine: Load file and compile it, also have debugger actions and log to console of to any plugin that provide that interface
+  RunEngine: Load file and compile it, also have debugger actions and log to console of to any plugin that provide that interface
               Engine cache also compile files to use it again and it check the timestamp before recompile it
 
-  TsrdAddons: It have any kind of addon, parsing, preprocessor, or debugger
+  SrdAddons: It have any kind of addon, parsing, preprocessor, or debugger
 
-  TmdModifier: It is like operator but with one side can be in the context before the identifier like + !x %x $x
+  Modifier: It is like operator but with one side can be in the context before the identifier like + !x %x $x
 
 */
 
@@ -1501,13 +1501,31 @@ class RunStack: SardObject
     }
 }
 
-class SrdEnvironment: SardObject{
+class SrdEnvironment: SardObject{ //TODO move it to process.d
   private:
-  protected:
-    override void created(){
-      with (operators)
-      {
+    OpOperators _operators = new OpOperators();
+    @property public OpOperators operators () { return _operators; }
+    CtlControls _controls = new CtlControls();
+    @property public CtlControls controls() { return _controls; }    
 
+  protected:
+
+   override void created(){
+     with(_controls){
+       add("(", SardControl.OpenParams);
+       add("[", SardControl.OpenArray);
+       add("{", SardControl.OpenBlock);
+       add(")", SardControl.CloseParams);
+       add("]", SardControl.CloseArray);
+       add("}", SardControl.CloseBlock);
+       add(";", SardControl.End);
+       add(",", SardControl.Next);
+       add(":", SardControl.Declare);
+       add(":=", SardControl.Assign);
+     }
+
+     /*with (operators)
+      {
         add(new OpPlus);
         add(new OpMinus());
         add(new OpMultiply());
@@ -1523,11 +1541,11 @@ class SrdEnvironment: SardObject{
         add(new OpLesser());
 
         add(new OpPower());
-      } 
+      } */
     }
 
   public:
-    OpOperators operators = new OpOperators();
+
     this(){
       super();
     }    

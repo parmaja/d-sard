@@ -46,6 +46,7 @@ module sard.scanners;
       Expression
 */
 
+import std.stdio;
 import std.conv;
 import std.array;
 import std.string;
@@ -805,24 +806,13 @@ class SrdFeeder: SardFeeder
 class SrdLexical: SardLexical
 {
   private:
-    CtlControls _controls = new CtlControls();
-    @property public CtlControls controls() { return _controls; }
+    SrdEnvironment _env;
+    public @property SrdEnvironment env(){ return _env; };
+    public @property SrdEnvironment env(SrdEnvironment value){ return _env = value; };
 
   protected:
 
     override void created(){
-      with (_controls){      
-        add("(", SardControl.OpenParams);
-        add("[", SardControl.OpenArray);
-        add("{", SardControl.OpenBlock);
-        add(")", SardControl.CloseParams);
-        add("]", SardControl.CloseArray);
-        add("}", SardControl.CloseBlock);
-        add(";", SardControl.End);
-        add(",", SardControl.Next);
-        add(":", SardControl.Declare);
-        add(":=", SardControl.Assign);
-      }
 
       add(new SrdWhitespace_Scanner());
       add(new SrdBlockComment_Scanner());
@@ -833,11 +823,10 @@ class SrdLexical: SardLexical
       add(new SrdDQString_Scanner());
       add(new SrdControl_Scanner());
       add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
-      add(new SrdIdentifier_Scanner());//Last one      
+      add(new SrdIdentifier_Scanner());//Sould be last one      
     }
 
-    public:
-      SrdEnvironment env;
+    public:     
 
       override bool isWhiteSpace(char vChar, bool vOpen = true)
       {
@@ -846,7 +835,7 @@ class SrdLexical: SardLexical
 
       override bool isControl(char vChar)
       {
-        return _controls.isOpenBy(vChar);
+        return env.controls.isOpenBy(vChar);
       }
 
       override bool isOperator(char vChar)
@@ -925,7 +914,7 @@ class SrdControl_Scanner: SardScanner
 {
   protected:
     override bool scan(const string text, ref int column) {
-      CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
+      CtlControl control = (cast(SrdLexical)lexical).env.controls.scan(text, column);//TODO need new way to access lexical without typecasting
       if (control !is null){
         column = column + control.name.length;
       }

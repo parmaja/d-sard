@@ -327,21 +327,3 @@ class SrdDQString_Scanner: SrdString_Scanner
     }
   public:
 }
-
-
-class SrdFeeder: SardFeeder
-{
-  protected:
-    override void doStart(){
-      lexical.parser.setControl(SardControl.Start);
-    }
-
-    override void doStop(){
-      lexical.parser.setControl(SardControl.Stop);
-    }
-
-  public:
-    this(SardLexical lexical) {
-      super(lexical);      
-    }
-}

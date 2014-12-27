@@ -72,7 +72,7 @@ class SardRun: SardObject
       SrdParser parser = new SrdParser(main.block);
       SrdLexical lexical = new SrdLexical();
       lexical.parser = parser;      
-      SrdFeeder feeder = new SrdFeeder(lexical);
+      SardFeeder feeder = new SardFeeder(lexical);
 
       feeder.scan(text);
 

@@ -514,10 +514,11 @@ class SardFeeder: SardObject
   protected:
 
     void doStart() {
+      lexical.parser.setControl(SardControl.Start);
     }
 
     void doStop() {
-
+      lexical.parser.setControl(SardControl.Stop);
     }
 
   public:

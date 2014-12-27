@@ -89,6 +89,9 @@ class SardObjects(T: SardObject): SardObject
       return _items[index];
     }
 
+    void beforeAdd(T object){
+    }
+
     void afterAdd(T object){
       debug{
         //not compiled :(        
@@ -100,6 +103,7 @@ class SardObjects(T: SardObject): SardObject
   public:
 
     int add(T object) {      
+      beforeAdd(object);
       _items = _items  ~ object;            
       afterAdd(object);
       return _items.length - 1;
@@ -147,24 +151,6 @@ class SardNamedObjects(T: SardObject): SardObjects!T
       }
       return result;
     }
-}
-
-enum SardControl 
-{
-  None,
-  Start, //Start parsing
-  Stop, //Start parsing
-  Declare, //Declare a class of object
-  Assign, //Assign to object/variable used as :=
-  //Let, //Same as assign in the initial but is equal operator if not in initial statement used to be =
-  Next, //End Params, Comma
-  End, //End Statement Semicolon
-  OpenBlock, // {
-  CloseBlock, // }
-  OpenParams, // (
-  CloseParams, // )
-  OpenArray, // [
-  CloseArray // ]
 }
 
 class SardStack(T): SardObject 
@@ -288,9 +274,35 @@ class SardStack(T): SardObject
   }
 }
 
-enum SardType {None, Identifier, Number, Color, String, Comment }
+enum SardType 
+{
+  None, 
+  Identifier, 
+  Number, Color, 
+  String, 
+  Comment 
+}
 
-interface ISardParser {
+enum SardControl 
+{
+  None,
+  Start, //Start parsing
+  Stop, //Start parsing
+  Declare, //Declare a class of object
+  Assign, //Assign to object/variable used as :=
+  //Let, //Same as assign in the initial but is equal operator if not in initial statement used to be =
+  Next, //End Params, Comma
+  End, //End Statement Semicolon
+  OpenBlock, // {
+  CloseBlock, // }
+  OpenParams, // (
+  CloseParams, // )
+  OpenArray, // [
+  CloseArray // ]
+}
+
+interface ISardParser 
+{
 protected:
   abstract void start();
   abstract void stop();    
@@ -336,8 +348,6 @@ class SardScanner: SardObject
     }
 
   public:
-    string collected; //buffer
-    SardScanner scanner;
 
     void set(SardLexical lexical) { //todo maybe rename to opCall
       _lexical = lexical;
@@ -359,44 +369,47 @@ class SardScanners: SardObjects!SardScanner{
     SardLexical _lexical;
 
   public:
-    final override int add(SardScanner scanner){
-      scanner._lexical = _lexical;
-      return super.add(scanner);
+    override void beforeAdd(SardScanner scanner)
+    {
+      super.beforeAdd(scanner);
+      scanner._lexical = _lexical;      
     }
 
-  this(SardLexical lexical){
+  this(SardLexical aLexical){
+    _lexical = aLexical;
     super();
-    _lexical = lexical;
   }
 }
 
-class SardLexical:SardObject
+class SardLexical: SardObject
 {
   private:
     int _line;
+    public @property int line() { return _line; };
+
     SardScanners _scanners;
-    public @property SardScanners scanners() { return _scanners; } ;
+    public @property SardScanners scanners() { return _scanners; } ;  
+
     SardScanner _scanner; //current scanner
+    public @property SardScanner scanner() { return _scanner; } ;      
+
     ISardParser _parser;    
+    public @property ISardParser  parser() { return _parser; };
+    public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
 
   public:
-    @property int line() { return _line; };
-    @property SardScanner scanner() { return _scanner; } ;      
-
-    @property ISardParser  parser() { return _parser; };
-    @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
-
-  public:
-    this(){
-      super();
+    this()
+    {
       _scanners = new SardScanners(this);
+      super();
     }
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
     abstract bool isControl(char vChar);
     abstract bool isOperator(char vChar);
     abstract bool isNumber(char vChar, bool vOpen = true);
 
-    bool isIdentifier(char vChar, bool vOpen = true){
+    bool isIdentifier(char vChar, bool vOpen = true)
+    {
       bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar);
       if (vOpen)
         r = r && !isNumber(vChar, vOpen);
@@ -415,7 +428,8 @@ class SardLexical:SardObject
         SardScanner result = null;
         int i = 0;
         while (i < scanners.count) {
-          if ((scanners[i] != result) && scanners[i].accept(text, column)) {
+          if ((scanners[i] != result) && scanners[i].accept(text, column)) 
+          {
             result = scanners[i];
             break;
           }
@@ -429,7 +443,8 @@ class SardLexical:SardObject
       }
     }
 
-    void switchScanner(SardScanner nextScanner) {
+    void switchScanner(SardScanner nextScanner) 
+    {
       if (_scanner != nextScanner) {
 
         _scanner = nextScanner;
@@ -439,7 +454,8 @@ class SardLexical:SardObject
 
     }
 
-    SardScanner findClass(const ClassInfo scannerClass) {
+    SardScanner findClass(const ClassInfo scannerClass) 
+    {
       int i = 0;
       while (i < scanners.count) {
         if (scanners[i].classinfo == scannerClass) {
@@ -502,15 +518,6 @@ class SardFeeder: SardObject
       return _lexical; 
     }
 
-    /*
-    @property SardLexical lexical(SardLexical value) {
-        if (_lexical == value)
-          return _lexical;
-        if (active)
-          error("You can not set scanner when started!");
-        return _lexical = value;      
-      }*/
-
   protected:
 
     void doStart() {
@@ -558,7 +565,8 @@ class SardFeeder: SardObject
     //void scan(const string fileName);
     //void scan(const Stream stream);
  
-    void start(){
+    void start()
+    {
       if (_active)
         error("File already opened");
       _active = true;
@@ -566,13 +574,12 @@ class SardFeeder: SardObject
       lexical.parser.start();
     }
 
-    void stop(){
+    void stop()
+    {
       if (!_active)
         error("File already closed");
       lexical.parser.stop();
       doStop();
       _active = false;
-
     }
 };
-

@@ -1,4 +1,11 @@
 module sard.scanners;
+/**
+This file is part of the "SARD"
+
+@license   The MIT License (MIT) Included in this distribution
+@author    Zaher Dirkey <zaher at parmaja dot com>
+
+*/
 
 import std.stdio;
 import std.conv;
@@ -22,99 +29,6 @@ static const char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
 static const char[] sIdentifierSeparator = ".";
-
-class SrdLexical: SardLexical
-{
-  private:
-    OpOperators _operators = new OpOperators();
-    @property public OpOperators operators () { return _operators; }
-    CtlControls _controls = new CtlControls();
-    @property public CtlControls controls() { return _controls; }    
-
-  protected:
-
-    override void created()
-    {     
-
-      with(_controls)
-      {
-        add("(", SardControl.OpenParams);
-        add("[", SardControl.OpenArray);
-        add("{", SardControl.OpenBlock);
-        add(")", SardControl.CloseParams);
-        add("]", SardControl.CloseArray);
-        add("}", SardControl.CloseBlock);
-        add(";", SardControl.End);
-        add(",", SardControl.Next);
-        add(":", SardControl.Declare);
-        add(":=", SardControl.Assign);
-      }
-
-      with (operators)
-      {
-        add(new OpPlus);
-        add(new OpMinus());
-        add(new OpMultiply());
-        add(new OpDivide());
-
-        add(new OpEqual());
-        add(new OpNotEqual());
-        add(new OpAnd());
-        add(new OpOr());
-        add(new OpNot());
-
-        add(new OpGreater());
-        add(new OpLesser());
-
-        add(new OpPower());
-      }
-
-      with (scanners)
-      {
-        add(new SrdWhitespace_Scanner());
-        add(new SrdBlockComment_Scanner());
-        add(new SrdComment_Scanner());
-        add(new SrdLineComment_Scanner());
-        add(new SrdNumber_Scanner());
-        add(new SrdSQString_Scanner());
-        add(new SrdDQString_Scanner());
-        add(new SrdControl_Scanner());
-        add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
-        add(new SrdIdentifier_Scanner());//Sould be last one      
-      }
-    }
-
-    public:     
-
-      override bool isWhiteSpace(char vChar, bool vOpen = true)
-      {
-        return sWhitespace.indexOf(vChar) > 0;
-      }
-
-      override bool isControl(char vChar)
-      {
-        return controls.isOpenBy(vChar);
-      }
-
-      override bool isOperator(char vChar)
-      {
-        return operators.isOpenBy(vChar);
-      }
-
-      override bool isNumber(char vChar, bool vOpen = true)
-      {
-        if (vOpen)
-          return sNumberOpenChars.indexOf(vChar) > 0;
-        else
-          return sNumberChars.indexOf(vChar) > 0;
-      }
-
-      override bool isIdentifier(char vChar, bool vOpen = true)
-      {
-        return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
-      }
-
-}
 
 class SrdWhitespace_Scanner: SardScanner
 {
@@ -326,4 +240,101 @@ class SrdDQString_Scanner: SrdString_Scanner
       quote = '"';
     }
   public:
+}
+
+/*******************************************************************/
+/******************     SrdLexical    ******************************/
+/*******************************************************************/
+
+class SrdLexical: SardLexical
+{
+private:
+  OpOperators _operators = new OpOperators();
+  @property public OpOperators operators () { return _operators; }
+  CtlControls _controls = new CtlControls();
+  @property public CtlControls controls() { return _controls; }    
+
+protected:
+
+  override void created()
+  {     
+
+    with(_controls)
+    {
+      add("(", SardControl.OpenParams);
+      add("[", SardControl.OpenArray);
+      add("{", SardControl.OpenBlock);
+      add(")", SardControl.CloseParams);
+      add("]", SardControl.CloseArray);
+      add("}", SardControl.CloseBlock);
+      add(";", SardControl.End);
+      add(",", SardControl.Next);
+      add(":", SardControl.Declare);
+      add(":=", SardControl.Assign);
+    }
+
+    with (operators)
+    {
+      add(new OpPlus);
+      add(new OpMinus());
+      add(new OpMultiply());
+      add(new OpDivide());
+
+      add(new OpEqual());
+      add(new OpNotEqual());
+      add(new OpAnd());
+      add(new OpOr());
+      add(new OpNot());
+
+      add(new OpGreater());
+      add(new OpLesser());
+
+      add(new OpPower());
+    }
+
+    with (scanners)
+    {
+      add(new SrdWhitespace_Scanner());
+      add(new SrdBlockComment_Scanner());
+      add(new SrdComment_Scanner());
+      add(new SrdLineComment_Scanner());
+      add(new SrdNumber_Scanner());
+      add(new SrdSQString_Scanner());
+      add(new SrdDQString_Scanner());
+      add(new SrdControl_Scanner());
+      add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
+      add(new SrdIdentifier_Scanner());//Sould be last one      
+    }
+  }
+
+public:     
+
+  override bool isWhiteSpace(char vChar, bool vOpen = true)
+  {
+    return sWhitespace.indexOf(vChar) > 0;
+  }
+
+  override bool isControl(char vChar)
+  {
+    return controls.isOpenBy(vChar);
+  }
+
+  override bool isOperator(char vChar)
+  {
+    return operators.isOpenBy(vChar);
+  }
+
+  override bool isNumber(char vChar, bool vOpen = true)
+  {
+    if (vOpen)
+      return sNumberOpenChars.indexOf(vChar) > 0;
+    else
+      return sNumberChars.indexOf(vChar) > 0;
+  }
+
+  override bool isIdentifier(char vChar, bool vOpen = true)
+  {
+    return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
+  }
+
 }

@@ -69,16 +69,19 @@ class SrdLexical: SardLexical
         add(new OpPower());
       }
 
-      add(new SrdWhitespace_Scanner());
-      add(new SrdBlockComment_Scanner());
-      add(new SrdComment_Scanner());
-      add(new SrdLineComment_Scanner());
-      add(new SrdNumber_Scanner());
-      add(new SrdSQString_Scanner());
-      add(new SrdDQString_Scanner());
-      add(new SrdControl_Scanner());
-      add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
-      add(new SrdIdentifier_Scanner());//Sould be last one      
+      with (scanners)
+      {
+        add(new SrdWhitespace_Scanner());
+        add(new SrdBlockComment_Scanner());
+        add(new SrdComment_Scanner());
+        add(new SrdLineComment_Scanner());
+        add(new SrdNumber_Scanner());
+        add(new SrdSQString_Scanner());
+        add(new SrdDQString_Scanner());
+        add(new SrdControl_Scanner());
+        add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
+        add(new SrdIdentifier_Scanner());//Sould be last one      
+      }
     }
 
     public:     

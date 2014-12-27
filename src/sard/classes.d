@@ -288,6 +288,31 @@ class SardStack(T): SardObject
   }
 }
 
+enum SardType {None, Identifier, Number, Color, String, Comment }
+
+interface ISardParser {
+protected:
+  abstract void start();
+  abstract void stop();    
+
+  abstract void doSetControl(SardControl aControl);
+  abstract void doSetToken(string aToken, SardType aType);
+  abstract void doSetOperator(SardObject aOperator);
+
+public:
+  final void setControl(SardControl aControl){
+    doSetControl(aControl);
+  }
+
+  final void setToken(string aToken, SardType aType){
+    doSetToken(aToken, aType);
+  }
+
+  final void setOperator(SardObject aOperator){
+    doSetOperator(aOperator);
+  }
+};
+
 class SardScanner: SardObject 
 {
   private:
@@ -328,12 +353,31 @@ class SardScanner: SardObject
     }
 }
 
-class SardLexical: SardObjects!SardScanner
+class SardScanners: SardObjects!SardScanner{  
+
+  private:
+    SardLexical _lexical;
+
+  public:
+    final override int add(SardScanner scanner){
+      scanner._lexical = _lexical;
+      return super.add(scanner);
+    }
+
+  this(SardLexical lexical){
+    super();
+    _lexical = lexical;
+  }
+}
+
+class SardLexical:SardObject
 {
   private:
     int _line;
+    SardScanners _scanners;
+    public @property SardScanners scanners() { return _scanners; } ;
     SardScanner _scanner; //current scanner
-    ISardParser _parser;
+    ISardParser _parser;    
 
   public:
     @property int line() { return _line; };
@@ -341,7 +385,12 @@ class SardLexical: SardObjects!SardScanner
 
     @property ISardParser  parser() { return _parser; };
     @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
+
   public:
+    this(){
+      super();
+      _scanners = new SardScanners(this);
+    }
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
     abstract bool isControl(char vChar);
     abstract bool isOperator(char vChar);
@@ -355,10 +404,7 @@ class SardLexical: SardObjects!SardScanner
     }
 
   public:
-    final override int add(SardScanner scanner){
-      scanner._lexical = this;
-      return super.add(scanner);
-    }
+
     SardScanner detectScanner(const string text, int column) 
     {
       if (column >= text.length){
@@ -368,9 +414,9 @@ class SardLexical: SardObjects!SardScanner
       else {
         SardScanner result = null;
         int i = 0;
-        while (i < count) {
-          if ((this[i] != result) && this[i].accept(text, column)) {
-            result = this[i];
+        while (i < scanners.count) {
+          if ((scanners[i] != result) && scanners[i].accept(text, column)) {
+            result = scanners[i];
             break;
           }
           i++;
@@ -395,9 +441,9 @@ class SardLexical: SardObjects!SardScanner
 
     SardScanner findClass(const ClassInfo scannerClass) {
       int i = 0;
-      while (i < count) {
-        if (this[i].classinfo == scannerClass) {
-          return this[i];
+      while (i < scanners.count) {
+        if (scanners[i].classinfo == scannerClass) {
+          return scanners[i];
         }
         i++;
       }
@@ -529,27 +575,3 @@ class SardFeeder: SardObject
     }
 };
 
-enum SardType {None, Identifier, Number, Color, String, Comment }
-
-interface ISardParser {
-  protected:
-    abstract void start();
-    abstract void stop();    
-
-    abstract void doSetControl(SardControl aControl);
-    abstract void doSetToken(string aToken, SardType aType);
-    abstract void doSetOperator(SardObject aOperator);
-
-  public:
-    final void setControl(SardControl aControl){
-      doSetControl(aControl);
-    }
-
-    final void setToken(string aToken, SardType aType){
-      doSetToken(aToken, aType);
-    }
-
-    final void setOperator(SardObject aOperator){
-      doSetOperator(aOperator);
-    }
-};

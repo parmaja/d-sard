@@ -14,8 +14,9 @@ import std.array;
 import std.range;
 import std.datetime;
 import sard.classes;
-import sard.scanners;
 import sard.objects;
+import sard.scanners;
+import sard.parsers;
 
 class SoVersion_Const:SoNamedObject
 {
@@ -36,18 +37,16 @@ class SoTime_Const: SoNamedObject
 class SoMain: SoSection
 {
   protected:
-    SoVersion_Const versionConst = new SoVersion_Const();
+    SoVersion_Const versionConst;
 
   public:
     this(){
       super();
+      versionConst = new SoVersion_Const();
       versionConst.parent = this;
       versionConst.name = "Version";
       addDeclare(null, versionConst);
     }
-}
-
-class SrdEngine: SardObject{  
 }
 
 class SardRun: SardObject
@@ -55,13 +54,11 @@ class SardRun: SardObject
   protected:
 
   public:
-    SrdEnvironment env;
     SoMain main;
     string result;//Temp
 
     this(){
       super();
-      env = new SrdEnvironment();
     }
     
     void compile(string text){
@@ -74,8 +71,7 @@ class SardRun: SardObject
 
       SrdParser parser = new SrdParser(main.block);
       SrdLexical lexical = new SrdLexical();
-      lexical.parser = parser;
-      lexical.env = env;
+      lexical.parser = parser;      
       SrdFeeder feeder = new SrdFeeder(lexical);
 
       feeder.scan(text);

@@ -7,6 +7,8 @@ This file is part of the "SARD"
 
 */
 
-public import sard.classes;
+protected import sard.classes;
 public import sard.objects;
 public import sard.scanners;
+public import sard.parsers;
+public import sard.process;

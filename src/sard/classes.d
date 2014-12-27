@@ -9,6 +9,7 @@ module sard.classes;
 
 import std.stdio;
 //import std.stream;
+import std.traits;
 import std.string;
 import std.conv;
 import std.uni;
@@ -90,18 +91,19 @@ class SardObjects(T: SardObject): SardObject
 
     void afterAdd(T object){
       debug{
-        //not compiled :(
-        writeln(this.classinfo.name ~ ".add:" ~ object.classinfo.name);
+        //not compiled :(        
+        writeln(this.classinfo.name ~ ".add(" ~ object.classinfo.name ~ ")");
+        //writeln(fullyQualifiedName!this ~ ".add(" ~ object.classinfo.name ~ ")");        
       }
     }
+
+  public:
 
     int add(T object) {      
       _items = _items  ~ object;            
       afterAdd(object);
       return _items.length - 1;
     }
-
-  public:
 
     T opIndex(size_t index) {
       return getItem(index);

@@ -29,13 +29,18 @@
 				</Compiler>
 			</Target>
 		</Build>
+		<Unit filename="../../../minilib/metaclasses.d" />
 		<Unit filename="../../../minilib/package.d" />
 		<Unit filename="../../../minilib/sets.d" />
 		<Unit filename="../../src/main.d" />
+		<Unit filename="../../src/sard/README.md" />
 		<Unit filename="../../src/sard/classes.d" />
+		<Unit filename="../../src/sard/dub.json" />
 		<Unit filename="../../src/sard/objects.d" />
 		<Unit filename="../../src/sard/package.d" />
+		<Unit filename="../../src/sard/process.d" />
 		<Unit filename="../../src/sard/scanners.d" />
+		<Unit filename="../../src/sard/utils.d" />
 		<Extensions>
 			<code_completion />
 			<envvars />

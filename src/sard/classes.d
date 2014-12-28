@@ -1,10 +1,9 @@
 module sard.classes;
 /**
-*  This file is part of the "SARD"
-*
-* @license   The MIT License (MIT)
-*            Included in this distribution
-* @author    Zaher Dirkey <zaher at parmaja dot com>
+  This file is part of the "SARD"
+
+  @license   The MIT License (MIT) Included in this distribution            
+  @author    Zaher Dirkey <zaher at parmaja dot com>
 */
 
 import std.stdio;
@@ -245,7 +244,7 @@ class SardStack(T): SardObject
 
     T peek(){
       if (currentItem is null)
-        error("Stack is empty"); //TODO maybe return nil
+        error("Stack is empty"); //TODO maybe return null
       return currentItem.object;
     }
 
@@ -491,7 +490,7 @@ class SardLexical: SardObject
             detectScanner(text, column);
 
           if ((oldColumn == column) && (oldScanner == _scanner))
-            error("Feeder in loop with: " ~ _scanner.classinfo.name); //todo becarfull here
+            error("Feeder in loop with: " ~ _scanner.classinfo.name); //todo be careful here
         }
         catch(Exception exc) {          
           throw new SardParserException(exc.msg, aLine, column);

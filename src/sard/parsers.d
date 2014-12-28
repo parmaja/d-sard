@@ -3,8 +3,7 @@ module sard.parsers;
   This file is part of the "SARD"
 
   @license   The MIT License (MIT) Included in this distribution
-  @author    Zaher Dirkey <zaher at parmaja dot com>
-
+  @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 /**
@@ -159,7 +158,7 @@ class SrdInstruction: SardObject
     {
       if (identifier != "")
         error("Identifier is already set");
-      //TODO need to check anObject too
+      //TODO need to check object too
       SoBaseNumber result;
       if ((aIdentifier.indexOf(".") > 0) || ((aIdentifier.indexOf("E") > 0)))
         result = new SoNumber(to!float(aIdentifier));
@@ -174,9 +173,9 @@ class SrdInstruction: SardObject
     {
       if (identifier != "")
         error("Identifier is already set");
-      //TODO need to check anObject too
+      //TODO need to check object too
       SoText result = new SoText(aIdentifier);
-      //result.value = AIdentifier;
+      
       internalSetObject(result);
       setFlag(Flag.Const);
       return result;
@@ -186,7 +185,7 @@ class SrdInstruction: SardObject
       //We need to check if it the first expr in the statment
       if (identifier != "")
         error("Identifier is already set");
-      //TODO need to check anObject too
+      //TODO need to check object too
       SoComment result = new SoComment();
       result.value = aIdentifier;
       internalSetObject(result);
@@ -694,6 +693,7 @@ class SrdControllerDefines: SrdControllerNormal
 
     override void control(SardControl aControl){
       //nothing O.o
+      //TODO change the inheretance 
     }
 }
 

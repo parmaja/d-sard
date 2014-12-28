@@ -1,11 +1,11 @@
 module sard.process;
 /**
-This file is part of the "SARD"
+  This file is part of the "SARD"
 
-@license   The MIT License (MIT) Included in this distribution
-@author    Zaher Dirkey <zaher at parmaja dot com>
-
+  @license   The MIT License (MIT) Included in this distribution
+  @author    Zaher Dirkey <zaher at yahoo dot com>
 */
+
 import std.stdio;
 import std.string;
 import std.math;

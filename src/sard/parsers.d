@@ -13,7 +13,7 @@ module sard.parsers;
     SrdFeeder: Load the source lines and feed it to the Lexical, line by line
     SrdLexical: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
     SrdScanner: Take this part of source code and convert it to control, operator or indentifier
-    SrdParser: Generate the runtime objects, it use the current Interpreter
+    SrdParser: Generate the runtime objects, it use the current Collector
 */
 
 /**TODO:
@@ -75,8 +75,8 @@ enum Flag {
 alias Set!Flag Flags;
 
 enum Action {
-  PopInterpreter, //Pop the current interpreter
-  Bypass  //resend the control char to the next interpreter
+  PopCollector, //Pop the current Collector
+  Bypass  //resend the control char to the next Collector
 }
 
 alias Set!Action Actions;
@@ -283,7 +283,7 @@ class SrdControllers: SardObjects!SrdController
   }
 }
 
-class SrdInterpreter: SardObject
+class SrdCollector: SardObject
 {
   private:
     Flags _flags;
@@ -323,17 +323,17 @@ class SrdInterpreter: SardObject
     }
 
     //Push to the Parser immediately
-    void push(SrdInterpreter aItem){
+    void push(SrdCollector aItem){
       parser.push(aItem);
     }
 
     //No pop, but when finish Parser will pop it
-    void setAction(Actions aActions = [], SrdInterpreter aNextInterpreter = null){
+    void setAction(Actions aActions = [], SrdCollector aNextCollector = null){
       debug{
         writeln(aActions);
       }
       parser.actions = aActions;
-      parser.nextInterpreter = aNextInterpreter;
+      parser.nextCollector = aNextCollector;
     }
 
     void reset(){      
@@ -397,7 +397,7 @@ class SrdInterpreter: SardObject
     }
 }
 
-class SrdInterpreterStatement: SrdInterpreter
+class SrdCollectorStatement: SrdCollector
 {
   protected:
     SrdStatement statement;
@@ -436,7 +436,7 @@ class SrdInterpreterStatement: SrdInterpreter
     }    
 }
 
-class SrdInterpreterBlock: SrdInterpreterStatement
+class SrdCollectorBlock: SrdCollectorStatement
 {
   protected:
     SrdBlock block;
@@ -458,7 +458,7 @@ class SrdInterpreterBlock: SrdInterpreterStatement
     }
 }
 
-class SrdInterpreterDeclare: SrdInterpreterStatement
+class SrdCollectorDeclare: SrdCollectorStatement
 {
   protected:
 
@@ -472,7 +472,7 @@ class SrdInterpreterDeclare: SrdInterpreterStatement
       switch (aControl){
         case SardControl.End, SardControl.Next:          
             post();
-            setAction(Actions([Action.PopInterpreter, Action.Bypass]));
+            setAction(Actions([Action.PopCollector, Action.Bypass]));
             break;
         default:
           super.control(aControl);
@@ -480,7 +480,7 @@ class SrdInterpreterDeclare: SrdInterpreterStatement
     }
 }
 
-class SrdInterpreterDefine: SrdInterpreter
+class SrdCollectorDefine: SrdCollector
 {
   private:
     enum State {Name, Type};
@@ -534,8 +534,8 @@ class SrdInterpreterDefine: SrdInterpreter
             SoSection aSection = new SoSection();
             aSection.parent = declare;
             declare.callObject = aSection;
-            //We will pass the control to the next interpreter
-            setAction(Actions([Action.PopInterpreter]), new SrdInterpreterBlock(parser, aSection.block));
+            //We will pass the control to the next Collector
+            setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aSection.block));
             break;
           case SardControl.Declare:
             if (param){
@@ -544,7 +544,7 @@ class SrdInterpreterDefine: SrdInterpreter
             }
             else {
               post();
-              setAction(Actions([Action.PopInterpreter]));
+              setAction(Actions([Action.PopCollector]));
             }
             break;
 
@@ -552,7 +552,7 @@ class SrdInterpreterDefine: SrdInterpreter
             post();
             declare.executeObject = new SoAssign(declare, declare.name);            
             declare.callObject = new SoVariable(declare, declare.name);
-            setAction(Actions([Action.PopInterpreter])); //Finish it, mean there is no body/statment for the declare
+            setAction(Actions([Action.PopCollector])); //Finish it, mean there is no body/statment for the declare
             break;
           case SardControl.End:
             if (param){
@@ -561,7 +561,7 @@ class SrdInterpreterDefine: SrdInterpreter
             }
             else {
               post();
-              setAction(Actions([Action.PopInterpreter]));
+              setAction(Actions([Action.PopCollector]));
             }
             break;
           case SardControl.Next:
@@ -578,7 +578,7 @@ class SrdInterpreterDefine: SrdInterpreter
             post();
             //pop(); //Finish it
             param = false;
-            //action(Actions([paPopInterpreter]), new SrdInterpreterBlock(parser, declare.block)); //return to the statment
+            //action(Actions([paPopCollector]), new SrdCollectorBlock(parser, declare.block)); //return to the statment
             break;
           default: 
             super.control(aControl);
@@ -627,7 +627,7 @@ class SrdControllerNormal: SrdController
             if (isInitial){
               SoDeclare aDeclare = instruction.setDeclare();
               post();
-              push(new SrdInterpreterDefine(parser, aDeclare));
+              push(new SrdCollectorDefine(parser, aDeclare));
             } else {
               error("You can not use assignment here!");
             }
@@ -636,14 +636,14 @@ class SrdControllerNormal: SrdController
           case SardControl.OpenBlock:
             SoSection aSection = new SoSection();
             instruction.setObject(aSection);
-            push(new SrdInterpreterBlock(parser, aSection.block));
+            push(new SrdCollectorBlock(parser, aSection.block));
             break;
 
           case SardControl.CloseBlock:
             post();
             if (parser.count == 1)
               error("Maybe you closed not opened Curly");
-            setAction(Actions([Action.PopInterpreter]));
+            setAction(Actions([Action.PopCollector]));
             break;
 
           case SardControl.OpenParams:
@@ -651,18 +651,18 @@ class SrdControllerNormal: SrdController
             if (instruction.checkIdentifier())
             {
               with (instruction.setInstance())
-                push(new SrdInterpreterBlock(parser, block));
+                push(new SrdCollectorBlock(parser, block));
             }
             else //No it is just sub statment like: 10+(5*5)
               with (instruction.setStatment())
-                push(new SrdInterpreterStatement(parser, statement));
+                push(new SrdCollectorStatement(parser, statement));
             break;
 
           case SardControl.CloseParams:
             post();
             if (parser.count == 1)
               error("Maybe you closed not opened Bracket");
-            setAction(Actions([Action.PopInterpreter]));
+            setAction(Actions([Action.PopCollector]));
             break;
 
           case SardControl.Start:            
@@ -697,12 +697,12 @@ class SrdControllerDefines: SrdControllerNormal
     }
 }
 
-class SrdParser: SardStack!SrdInterpreter, ISardParser 
+class SrdParser: SardStack!SrdCollector, ISardParser 
 {
   protected:
-    override void doSetToken(string aToken, SardType aType){
+    override void doSetIdentifier(string aToken, SardType aType){
       debug{        
-        writeln("SetToken:" ~ aToken ~ " Type:" ~ to!string(aType));
+        writeln("doSetIdentifier:" ~ aToken ~ " Type:" ~ to!string(aType));
       }
       current.addIdentifier(aToken, aType);
       actionStack();
@@ -741,20 +741,20 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser
     }
 
     void actionStack(){
-      if (Action.PopInterpreter in actions){      
-        actions = actions - Action.PopInterpreter;
+      if (Action.PopCollector in actions){      
+        actions = actions - Action.PopCollector;
         pop();
       }
 
-      if (nextInterpreter !is null) {      
-        push(nextInterpreter);
-        nextInterpreter = null;
+      if (nextCollector !is null) {      
+        push(nextCollector);
+        nextCollector = null;
       }
     }
 
   public:
     Actions actions;
-    SrdInterpreter nextInterpreter;
+    SrdCollector nextCollector;
     SrdControllers controllers = new SrdControllers();
 
     this(SrdBlock aBlock){
@@ -766,7 +766,7 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser
       controllers.add(new SrdControllerNormal(this));
       controllers.add(new SrdControllerDefines(this));      
 
-      push(new SrdInterpreterBlock(this, aBlock));
+      push(new SrdCollectorBlock(this, aBlock));
 
     }
 
@@ -776,10 +776,10 @@ class SrdParser: SardStack!SrdInterpreter, ISardParser
     override void stop(){
     }
 
-    SrdInterpreter pushIt(ClassInfo info){
-      SrdInterpreter result = cast(SrdInterpreter)info.create();//this is buggy
+    SrdCollector pushIt(ClassInfo info){
+      SrdCollector result = cast(SrdCollector)info.create();//this is buggy
       if (result is null)
-        error("Invalid type casting SrdInterpreter");
+        error("Invalid type casting SrdCollector");
       result.set(this);
       push(result);
       return result;

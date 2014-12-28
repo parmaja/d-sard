@@ -332,25 +332,25 @@ abstract class SoObject: SardObject
  
   public:
       bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null) {
-      //vStack.TouchMe(Self);
+
       bool result = false;
       beforeExecute(vStack, aOperator);
       executeParams(vStack, vDefines, vParameters);
       doExecute(vStack, aOperator, result);
       afterExecute(vStack, aOperator);      
-/*
-      //std.experimental.logger
-      //std.logger
 
-      debug.writeln(s) {
-        s = StringOfChar('-', vStack.Return.CurrentItem.Level)+'->';
-        s := s + 'Execute: ' + ClassName+ ' Level=' + IntToStr(vStack.Return.CurrentItem.Level);
-        if AOperator <> nil then
-          s := s +'{'+ AOperator.Name+'}';
-        if vStack.Return.Current.Result.anObject <> nil then
-          s := s + ' Value: '+ vStack.Return.Current.Result.anObject.asText;
-        WriteLn(s);
-      }*/
+      debug {
+      
+        string s = stringRepeat("-", vStack.ret.currentItem.level)~ "->";
+        s = s ~ "Execute: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
+        if (aOperator !is null)
+          s = s ~ "{" ~ aOperator.name ~ "}";
+        if (vStack.ret.current.result.object !is null)
+          s = s ~ " Value: " ~ vStack.ret.current.result.object.asText;
+        writeln(s);
+      }
+      
+
       return result; 
     }
 
@@ -440,7 +440,8 @@ abstract class SoConstObject: SoObject
   }
 }
 
-abstract class SoBlock: SoNamedObject{
+abstract class SoBlock: SoNamedObject
+{
   protected:
     SrdBlock _block;
 
@@ -1321,29 +1322,6 @@ class OpOr: OpOperator{
     description = "";
   }
 }
-/*
-class RunShadows: SardNamedObjects!RunShadow{
-public:
-  string name;
-private:
-    SoObject _link;
-    public @property SoObject link() {return _link;}
-    public @property SoObject link(SoObject value) {
-      if (_link != value){
-        _link = value;        
-      }
-      return _link;
-    }
-    RunShadow _parent;
-    public @property RunShadow parent() {return _parent;}
-
-public:
-    this(RunShadow parent){
-      super();
-      _parent = parent;
-    }
-}
-*/
 
 class RunVariable: SardObject
 {

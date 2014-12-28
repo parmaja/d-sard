@@ -700,9 +700,10 @@ class SrdControllerDefines: SrdControllerNormal
 class SrdParser: SardStack!SrdCollector, ISardParser 
 {
   protected:
-    override void doSetIdentifier(string aToken, SardType aType){
+
+  override void doSetToken(string aToken, SardType aType){
       debug{        
-        writeln("doSetIdentifier:" ~ aToken ~ " Type:" ~ to!string(aType));
+        writeln("doSetToken:" ~ aToken ~ " Type:" ~ to!string(aType));
       }
       current.addIdentifier(aToken, aType);
       actionStack();

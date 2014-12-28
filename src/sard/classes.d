@@ -308,14 +308,14 @@ protected:
   abstract void stop();    
 
   abstract void doSetControl(SardControl aControl);
-  abstract void doSetIdentifier(string aToken, SardType aType);
+  abstract void doSetToken(string aToken, SardType aType);
   abstract void doSetOperator(SardObject aOperator);
 
 public:
   final void setToken(string aToken, SardType aType){
     //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
     //by default it is id
-    doSetIdentifier(aToken, aType);
+    doSetToken(aToken, aType);
   }
 
   final void setControl(SardControl aControl){

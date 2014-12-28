@@ -336,5 +336,4 @@ public:
   {
     return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
   }
-
 }

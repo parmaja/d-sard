@@ -170,8 +170,9 @@ class SrdInstruction: SardObject
       SoBaseNumber result;
       if ((aIdentifier.indexOf(".") > 0) || ((aIdentifier.indexOf("E") > 0)))
         result = new SoNumber(to!float(aIdentifier));
-      else
+      else {
         result = new SoInteger(to!int(aIdentifier));
+      }
       internalSetObject(result);
       setFlag(Flag.Const);
       return result;

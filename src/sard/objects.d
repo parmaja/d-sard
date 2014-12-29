@@ -373,6 +373,7 @@ abstract class SoObject: SardObject
       debug {
         writeln("Cloneing " ~ this.classinfo.name);
       }
+      //TODO, here we want to check if subclass have a default ctor 
       SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
 	    if (object is null)
 		    error("Error when clonging");      
@@ -562,6 +563,7 @@ class SoSection: SoBlock  //Result was droped until using := assign in the first
     }
 
   public:
+
     this(){
       super();
       _declares = new SrdDeclares();
@@ -614,7 +616,6 @@ class SoCustomStatement: SoObject
       done = true;
     }
   public:
-
 }
 
 class SoStatement: SoCustomStatement
@@ -908,10 +909,16 @@ class SoNumber: SoBaseNumber
       super.created();
       objectType = ObjectType.otNumber;
     }
+
   public:
     number value;
 
+    this(){      
+      super();
+    }
+
     this(number aValue){
+      this();
       value = aValue;
     }
 
@@ -972,7 +979,13 @@ class SoBool: SoBaseNumber
     }
   public:
     bool value;
+
+    this(){      
+      super();
+    }
+
     this(bool aValue){
+      this();
       value = aValue;
     }
 
@@ -1023,7 +1036,8 @@ class SoBool: SoBaseNumber
 
 /** SoText **/
 
-class SoText: SoConstObject {
+class SoText: SoConstObject 
+{
 protected:
   override void created(){
     super.created();
@@ -1032,7 +1046,12 @@ protected:
 public:
   text value;
 
+  this(){      
+    super();
+  }
+
   this(text aValue){
+    this();
     value = aValue;
   }
 

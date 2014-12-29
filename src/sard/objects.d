@@ -163,7 +163,7 @@ class SrdStatement: SrdObjects!SrdClause
     void add(OpOperator aOperator, SoObject aObject)
     {
       debug{
-        writeln("Statement.AddClause: " ~ aOperator.name ~ ", " ~ aObject.classinfo.name);
+        writeln("Statement.AddClause: " ~ (aOperator? aOperator.name : "none") ~ "," ~ aObject.classinfo.name);
       }
       if (aObject.parent !is null)
         error("You can not add object to another parent!");
@@ -363,7 +363,7 @@ abstract class SoObject: SardObject
     SoObject clone(bool withValue = true){
       SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
 	    if (object is null)
-		    error("Error when clongin");      
+		    error("Error when clonging");      
 	  
       if (withValue)
         object.assign(this);
@@ -760,6 +760,7 @@ class SoDeclare: SoNamedObject
 
     debug{
       override void debugWrite(int level){
+        super.debugWrite(level);
         _defines.debugWrite(level + 1);
       }
     }

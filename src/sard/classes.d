@@ -144,6 +144,7 @@ class SardObjects(T: SardObject): SardObject
         int i = 0;
         while (i < count) {
           this[i].debugWrite(level + 1);
+          i++;
         }
       }
     }

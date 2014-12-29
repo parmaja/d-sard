@@ -31,6 +31,8 @@ int main(string[] argv)
   writeln("--- Compile ---");
   run.compile(source);
   writeln();
+  writeln("Press enter run");
+  readln();
   writeln("----- Run -----");
   run.run();
   writeln();

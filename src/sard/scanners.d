@@ -34,13 +34,13 @@ class SrdWhitespace_Scanner: SardScanner
   protected:
     override bool scan(const string text, ref int column)
     {
-      while ((column < text.length) && (sWhitespace.indexOf(text[column]) > 0))
+      while ((column < text.length) && (lexical.isWhiteSpace(text[column])))
         column++;
        return true;
     }
 
     override bool accept(const string text, int column){
-      return sWhitespace.indexOf(text[column]) > 0;
+      return lexical.isWhiteSpace(text[column]);
     }
 }
 
@@ -49,11 +49,11 @@ class SrdIdentifier_Scanner: SardScanner
   protected:
     override bool scan(const string text, ref int column)
     {
-      int c = column;
+      int pos = column;
       while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
         column++;
-      column++;
-      lexical.parser.setToken(text[c..column], SardType.Identifier);
+
+      lexical.parser.setToken(text[pos..column], SardType.Identifier);
       return true;
     }
 
@@ -67,12 +67,11 @@ class SrdNumber_Scanner: SardScanner
   protected:
     override bool scan(const string text, ref int column)
     {
-      int c = column;
-      int l = text.length;
+      int pos = column;      
       while ((column < text.length) && (lexical.isNumber(text[column], false)))
         column++;    
-      column++;
-      lexical.parser.setToken(text[c..column], SardType.Number);
+      
+      lexical.parser.setToken(text[pos..column], SardType.Number);
       return true;
     }
 
@@ -129,9 +128,9 @@ class SrdLineComment_Scanner: SardScanner
   protected:
     override bool scan(const string text, ref int column)
     {
-      while ((column < text.length) && (sEOL.indexOf(text[column]) > 0))
+      while ((column < text.length) && (sEOL.indexOf(text[column]) >= 0))
         column++;
-      column++;////////////////
+      column++;//Eat the EOF char
       return true;
     }
 
@@ -150,7 +149,7 @@ class SrdBlockComment_Scanner: SardScanner
           return true;
         column++;
       }
-      column++;///////////////////////
+      column++;//Eat the second chat //not sure
       return false;
     }
 
@@ -166,10 +165,10 @@ class SrdComment_Scanner: SardScanner
 
     override bool scan(const string text, ref int column)
     {
-      int c = column;    
+      int pos = column;    
       while (column < text.length) {
         if (scanCompare("*}", text, column)){
-          buffer = buffer ~ text[c..column + 1];
+          buffer = buffer ~ text[pos..column + 1];
           column = column + 2;
           lexical.parser.setToken(buffer, SardType.Comment);
           buffer = "";
@@ -178,7 +177,7 @@ class SrdComment_Scanner: SardScanner
         column++;
       }
       column++;
-      buffer = buffer ~ text[c..column];
+      buffer = buffer ~ text[pos..column];
       return false;
     }
 
@@ -195,10 +194,10 @@ abstract class SrdString_Scanner: SardScanner
 
     override bool scan(const string text, ref int column)
     {
-      int c = column;    
+      int pos = column;    
       while (column < text.length) {      
         if (text[column] == quote) { //TODO Escape, not now
-          buffer = buffer ~ text[c..column + 1];
+          buffer = buffer ~ text[pos..column + 1];
           lexical.parser.setToken(buffer, SardType.String);
           column++;
           buffer = "";
@@ -207,7 +206,7 @@ abstract class SrdString_Scanner: SardScanner
         column++;
       }
       column++;
-      buffer = buffer ~ text[c..column];
+      buffer = buffer ~ text[pos..column];
       return false;
     }
 
@@ -309,7 +308,7 @@ public:
 
   override bool isWhiteSpace(char vChar, bool vOpen = true)
   {
-    return sWhitespace.indexOf(vChar) > 0;
+    return sWhitespace.indexOf(vChar) >= 0;
   }
 
   override bool isControl(char vChar)
@@ -324,10 +323,12 @@ public:
 
   override bool isNumber(char vChar, bool vOpen = true)
   {
+    bool r;
     if (vOpen)
-      return sNumberOpenChars.indexOf(vChar) > 0;
+      r = sNumberOpenChars.indexOf(vChar) >= 0;
     else
-      return sNumberChars.indexOf(vChar) > 0;
+      r = sNumberChars.indexOf(vChar) >= 0;
+    return r;
   }
 
   override bool isIdentifier(char vChar, bool vOpen = true)

@@ -20,9 +20,9 @@ int main(string[] argv)
   Sard sard = new Sard();  
   //string source = ""; //Empty
   //string source = "   "; //3 spaces
-  string source = ":=10;"; //simple result
+  //string source = ":=10;"; //simple result
   //string source = "  :=10;"; //simple result started with spaces
-  //string source = "x:=10;"; //simple assign
+  string source = "x:=10;"; //simple assign
 
 /*  string source = "  x := 10; 
  := x";*/

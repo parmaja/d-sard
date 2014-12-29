@@ -230,7 +230,8 @@ class SrdInstruction: SardObject
 	    return result;
 	  }
   	
-	  SoAssign setAssign(){
+	  SoAssign setAssign()
+    {
       //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
       SoAssign result = new SoAssign();
       result.name = identifier;    
@@ -240,7 +241,8 @@ class SrdInstruction: SardObject
       return result;
 	  }
   	
-    SoDeclare setDeclare(){
+    SoDeclare setDeclare()
+    {
       if (identifier == "")
         error("identifier is not set");
       SoDeclare result = new SoDeclare();

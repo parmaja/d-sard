@@ -132,6 +132,7 @@ class SrdClause: SardObject
   private:
     OpOperator _operator;
     SoObject _object;
+
   public:
     @property OpOperator operator() { return _operator; }
     @property SoObject object() { return _object; }
@@ -201,19 +202,22 @@ class SrdStatements: SrdObjects!SrdStatement
       super(aParent);    
     }   
 
-    SrdStatement add(){
+    SrdStatement add()
+    {
       SrdStatement statement = new SrdStatement(parent);
       super.add(statement);
       return statement;
     }
 
-    void check(){
+    void check()
+    {
       if (count == 0) {
         add();
       }
     }
 
-    bool execute(RunStack aStack){
+    bool execute(RunStack aStack)
+    {
       if (count == 0)
         return false;
       else{
@@ -483,7 +487,8 @@ abstract class SoBlock: SoNamedObject
       }
     }
 
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    {
       vStack.ret.insert(); //<--here we can push a variable result or create temp result to drop it
       call(vStack);
       auto t = vStack.ret.pull();
@@ -585,7 +590,8 @@ class SoSection: SoBlock  //Result was droped until using := assign in the first
       return declares.add(vDeclare);
     }
 
-    override SoDeclare findDeclare(string vName){
+    override SoDeclare findDeclare(string vName)
+    {
       if (parent !is null)
         return parent.findDeclare(vName);
       else
@@ -637,21 +643,25 @@ class SoStatement: SoCustomStatement
 class SoInstance: SoBlock
 {
   protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
-
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    {            
       SoDeclare p = findDeclare(name);
       if (p !is null) //maybe we must check Define.count, cuz it refere to it class
         p.call(vStack, aOperator, statements, done);
-      else {
+      else 
+      {
         RunVariable v = vStack.local.current.variables.find(name);
         if (v is null)
           error("Can not find a variable: " ~ name);
+        if (v.value.object is null)
+          error("Variable object is null: " ~ v.name);
         done = v.value.object.execute(vStack, aOperator);
       }      
     }
 
   public:
-    override void created(){
+    override void created()
+    {
       super.created();
       objectType = ObjectType.otObject;
     }
@@ -692,7 +702,8 @@ class SoAssign: SoNamedObject
       super.doSetParent(value);
     }
 
-    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    {
       //super.doExecute(vStack, aOperator, done);
       /** if not name it assign to parent result */
       done = true;
@@ -700,15 +711,18 @@ class SoAssign: SoNamedObject
         vStack.ret.current.reference = vStack.ret.parent.result;
       else {
         SoDeclare aDeclare = findDeclare(name);//TODO: maybe we can cache it
-        if (aDeclare !is null) {
-          if (aDeclare.callObject !is null){
+        if (aDeclare !is null) 
+        {
+          if (aDeclare.callObject !is null)
+          {
             RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
             if (v is null)
               error("Variable not found!");
             vStack.ret.current.reference = v.value;
           }
         }
-        else { //Ok let is declare it locally
+        else 
+        { //Ok let is declare it locally
           RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
           if (v is null)
             error("Variable not found!");

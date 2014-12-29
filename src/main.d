@@ -11,21 +11,22 @@ import std.math;
 import std.conv;
 import std.array;
 import std.range;
-import sard.classes;
+import sard.objects;
 import sard.process;
 
-int main(string[] argv) {
-
-  writeln("--------- SARD ----------");
+int main(string[] argv) 
+{
+  writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
   SardRun run = new SardRun();  
   //string source = ""; //Empty
   //string source = "   "; //3 spaces
   string source = ":=10;"; //simple result
-  //string source = "  :=10;"; //simple result started with space
+  //string source = "  :=10;"; //simple result started with spaces
   //string source = "x:=10;"; //simple assign
 
 /*  string source = "  x := 10; 
  := x";*/
+
   writeln();
   writeln("--- Compile ---");
   run.compile(source);

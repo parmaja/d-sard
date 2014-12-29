@@ -8,7 +8,7 @@ module sard.classes;
 
 import std.stdio;
 //import std.stream;
-import std.traits;
+//import std.traits;
 import std.string;
 import std.conv;
 import std.uni;
@@ -50,6 +50,10 @@ class SardParserException: Exception
   }
 }
 
+/**
+  SardObject is the base class for all object in this project
+*/
+
 class SardObject: Object 
 {
   protected:
@@ -59,6 +63,16 @@ class SardObject: Object
   public:
 
     debug{
+      /*void printTree(){   
+        auto a = [__traits(allMembers, typeof(this))];
+        foreach (member; a) 
+        {
+            writeln(member);
+        }
+        writeln();
+      }*/
+
+
       void debugWrite(int level){
         writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
       }

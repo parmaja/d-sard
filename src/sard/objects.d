@@ -186,14 +186,13 @@ class SrdStatement: SrdObjects!SrdClause
     public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
-class SrdBlock: SrdObjects!SrdStatement
+class SrdStatements: SrdObjects!SrdStatement
 {
-  //check BUG1
-  this(SoObject aParent){
-    super(aParent);    
-  }   
-
   public:
+    //check BUG1
+    this(SoObject aParent){
+      super(aParent);    
+    }   
 
     SrdStatement add(){
       return new SrdStatement(parent);
@@ -205,19 +204,19 @@ class SrdBlock: SrdObjects!SrdStatement
       }
     }
 
-  bool execute(RunStack aStack){
-    if (count == 0)
-      return false;
-    else{
-      int i = 0;
-      while (i < count) {
-        this[i].execute(aStack);
-        //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
-        i++;
+    bool execute(RunStack aStack){
+      if (count == 0)
+        return false;
+      else{
+        int i = 0;
+        while (i < count) {
+          this[i].execute(aStack);
+          //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
+          i++;
+        }
+        return true;
       }
-      return true;
     }
-  }
 }
 
 /** SoObject */
@@ -313,8 +312,8 @@ abstract class SoObject: SardObject
 
     }
 
-    //TODO executeParams will be bigger, i want to add to it SrdBlock Blocks too so i will collect it into a struct
-    void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters) {
+    //TODO executeParams will be bigger, i want to add to it SrdStatements Blocks too so i will collect it into a struct
+    void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters) {
 
     }
 
@@ -325,7 +324,7 @@ abstract class SoObject: SardObject
     }
  
   public:
-      bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdBlock vParameters = null) {
+      bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) {
 
       bool result = false;
       beforeExecute(vStack, aOperator);
@@ -437,11 +436,11 @@ abstract class SoConstObject: SoObject
 abstract class SoBlock: SoNamedObject
 {
   protected:
-    SrdBlock _block;
+    SrdStatements _statements;
 
-    public @property SrdBlock block() { return _block; };
+    public @property SrdStatements statements() { return _statements; };
 
-    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdBlock vParameters){
+    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters){
 
       super.executeParams(vStack, vDefines, vParameters);
       if (vParameters !is null) { //TODO we need to check if it is a block?      
@@ -474,7 +473,7 @@ abstract class SoBlock: SoNamedObject
     debug{
       override void debugWrite(int level){
         super.debugWrite(level);
-        _block.debugWrite(level + 1);
+        _statements.debugWrite(level + 1);
       }
     }
 
@@ -485,11 +484,11 @@ abstract class SoBlock: SoNamedObject
 
     this(){
       super();
-      _block = new SrdBlock(this);      
+      _statements = new SrdStatements(this);      
     }
 
     void call(RunStack vStack){ //vBlock here is params
-      block.execute(vStack);
+      statements.execute(vStack);
     }
 }
 
@@ -543,6 +542,13 @@ class SoSection: SoBlock  //Result was droped until using := assign in the first
     this(){
       super();
       _declares = new SrdDeclares();
+    }
+
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        _declares.debugWrite(level + 1);
+      }
     }
 
     override int addDeclare(SoNamedObject executeObject, SoNamedObject callObject){
@@ -610,7 +616,7 @@ class SoInstance: SoBlock
 
       SoDeclare p = findDeclare(name);
       if (p !is null) //maybe we must check Define.count, cuz it refere to it class
-        p.call(vStack, aOperator, block, done);
+        p.call(vStack, aOperator, statements, done);
       else {
         RunVariable v = vStack.local.current.variables.find(name);
         if (v is null)
@@ -734,7 +740,7 @@ class SoDeclare: SoNamedObject
     string resultType;
 
     //This outside execute it will force to execute the section
-    void call(RunStack vStack, OpOperator aOperator, SrdBlock aParameters, ref bool done){
+    void call(RunStack vStack, OpOperator aOperator, SrdStatements aParameters, ref bool done){
       done = callObject.execute(vStack, aOperator, defines, aParameters);
     }
 
@@ -1470,3 +1476,4 @@ class RunStack: SardObject
       local.pop();
     }
 }
+

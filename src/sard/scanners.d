@@ -257,7 +257,6 @@ protected:
 
   override void created()
   {     
-
     with(_controls)
     {
       add("(", SardControl.OpenParams);

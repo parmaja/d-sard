@@ -438,21 +438,21 @@ class SrdCollectorStatement: SrdCollector
 class SrdCollectorBlock: SrdCollectorStatement
 {
   protected:
-    SrdBlock block;
+    SrdStatements statements;
 
   public:
 
-    this(SrdParser aParser, SrdBlock aBlock){
+    this(SrdParser aParser, SrdStatements aStatements){
       super(aParser);
-      block = aBlock;
+      statements = aStatements;
     }
 
     override void prepare(){
       super.prepare();
       if (statement is null) {        
-        if (block is null)
+        if (statements is null)
           error("Maybe you need to set a block, or it single statment block");
-        statement = block.add();
+        statement = statements.add();
       }
     }
 }
@@ -534,7 +534,7 @@ class SrdCollectorDefine: SrdCollector
             aSection.parent = declare;
             declare.callObject = aSection;
             //We will pass the control to the next Collector
-            setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aSection.block));
+            setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aSection.statements));
             break;
           case SardControl.Declare:
             if (param){
@@ -635,7 +635,7 @@ class SrdControllerNormal: SrdController
           case SardControl.OpenBlock:
             SoSection aSection = new SoSection();
             instruction.setObject(aSection);
-            push(new SrdCollectorBlock(parser, aSection.block));
+            push(new SrdCollectorBlock(parser, aSection.statements));
             break;
 
           case SardControl.CloseBlock:
@@ -650,7 +650,7 @@ class SrdControllerNormal: SrdController
             if (instruction.checkIdentifier())
             {
               with (instruction.setInstance())
-                push(new SrdCollectorBlock(parser, block));
+                push(new SrdCollectorBlock(parser, statements));
             }
             else //No it is just sub statment like: 10+(5*5)
               with (instruction.setStatment())
@@ -703,7 +703,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
 
   override void doSetToken(string aToken, SardType aType){
       debug{        
-        writeln("doSetToken:" ~ aToken ~ " Type:" ~ to!string(aType));
+        writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
       }
       current.addIdentifier(aToken, aType);
       actionStack();
@@ -711,15 +711,21 @@ class SrdParser: SardStack!SrdCollector, ISardParser
     }
 
     override void doSetOperator(SardObject aOperator){
+      debug{
+        writeln("SetOperator: " ~ (cast(OpOperator)aOperator).name);
+      }
       OpOperator o = cast(OpOperator)aOperator; //TODO do something i hate typecasting
       if (o is null) 
-        error("aOperator not OpOperator");
+        error("SetOperator not OpOperator");
       current.addOperator(o);
       actionStack();
       actions = [];
     }
 
     override void doSetControl(SardControl aControl){
+      debug{        
+        writeln("SetControl: " ~ to!string(aControl));
+      }
       current.control(aControl);
       actionStack();
       if (Action.Bypass in actions)//TODO check if Set work good here
@@ -758,16 +764,16 @@ class SrdParser: SardStack!SrdCollector, ISardParser
     SrdCollector nextCollector;
     SrdControllers controllers = new SrdControllers();
 
-    this(SrdBlock aBlock){
+    this(SrdStatements aStatements){
       super();      
 
-      if (aBlock is null)
+      if (aStatements is null)
         error("You must set a block");
       
       controllers.add(new SrdControllerNormal(this));
       controllers.add(new SrdControllerDefines(this));      
 
-      push(new SrdCollectorBlock(this, aBlock));
+      push(new SrdCollectorBlock(this, aStatements));
 
     }
 
@@ -777,8 +783,9 @@ class SrdParser: SardStack!SrdCollector, ISardParser
     override void stop(){
     }
 
-    SrdCollector pushIt(ClassInfo info){
-      SrdCollector result = cast(SrdCollector)info.create();//this is buggy
+    SrdCollector pushIt(ClassInfo info)
+    {
+      SrdCollector result = cast(SrdCollector)info.create(); //this is buggy
       if (result is null)
         error("Invalid type casting SrdCollector");
       result.set(this);

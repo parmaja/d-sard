@@ -18,7 +18,7 @@ import sard.objects;
 import sard.scanners;
 import sard.parsers;
 
-class SoVersion_Const:SoNamedObject
+class SoVersion_Const: SoNamedObject
 {
   protected:
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
@@ -37,15 +37,15 @@ class SoTime_Const: SoNamedObject
 class SoMain: SoSection
 {
   protected:
-    SoVersion_Const versionConst;
+   // SoVersion_Const versionConst;
 
   public:
     this(){
       super();
-      versionConst = new SoVersion_Const();
+      /*versionConst = new SoVersion_Const();
       versionConst.parent = this;
       versionConst.name = "Version";
-      addDeclare(null, versionConst);
+      addDeclare(null, versionConst);*/
     }
 }
 
@@ -69,15 +69,25 @@ class SardRun: SardObject
 
       /* Compile */
 
-      SrdParser parser = new SrdParser(main.block);
+      writeln("----Createing lex objects-----");
+      writeln();
+      SrdParser parser = new SrdParser(main.statements);
       SrdLexical lexical = new SrdLexical();
+      
       lexical.parser = parser;      
       SardFeeder feeder = new SardFeeder(lexical);
 
+      writeln("--------Scanning--------");
       feeder.scan(text);
 
       debug{
+        writeln();
+        writeln("-------------");
         main.debugWrite(0);
+        writeln();
+        writeln("-------------");
+
+        //main.printTree();
       }
     }
 

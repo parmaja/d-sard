@@ -154,15 +154,21 @@ class SrdClause: SardObject
 class SrdStatement: SrdObjects!SrdClause 
 {
   //check BUG1
-  this(SoObject aParent){
+  this(SoObject aParent)
+  {
     super(aParent);    
   }   
 
   public:
     void add(OpOperator aOperator, SoObject aObject)
     {
-      SrdClause clause = new SrdClause(aOperator, aObject);
+      debug{
+        writeln("Statement.AddClause: " ~ aOperator.name ~ ", " ~ aObject.classinfo.name);
+      }
+      if (aObject.parent !is null)
+        error("You can not add object to another parent!");
       aObject.parent = parent;
+      SrdClause clause = new SrdClause(aOperator, aObject);
       super.add(clause);    
     }
 
@@ -175,7 +181,8 @@ class SrdStatement: SrdObjects!SrdClause
       aStack.ret.pop();
     }
 
-    void call(RunStack aStack){
+    void call(RunStack aStack)
+    {
       int i = 0;
       while (i < count) {
         this[i].execute(aStack);
@@ -195,7 +202,9 @@ class SrdStatements: SrdObjects!SrdStatement
     }   
 
     SrdStatement add(){
-      return new SrdStatement(parent);
+      SrdStatement statement = new SrdStatement(parent);
+      super.add(statement);
+      return statement;
     }
 
     void check(){
@@ -1200,12 +1209,22 @@ class OpOperators: SardNamedObjects!OpOperator{
   }    
 }
 
+class OpNone: OpOperator{
+  this(){
+    super();
+    name = "";
+    title = "None";
+    level = 50;
+    description = "Nothing";
+  }
+}
+
 class OpPlus: OpOperator{
   this(){
     super();
     name = "+";
     title = "Plus";
-    level = 50;
+    level = 51;
     description = "Add object to another object";
   }
 }
@@ -1215,7 +1234,7 @@ class OpMinus: OpOperator{
     super();
     name = "-";
     title = "Minus";
-    level = 50;
+    level = 51;
     description = "Sub object to another object";
   }
 }
@@ -1225,7 +1244,7 @@ class OpMultiply: OpOperator{
     super();
     name = "*";
     title = "Multiply";
-    level = 51;
+    level = 52;
     description = "";
   }
 }
@@ -1235,7 +1254,7 @@ class OpDivide: OpOperator{
     super();
     name = "/";
     title = "Divition";
-    level = 51;
+    level = 52;
     description = "";
   }
 }
@@ -1245,7 +1264,7 @@ class OpPower: OpOperator{
     super();
     name = "^";
     title = "Power";
-    level = 52;
+    level = 53;
     description = "";
   }
 }
@@ -1255,7 +1274,7 @@ class OpLesser: OpOperator{
     super();
     name = "<";
     title = "Lesser";
-    level = 51;
+    level = 52;
     description = "";
   }
 }
@@ -1265,7 +1284,7 @@ class OpGreater: OpOperator{
     super();
     name = ">";
     title = "Greater";
-    level = 51;
+    level = 52;
     description = "";
   }
 }
@@ -1275,7 +1294,7 @@ class OpEqual: OpOperator{
     super();
     name = ":=";
     title = "Equal";
-    level = 51;
+    level = 52;
     description = "";
     //control = ctlAssign; bad idea
   }
@@ -1286,7 +1305,7 @@ class OpNotEqual: OpOperator{
     super();
     name = "<>";
     title = "NotEqual";
-    level = 51;
+    level = 52;
     description = "";    
   }
 }
@@ -1296,17 +1315,17 @@ class OpNot: OpOperator{
     super();
     name = "!";
     title = "Not";
-    level = 51;
+    level = 52;
     description = "";
   }
-}
+}            
 
 class OpAnd: OpOperator{
   this(){
     super();
     name = "&";
     title = "And";
-    level = 51;
+    level = 52;
     description = "";
   }
 }
@@ -1316,7 +1335,7 @@ class OpOr: OpOperator{
     super();
     name = "|";
     title = "Or";
-    level = 51;
+    level = 52;
     description = "";
   }
 }

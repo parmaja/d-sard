@@ -343,10 +343,10 @@ class SrdCollector: SardObject
     }
 
     void post(){            
-      debug{
-        writeln("post()");
-      }
       if (!instruction.isEmpty) {      
+        debug{
+          writeln("post(" ~ instruction.identifier ~ ")");
+        }
         prepare();
         internalPost();
         reset();
@@ -401,7 +401,8 @@ class SrdCollectorStatement: SrdCollector
   protected:
     SrdStatement statement;
 
-    override void internalPost(){
+    override void internalPost()
+    {
       super.internalPost();
       statement.add(instruction.operator, instruction.object);
     }
@@ -411,7 +412,8 @@ class SrdCollectorStatement: SrdCollector
       super(aParser);
     }
 
-    this(SrdParser aParser, SrdStatement aStatement){
+    this(SrdParser aParser, SrdStatement aStatement)
+    {
       this(aParser);
       statement = aStatement;
     }
@@ -421,9 +423,11 @@ class SrdCollectorStatement: SrdCollector
       statement = null;
     }
 
-    override void prepare(){
+    override void prepare()
+    {
       super.prepare();
-      if (instruction.identifier != "") {        
+      if (instruction.identifier != "") 
+      {
         if (instruction.object !is null)
           error("Object is already set!");
         instruction.setInstance();
@@ -611,25 +615,30 @@ class SrdControllerNormal: SrdController
     }
 
     override void control(SardControl aControl){
-      with(parser.current){
-        switch(aControl){
+      with(parser.current)
+      {
+        switch(aControl)
+        {
           case SardControl.Assign:
-            if (isInitial){
+            if (isInitial)
+            {
               instruction.setAssign();
               post();
-            } else {
+            } 
+            else 
               error("You can not use assignment here!");
-            }
+
             break;
 
           case SardControl.Declare:
-            if (isInitial){
+            if (isInitial)
+            {
               SoDeclare aDeclare = instruction.setDeclare();
               post();
               push(new SrdCollectorDefine(parser, aDeclare));
-            } else {
+            } 
+            else 
               error("You can not use assignment here!");
-            }
             break;
 
           case SardControl.OpenBlock:
@@ -714,7 +723,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       debug{
         writeln("SetOperator: " ~ (cast(OpOperator)aOperator).name);
       }
-      OpOperator o = cast(OpOperator)aOperator; //TODO do something i hate typecasting
+      OpOperator o = cast(OpOperator)aOperator; //TODO do something, i hate typecasting
       if (o is null) 
         error("SetOperator not OpOperator");
       current.addOperator(o);
@@ -764,7 +773,8 @@ class SrdParser: SardStack!SrdCollector, ISardParser
     SrdCollector nextCollector;
     SrdControllers controllers = new SrdControllers();
 
-    this(SrdStatements aStatements){
+    this(SrdStatements aStatements)
+    {
       super();      
 
       if (aStatements is null)
@@ -774,7 +784,6 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       controllers.add(new SrdControllerDefines(this));      
 
       push(new SrdCollectorBlock(this, aStatements));
-
     }
 
     override void start(){

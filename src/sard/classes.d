@@ -82,8 +82,11 @@ class SardObject: Object
       created(); 
     }
 
-    void error(string error) {
-      throw new SardException(error);
+    void error(string err) {
+      debug{
+        writeln(err);
+      }
+      throw new SardException(err);
     }
 }
 

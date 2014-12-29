@@ -38,11 +38,19 @@ module sard.parsers;
 */
 
 /**
-  Scope
-    Block
-    Statment
-    Instruction, Preface, clause,
-      Expression
+  Block {
+    Statements {
+        Statment {
+          clause {operator, object}
+          clause {operator, object}
+        };      
+
+        Statment {
+          clause {operator, object}
+          clause {operator, object}
+        };      
+    }
+  }
 */
 
 import std.stdio;
@@ -193,60 +201,60 @@ class SrdInstruction: SardObject
       return result;
     }
     
-  SoInstance setInstance(string aIdentifier)
-  {
-    if (identifier == "")
-      error("Identifier is already set");
-    SoInstance result = new SoInstance();
-    result.name = aIdentifier;
-    internalSetObject(result);
-    setFlag(Flag.Instance);
-    return result;
-  }
+    SoInstance setInstance(string aIdentifier)
+    {
+      if (identifier == "")
+        error("Identifier is already set");
+      SoInstance result = new SoInstance();
+      result.name = aIdentifier;
+      internalSetObject(result);
+      setFlag(Flag.Instance);
+      return result;
+    }
 
-	SoInstance setInstance(){
-	  if (identifier == "")
-		error("Identifier is not set");
-	  SoInstance result = setInstance(identifier);
-	  identifier = "";	  
-	  return result;
-	}
+	  SoInstance setInstance(){
+	    if (identifier == "")
+		  error("Identifier is not set");
+	    SoInstance result = setInstance(identifier);
+	    identifier = "";	  
+	    return result;
+	  }
 
-	SoStatement setStatment(){ //Statement object not srdStatement	
-	  if (identifier != "")
-		  error("Identifier is already set");
-	  SoStatement result = new SoStatement();
-	  internalSetObject(result);
-	  setFlag(Flag.Statement);
-	  return result;
-	}
-	
-	SoAssign setAssign(){
-    //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
-    SoAssign result = new SoAssign();
-    result.name = identifier;    
-    internalSetObject(result);
-    identifier = "";
-    setFlag(Flag.Assign);
-    return result;
-	}
-	
-  SoDeclare setDeclare(){
-    if (identifier == "")
-      error("identifier is not set");
-    SoDeclare result = new SoDeclare();
-    result.name = identifier;    
-    internalSetObject(result);
-    identifier = "";
-    setFlag(Flag.Declare);
-    return result;
-  }
-  
-  void setObject(SoObject aObject){
-    if (identifier != "")
-      error("Identifier is already set");
-    internalSetObject(aObject);  
-  }  
+	  SoStatement setStatment(){ //Statement object not srdStatement	
+	    if (identifier != "")
+		    error("Identifier is already set");
+	    SoStatement result = new SoStatement();
+	    internalSetObject(result);
+	    setFlag(Flag.Statement);
+	    return result;
+	  }
+  	
+	  SoAssign setAssign(){
+      //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
+      SoAssign result = new SoAssign();
+      result.name = identifier;    
+      internalSetObject(result);
+      identifier = "";
+      setFlag(Flag.Assign);
+      return result;
+	  }
+  	
+    SoDeclare setDeclare(){
+      if (identifier == "")
+        error("identifier is not set");
+      SoDeclare result = new SoDeclare();
+      result.name = identifier;    
+      internalSetObject(result);
+      identifier = "";
+      setFlag(Flag.Declare);
+      return result;
+    }
+    
+    void setObject(SoObject aObject){
+      if (identifier != "")
+        error("Identifier is already set");
+      internalSetObject(aObject);  
+    }  
 }
 
 class SrdController: SardObject
@@ -269,6 +277,7 @@ class SrdController: SardObject
 
 class SrdControllers: SardObjects!SrdController
 {
+public:
   SrdController findClass(const ClassInfo controllerClass) {
     int i = 0;
     while (i < count) {

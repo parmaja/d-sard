@@ -309,8 +309,15 @@ abstract class SoObject: SardObject
     };
 
   protected: 
-    bool operate(SoObject aObject, OpOperator AOperator) {
+    bool doOperate(SoObject object, OpOperator operator) {
       return false;
+    }
+
+    final bool operate(SoObject object, OpOperator operator) {
+      if (operator is null)
+        return false;
+      else
+        return doOperate(object, operator);
     }
 
     void beforeExecute(RunStack vStack, OpOperator aOperator){
@@ -360,12 +367,16 @@ abstract class SoObject: SardObject
       //nothing
     }
 
-    SoObject clone(bool withValue = true){
+    SoObject clone(bool withValues = true)
+    { 
+      debug {
+        writeln("Cloneing " ~ this.classinfo.name);
+      }
       SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
 	    if (object is null)
 		    error("Error when clonging");      
 	  
-      if (withValue)
+      if (withValues)
         object.assign(this);
       return object;
     }
@@ -429,12 +440,13 @@ class SoNamedObject: SoObject
 abstract class SoConstObject: SoObject
 {
   override final void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-    if ((vStack.ret.current.result.object is null) && (aOperator is null)) {
+    if ((vStack.ret.current.result.object is null) && (aOperator is null)) 
+    {
       vStack.ret.current.result.object = clone();
     done = true;
     }
-    else {
-      
+    else 
+    {      
       if (vStack.ret.current.result.object is null)
         vStack.ret.current.result.object = clone(false);
       done = vStack.ret.current.result.object.operate(this, aOperator);
@@ -831,7 +843,12 @@ class SoInteger: SoBaseNumber
   public:
     integer value;
 
+    this(){      
+      super();
+    }
+
     this(integer aValue){
+      this();
       value = aValue;
     }
 
@@ -839,20 +856,20 @@ class SoInteger: SoBaseNumber
       value = fromObject.asInteger;      
     }    
 
-    override bool operate(SoObject aObject, OpOperator aOperator){
-
-      switch(aOperator.name){
+    override bool doOperate(SoObject object, OpOperator operator)
+    {
+      switch(operator.name){
         case "+": 
-          value = value + aObject.asInteger;
+          value = value + object.asInteger;
           return true;
         case "-": 
-          value = value - aObject.asInteger;
+          value = value - object.asInteger;
           return true;
         case "*": 
-          value = value * aObject.asInteger;
+          value = value * object.asInteger;
           return true;
         case "/": 
-          value = value % aObject.asInteger;
+          value = value % object.asInteger;
           return true;
         default:
           return false;
@@ -900,20 +917,21 @@ class SoNumber: SoBaseNumber
       value = fromObject.asNumber;      
     }    
 
-    override bool operate(SoObject aObject, OpOperator aOperator){
-
-      switch(aOperator.name){
+    override bool doOperate(SoObject object, OpOperator operator)
+    {
+      switch(operator.name)
+      {
         case "+": 
-          value = value + aObject.asNumber;
+          value = value + object.asNumber;
           return true;
         case "-": 
-          value = value - aObject.asNumber;
+          value = value - object.asNumber;
           return true;
         case "*": 
-          value = value * aObject.asNumber;
+          value = value * object.asNumber;
           return true;
         case "/": 
-          value = value / aObject.asNumber;
+          value = value / object.asNumber;
           return true;
         default:
           return false;
@@ -960,20 +978,20 @@ class SoBool: SoBaseNumber
       value = fromObject.asBool;
     }    
 
-    override bool operate(SoObject aObject, OpOperator aOperator)
+    override bool doOperate(SoObject object, OpOperator operator)
     {
-      switch(aOperator.name){
+      switch(operator.name){
         case "+": 
-          value = value && aObject.asBool;
+          value = value && object.asBool;
           return true;
         case "-": 
-          value = value != aObject.asBool; //xor //LOL
+          value = value != object.asBool; //xor //LOL
           return true; 
         case "*": 
-          value = value || aObject.asBool;
+          value = value || object.asBool;
           return true;
         /*case "/": 
-          value = value  aObject.asBool;
+          value = value  object.asBool;
           return true;*/
         default:
           return false;
@@ -1020,17 +1038,17 @@ public:
     value = fromObject.asText;
   }    
 
-  override bool operate(SoObject aObject, OpOperator aOperator){
-
-    switch(aOperator.name){
+  override bool doOperate(SoObject object, OpOperator operator)
+  {
+    switch(operator.name){
       case "+": 
-        value = value ~ aObject.asText;
+        value = value ~ object.asText;
         return true;
 
       case "-": 
-        if (cast(SoBaseNumber)aObject !is null) {
+        if (cast(SoBaseNumber)object !is null) {
           int c = value.length -1;
-          c = c - to!int((cast(SoBaseNumber)aObject).asInteger);
+          c = c - to!int((cast(SoBaseNumber)object).asInteger);
           value = value[0..c + 1];
           return true;
         }
@@ -1038,8 +1056,8 @@ public:
           return false;
 
       case "*":  //stupid idea ^.^ 
-        if (cast(SoBaseNumber)aObject !is null) {
-          value = stringRepeat(value, to!int((cast(SoBaseNumber)aObject).asInteger));
+        if (cast(SoBaseNumber)object !is null) {
+          value = stringRepeat(value, to!int((cast(SoBaseNumber)object).asInteger));
           return true;
         }
         else

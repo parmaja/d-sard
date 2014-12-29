@@ -176,7 +176,7 @@ class SrdStatement: SrdObjects!SrdClause
     {
       aStack.ret.insert(); //Each statement have own result
       call(aStack);
-      if (aStack.ret.current.reference is null)
+      if (aStack.ret.current.reference !is null)
         aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
       aStack.ret.pop();
     }
@@ -376,7 +376,7 @@ abstract class SoObject: SardObject
       //TODO, here we want to check if subclass have a default ctor 
       SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
 	    if (object is null)
-		    error("Error when clonging");      
+		    error("Error when cloning");      
 	  
       if (withValues)
         object.assign(this);
@@ -446,7 +446,7 @@ abstract class SoConstObject: SoObject
     if ((vStack.ret.current.result.object is null) && (aOperator is null)) 
     {
       vStack.ret.current.result.object = clone();
-    done = true;
+      done = true;
     }
     else 
     {      
@@ -467,7 +467,8 @@ abstract class SoBlock: SoNamedObject
     override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters){
 
       super.executeParams(vStack, vDefines, vParameters);
-      if (vParameters !is null) { //TODO we need to check if it is a block?      
+      if (vParameters !is null) 
+      { //TODO we need to check if it is a block?      
         int i = 0;
         while (i < vParameters.count) { //here i was added -1 to the count | while (i < vParameters.count -1)
           vStack.ret.insert();
@@ -1163,7 +1164,8 @@ class CtlControls: SardNamedObjects!CtlControl
     CtlControl result = null;
     int max = 0;
     int i = 0;
-    while (i < count) {
+    while (i < count) 
+    {
       string w = this[i].name;
       if (scanCompare(w, text, index)) {
         if (max < this[i].name.length) {
@@ -1224,28 +1226,31 @@ class OpOperators: SardNamedObjects!OpOperator{
   bool isOpenBy(const char c){
     int i = 0;
     while (i < count){
-      if (this[i].name[0] == toLower(c)) {
+      if (this[i].name[0] == toLower(c)) 
         return true;
-      }
+      
       i++;
     }
     return false;
   }    
 
-  OpOperator scan(string text, int index){
-    OpOperator operator = null;
+  OpOperator scan(string text, int index)
+  {
+    OpOperator result = null;
     int max = 0;
     int i = 0;
-    while (i < count){
-      if (scanCompare(this[i].name, text, index)) {
+    while (i < count)
+    {
+      string w = this[i].name;
+      if (scanCompare(w, text, index)) {
         if (max < this[i].name.length) {
           max = this[i].name.length;
-          operator = this[i];
+          result = this[i];
         }
       }
       i++;
     }
-    return operator;
+    return result;
   }    
 }
 

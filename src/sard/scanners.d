@@ -83,7 +83,8 @@ class SrdNumber_Scanner: SardScanner
 class SrdControl_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column) {
+    override bool scan(const string text, ref int column) 
+    {
       CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
       if (control !is null){
         column = column + control.name.length;
@@ -106,7 +107,7 @@ class SrdOperator_Scanner: SardScanner
     override bool scan(const string text, ref int column)
     {
       OpOperator operator = (cast(SrdLexical)lexical).operators.scan(text, column);//TODO need new way to access lexical without typecasting
-      if (operator is null)
+      if (operator !is null)
         column = column + operator.name.length;
       else
         error("Unkown operator started with " ~ text[column]);
@@ -247,9 +248,9 @@ class SrdDQString_Scanner: SrdString_Scanner
 class SrdLexical: SardLexical
 {
 private:
-  OpOperators _operators = new OpOperators();
+  OpOperators _operators;
   @property public OpOperators operators () { return _operators; }
-  CtlControls _controls = new CtlControls();
+  CtlControls _controls;
   @property public CtlControls controls() { return _controls; }    
 
 protected:
@@ -304,7 +305,12 @@ protected:
     }
   }
 
-public:     
+public:
+  this(){
+    _operators = new OpOperators();
+    _controls = new CtlControls();
+    super();
+  }
 
   override bool isWhiteSpace(char vChar, bool vOpen = true)
   {

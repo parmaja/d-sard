@@ -17,7 +17,7 @@ import sard.process;
 int main(string[] argv) 
 {
   writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
-  SardRun run = new SardRun();  
+  Sard sard = new Sard();  
   //string source = ""; //Empty
   //string source = "   "; //3 spaces
   string source = ":=10;"; //simple result
@@ -29,15 +29,15 @@ int main(string[] argv)
 
   writeln();
   writeln("--- Compile ---");
-  run.compile(source);
+  sard.compile(source);
   writeln();
   writeln("Press enter run");
   readln();
   writeln("----- Run -----");
-  run.run();
+  sard.run();
   writeln();
   writeln("----- Result -----");
-  string s = run.result;
+  string s = sard.result;
   writeln(s);  
   writeln();
   writeln("---------------");

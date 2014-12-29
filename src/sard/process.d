@@ -49,13 +49,13 @@ class SoMain: SoSection
     }
 }
 
-class SardRun: SardObject
+class Sard: SardObject
 {
   protected:
 
   public:
     SoMain main;
-    string result;//Temp
+    string result;
 
     this(){
       super();
@@ -80,7 +80,8 @@ class SardRun: SardObject
       writeln("--------Scanning--------");
       feeder.scan(text);
 
-      debug{
+      debug
+      {
         writeln();
         writeln("-------------");
         main.debugWrite(0);
@@ -95,13 +96,16 @@ class SardRun: SardObject
     {
       RunStack stack = new RunStack();
       main.execute(stack, null);
-      string result;
+
       if (stack.ret.current.result.object !is null) 
       {
         debug {
           writeln("We have value");
         }
         result = stack.ret.current.result.object.asText();
+        debug {
+          writeln("The value isssss: " ~ result);
+        }
       }
     };
 }

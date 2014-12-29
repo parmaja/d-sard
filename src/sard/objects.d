@@ -363,7 +363,8 @@ abstract class SoObject: SardObject
       return result; 
     }
 
-    void assign(SoObject fromObject){
+    void assign(SoObject fromObject)
+    {
       //nothing
     }
 
@@ -381,7 +382,8 @@ abstract class SoObject: SardObject
       return object;
     }
 
-    int addDeclare(SoNamedObject executeObject, SoNamedObject callObject){
+    int addDeclare(SoNamedObject executeObject, SoNamedObject callObject)
+    {
       SoDeclare declare = new SoDeclare();
       if (executeObject !is null)
         declare.name = executeObject.name;

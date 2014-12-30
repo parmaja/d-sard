@@ -204,7 +204,8 @@ class SrdStatement: SrdObjects!SrdClause
 
 class SrdStatements: SrdObjects!SrdStatement
 {
-  public:
+  public:    
+
     //check BUG1
     this(SoObject aParent){
       super(aParent);    
@@ -605,7 +606,7 @@ class SoSection: SoBlock  //Result was droped until using := assign in the first
     }
 }
 
-class SoCustomStatement: SoObject
+class SoStatement: SoObject
 {
   protected:
     SrdStatement _statement;
@@ -629,15 +630,10 @@ class SoCustomStatement: SoObject
       done = true;
     }
   public:
-}
-
-class SoStatement: SoCustomStatement
-{
-  public:
     this(){
       super();
       _statement = new SrdStatement(parent);
-  }
+    }
 }
 
 /**  Variables objects */

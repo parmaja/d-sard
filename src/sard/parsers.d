@@ -221,7 +221,8 @@ class SrdInstruction: SardObject
 	    return result;
 	  }
 
-	  SoStatement setStatment(){ //Statement object not srdStatement	
+	  SoStatement setStatment()
+    { 
 	    if (identifier != "")
 		    error("Identifier is already set");
 	    SoStatement result = new SoStatement();
@@ -800,8 +801,10 @@ class SrdParser: SardStack!SrdCollector, ISardParser
     }
 
     override void start(){
+      super.start();
     }
 
     override void stop(){
+      super.stop();
     }
 }        

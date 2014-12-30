@@ -804,14 +804,4 @@ class SrdParser: SardStack!SrdCollector, ISardParser
 
     override void stop(){
     }
-
-    SrdCollector pushIt(ClassInfo info)
-    {
-      SrdCollector result = cast(SrdCollector)info.create(); //this is buggy
-      if (result is null)
-        error("Invalid type casting SrdCollector");
-      result.set(this);
-      push(result);
-      return result;
-    }
-}
+}        

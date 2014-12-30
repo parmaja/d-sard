@@ -148,6 +148,14 @@ class SrdClause: SardObject
         error("Object not set!");
       return _object.execute(aStack, _operator);
     }
+
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        writeln(stringRepeat(" ", level * 2) ~ "operator: " ~ (_operator? _operator.name : "") );
+        writeln(stringRepeat(" ", level * 2) ~ "name: " ~ (_object? _object.name : "") );
+      }
+    }
 }
 
 /** SrdStatement */
@@ -238,6 +246,9 @@ abstract class SoObject: SardObject
 {
   private:
     SoObject _parent;
+    string _name;
+    public @property string name(){ return _name; }
+    public @property string name(string value){ return _name = value; }
 
   protected:
     ObjectType _objectType;
@@ -245,7 +256,6 @@ abstract class SoObject: SardObject
     public @property ObjectType objectType() {
       return _objectType;
     }
-
     public @property ObjectType objectType(ObjectType value) {
       return _objectType = value;
     }
@@ -418,13 +428,9 @@ class SoNamedObject: SoObject
 {
   private:
     int _id;
-    string _name;
   public:
     @property int id(){ return _id; }
     @property int id(int value){ return _id = value; }
-    @property string name(){ return _name; }
-    @property string name(string value){ return _name = value; }
-
   public:
 
     this(){
@@ -1133,7 +1139,6 @@ public:
   class SoArray ....
 
 */
-
 
 /**---------------------------**/
 /**-------- Controls  --------**/

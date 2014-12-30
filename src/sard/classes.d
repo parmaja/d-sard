@@ -143,7 +143,7 @@ class SardObjects(T: SardObject): SardObject
     debug{
       override void debugWrite(int level){
         super.debugWrite(level);
-        writeln("Count: " ~ to!string(count));
+        writeln(stringRepeat(" ", level * 2) ~ "Count: " ~ to!string(count));
         int i = 0;
         while (i < count) {
           this[i].debugWrite(level + 1);

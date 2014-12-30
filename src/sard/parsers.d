@@ -11,7 +11,7 @@ module sard.parsers;
 
     SrdFeeder: Load the source lines and feed it to the Lexical, line by line
     SrdLexical: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
-    SrdScanner: Take this part of source code and convert it to control, operator or indentifier
+    SrdScanner: Take this part of source code and convert it to control, operator or token/indentifier
     SrdParser: Generate the runtime objects, it use the current Collector
 */
 
@@ -395,7 +395,8 @@ class SrdCollector: SardObject
       return false;
     }
 
-    void switchController(ClassInfo aControllerInfo){
+    void switchController(ClassInfo aControllerInfo)
+    {
       if (aControllerInfo is null)
         error("ControllerClass must have a value!");
       controller = parser.controllers.findClass(aControllerInfo);
@@ -650,7 +651,7 @@ class SrdControllerNormal: SrdController
               push(new SrdCollectorDefine(parser, aDeclare));
             } 
             else 
-              error("You can not use assignment here!");
+              error("You can not use a declare here!");
             break;
 
           case SardControl.OpenBlock:

@@ -213,5 +213,6 @@
    <File path="..\..\src\sard\utils.d" />
   </Folder>
   <File path="..\..\src\main.d" />
+  <File path="..\..\README.md" />
  </Folder>
 </DProject>

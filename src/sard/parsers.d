@@ -37,22 +37,6 @@ module sard.parsers;
 
 */
 
-/**
-  Block {
-    Statements {
-        Statment {
-          clause {operator, object}
-          clause {operator, object}
-        };      
-
-        Statment {
-          clause {operator, object}
-          clause {operator, object}
-        };      
-    }
-  }
-*/
-
 import std.stdio;
 import std.conv;
 import std.array;
@@ -75,8 +59,8 @@ enum Flag {
   Param,
   Operator,
   Comment,
-  Statement,
-  Block
+  Section,
+  Limb
 }
 
 alias Set!Flag Flags;
@@ -155,7 +139,8 @@ class SrdInstruction: SardObject
       operator = aOperator;
     }
 
-    void setIdentifier(string aIdentifier){
+    void setIdentifier(string aIdentifier)
+    {
       if (identifier != "")
         error("Identifier is already set");
       identifier = aIdentifier;
@@ -190,7 +175,8 @@ class SrdInstruction: SardObject
       return result;
     }
 
-    SoComment setComment(string aIdentifier){
+    SoComment setComment(string aIdentifier)
+    {
       //We need to check if it the first expr in the statment
       if (identifier != "")
         error("Identifier is already set");
@@ -221,13 +207,13 @@ class SrdInstruction: SardObject
 	    return result;
 	  }
 
-	  SoStatement setStatment()
+	  SoLimb setLimb()
     { 
 	    if (identifier != "")
 		    error("Identifier is already set");
-	    SoStatement result = new SoStatement();
+	    SoLimb result = new SoLimb();
 	    internalSetObject(result);
-	    setFlag(Flag.Statement);
+	    setFlag(Flag.Limb);
 	    return result;
 	  }
   	
@@ -676,7 +662,7 @@ class SrdControllerNormal: SrdController
                 push(new SrdCollectorBlock(parser, statements));
             }
             else //No it is just sub statment like: 10+(5*5)
-              with (instruction.setStatment())
+              with (instruction.setLimb())
                 push(new SrdCollectorStatement(parser, statement));
             break;
 
@@ -800,11 +786,9 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       push(new SrdCollectorBlock(this, aStatements));
     }
 
-    override void start(){
-      super.start();
+    override void start(){      
     }
 
     override void stop(){
-      super.stop();
     }
 }        

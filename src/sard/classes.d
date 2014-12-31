@@ -249,6 +249,12 @@ class SardStack(T): SardObject
       afterPush();
     }
 
+    T push(){
+      T o = new T();
+      push(o);
+      return o;
+    }
+
     T pull(){
       if (currentItem is null)
         error("Stack is empty");

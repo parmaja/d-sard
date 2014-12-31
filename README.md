@@ -27,6 +27,13 @@ Specification
   * Functions is objects, or Object can take parameters.
   * When execute object we can pass parameters (), array [] and blocks {}{}{} //not yet
   * There is no "For" "While" "Repeat" or even "If" "Else" those are objects //not yet
+  * No global, but object functions is global for child objects
+  
+Rules
+-----
+
+  *	Do not use $ or % sign any where, I reserved it for special financial operating, btw i am an accountant.
+  * No escapes inside the string/text see todo, escape is outside | x := "foo"\13"bar"\n; 
   
 #####Done:#####
 

@@ -250,7 +250,8 @@ abstract class SoObject: SardObject
     }
 
   public:
-    @property final text asText(){
+    @property final text asText()
+    {
       string o;
       if (toText(o))
         return o;
@@ -258,7 +259,8 @@ abstract class SoObject: SardObject
         return "";
     };
 
-    @property final number asNumber(){
+    @property final number asNumber()
+    {
       number o;
       if (toNumber(o))
         return o;
@@ -266,7 +268,8 @@ abstract class SoObject: SardObject
         return 0;
     };
 
-    @property final integer asInteger(){
+    @property final integer asInteger()
+    {
       integer o;
       if (toInteger(o))
         return o;
@@ -274,7 +277,8 @@ abstract class SoObject: SardObject
         return 0;
     };
 
-    @property final bool asBool(){
+    @property final bool asBool()
+    {
       bool o;
       if (toBool(o))
         return o;
@@ -307,7 +311,8 @@ abstract class SoObject: SardObject
       return false;
     }
 
-    final bool operate(SoObject object, OpOperator operator) {
+    final bool operate(SoObject object, OpOperator operator) 
+    {
       if (operator is null)
         return false;
       else
@@ -855,7 +860,10 @@ class SrdDeclares: SardNamedObjects!SoDeclare {
 }
 
 /** SoBlock */
-/** Used by { } */
+/** 
+  Used by { } 
+  It a block before execute push in stack, after execute will pop the stack, it have return value too in the stack
+*/
 
 class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
 { 
@@ -878,8 +886,8 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
   public:
 
     this(){
-      super();
       _declares = new SrdDeclares();
+      super();
     }
 
     debug{
@@ -887,14 +895,6 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
         super.debugWrite(level);
         _declares.debugWrite(level + 1);
       }
-    }
-
-    override int addDeclare(SoNamedObject executeObject, SoNamedObject callObject){
-      return super.addDeclare(executeObject, callObject);
-    }
-
-    override int addDeclare(SoDeclare vDeclare){
-      return declares.add(vDeclare);
     }
 
     override SoDeclare findDeclare(string vName)
@@ -909,27 +909,32 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
 /**
   x := 10  + ( 500 + 600);
 -------------[  Limb    ]-------
+Limb (i dislike the name) it is a block but without pushing stack.
 */
+
 class SoLimb: SoObject
 {
   protected:
     SrdStatement _statement;
     public @property SrdStatement statement() { return _statement; };
 
-    override void beforeExecute(RunStack vStack, OpOperator aOperator){
+    override void beforeExecute(RunStack vStack, OpOperator aOperator)
+    {
       super.beforeExecute(vStack, aOperator);
       vStack.ret.push();
     }  
 
-    override void afterExecute(RunStack vStack, OpOperator aOperator){        
-      
+    override void afterExecute(RunStack vStack, OpOperator aOperator)
+    {      
       super.afterExecute(vStack, aOperator);
       RunReturnItem T = vStack.ret.pull();
       if (T.result.object !is null)
         T.result.object.execute(vStack, aOperator);            
     }  
 
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    {
+      super.doExecute(vStack, aOperator, done);
       statement.call(vStack);
       done = true;
     }
@@ -945,7 +950,10 @@ class SoLimb: SoObject
 
 /**   SoInstance */
 
-/** it is a variable value like x in this "10 + x + 5" */
+/** 
+  it is a variable value like x in this "10 + x + 5" 
+  it will call the object if it is a object not a variable
+*/
 
 class SoInstance: SoStatements
 {
@@ -978,7 +986,8 @@ class SoInstance: SoStatements
 class SoVariable: SoNamedObject
 { 
   protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){            
+    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done)
+    {            
       RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));
         if (v is null)
           error("Can not register a varibale: " ~ name) ;
@@ -989,13 +998,13 @@ class SoVariable: SoNamedObject
 
   public:
     ClassInfo resultType;
-  //  SardMetaClass resultType; OUTCH
 
     this(){
       super();
     }
 
-    this(SoObject vParent, string vName){ //not auto inherited
+    this(SoObject vParent, string vName)
+    {       
       super(vParent, vName);
     }
 }
@@ -1038,7 +1047,8 @@ class SoAssign: SoNamedObject
       }
     }
 
-    override void created(){
+    override void created()
+    {
       super.created();
       objectType = ObjectType.otVariable;
     }
@@ -1085,10 +1095,11 @@ class SoDeclare: SoNamedObject
     }
 
   public:
-    //ExecuteObject will execute in a context of statement if it is not null,
+    //executeObject will execute in a context of statement if it is not null,
     SoNamedObject executeObject;//You create it but Declare will free it
-    //ExecuteObject will execute by call, when called from outside,
+    //callObject will execute by call, when called from outside,
     SoNamedObject callObject;//You create it but Declare will free it
+    //** I hate that above, we need one
     string resultType;
 
     //This outside execute it will force to execute the Block

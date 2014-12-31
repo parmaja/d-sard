@@ -34,7 +34,7 @@ class SoTime_Const: SoNamedObject
     }
 }
 
-class SoMain: SoSection
+class SoMain: SoBlock
 {
   protected:
    // SoVersion_Const versionConst;

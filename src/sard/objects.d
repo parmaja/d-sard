@@ -854,10 +854,10 @@ class SrdDefines: SardObjects!SrdDefine
 class SrdDeclares: SardNamedObjects!SoDeclare {
 }
 
-/** SoSection */
+/** SoBlock */
 /** Used by { } */
 
-class SoSection: SoStatements  //Result was droped until using := assign in the first of statement
+class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
 { 
   private:
     SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
@@ -1090,7 +1090,7 @@ class SoDeclare: SoNamedObject
     SoNamedObject callObject;//You create it but Declare will free it
     string resultType;
 
-    //This outside execute it will force to execute the section
+    //This outside execute it will force to execute the Block
     void call(RunStack vStack, OpOperator aOperator, SrdStatements aParameters, ref bool done){
       done = callObject.execute(vStack, aOperator, defines, aParameters);
     }

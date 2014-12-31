@@ -59,7 +59,7 @@ enum Flag {
   Param,
   Operator,
   Comment,
-  Section,
+  Block,
   Limb
 }
 
@@ -538,11 +538,11 @@ class SrdCollectorDefine: SrdCollector
         switch(aControl){
           case SardControl.OpenBlock:
             post();
-            SoSection aSection = new SoSection();
-            aSection.parent = declare;
-            declare.callObject = aSection;
+            SoBlock aBlock = new SoBlock();
+            aBlock.parent = declare;
+            declare.callObject = aBlock;
             //We will pass the control to the next Collector
-            setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aSection.statements));
+            setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aBlock.statements));
             break;
           case SardControl.Declare:
             if (param){
@@ -646,9 +646,9 @@ class SrdControllerNormal: SrdController
             break;
 
           case SardControl.OpenBlock:
-            SoSection aSection = new SoSection();
-            instruction.setObject(aSection);
-            push(new SrdCollectorBlock(parser, aSection.statements));
+            SoBlock aBlock = new SoBlock();
+            instruction.setObject(aBlock);
+            push(new SrdCollectorBlock(parser, aBlock.statements));
             break;
 
           case SardControl.CloseBlock:

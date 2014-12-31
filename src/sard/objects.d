@@ -933,6 +933,7 @@ class SoLimb: SoObject
       statement.call(vStack);
       done = true;
     }
+
   public:
     this(){
       super();

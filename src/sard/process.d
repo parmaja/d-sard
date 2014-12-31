@@ -34,27 +34,12 @@ class SoTime_Const: SoNamedObject
     }
 }
 
-class SoMain: SoBlock
-{
-  protected:
-   // SoVersion_Const versionConst;
-
-  public:
-    this(){
-      super();
-      /*versionConst = new SoVersion_Const();
-      versionConst.parent = this;
-      versionConst.name = "Version";
-      addDeclare(null, versionConst);*/
-    }
-}
-
 class Sard: SardObject
 {
   protected:
 
   public:
-    SoMain main;
+    SoBlock main;
     string result;
 
     this(){
@@ -65,7 +50,7 @@ class Sard: SardObject
 
       //writeln("-------------------------------");
 
-      main = new SoMain(); //destory the old compile and create new
+      main = new SoBlock(); //destory the old compile and create new
 
       /* Compile */
 

@@ -760,10 +760,10 @@ public:
 /** TODO: SoArray **/
 
 /**
-  SoBlock is a base class for list of objects (statements)
+  SoStatements is a base class for list of objects (statements)
 */
 
-abstract class SoBlock: SoNamedObject
+abstract class SoStatements: SoNamedObject
 {
   protected:
     SrdStatements _statements;
@@ -857,7 +857,7 @@ class SrdDeclares: SardNamedObjects!SoDeclare {
 /** SoSection */
 /** Used by { } */
 
-class SoSection: SoBlock  //Result was droped until using := assign in the first of statement
+class SoSection: SoStatements  //Result was droped until using := assign in the first of statement
 { 
   private:
     SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
@@ -946,7 +946,7 @@ class SoLimb: SoObject
 
 /** it is a variable value like x in this "10 + x + 5" */
 
-class SoInstance: SoBlock
+class SoInstance: SoStatements
 {
   protected:
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)

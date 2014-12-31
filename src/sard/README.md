@@ -4,7 +4,7 @@ Modules
 	Some of usefull functions
   
   classes.d
-	Base classes for every thing, abd every thing dervied from SardObject
+	Base classes for every thing, every thing dervied from SardObject
 	
   objects.d
 	Run time objects that can execute.
@@ -79,8 +79,6 @@ Srd: global classes inherited from sard
 Run: Runtime classes
 So: Sard objects, that created when compile the source
 Op: Operators objects
-
-
 
 Schema
 ======

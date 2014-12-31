@@ -155,9 +155,9 @@ class SrdInstruction: SardObject
       SoBaseNumber result;
       if ((aIdentifier.indexOf(".") >= 0) || ((aIdentifier.indexOf("E") >= 0)))
         result = new SoNumber(to!float(aIdentifier));
-      else {
+      else 
         result = new SoInteger(to!int(aIdentifier));
-      }
+      
       internalSetObject(result);
       setFlag(Flag.Const);
       return result;
@@ -295,7 +295,7 @@ class SrdCollector: SardObject
     void internalPost(){  //virtual
     }
 
-    ClassInfo getControllerInfo(){
+    ClassInfo getControllerClass(){
       return SrdControllerNormal.classinfo;
     }
 
@@ -303,7 +303,7 @@ class SrdCollector: SardObject
 
     void set(SrdParser aParser){
       parser = aParser;
-      switchController(getControllerInfo());
+      switchController(getControllerClass());
       reset();
     }
 
@@ -356,7 +356,8 @@ class SrdCollector: SardObject
       _flags = [];
     }
 
-    void addIdentifier(string aIdentifier, SardType aType){
+    void addIdentifier(string aIdentifier, SardType aType)
+    {
       switch (aType) {
         case SardType.Number: 
             instruction.setNumber(aIdentifier); 
@@ -382,11 +383,11 @@ class SrdCollector: SardObject
       return false;
     }
 
-    void switchController(ClassInfo aControllerInfo)
+    void switchController(ClassInfo controllerClass)
     {
-      if (aControllerInfo is null)
+      if (controllerClass is null)
         error("ControllerClass must have a value!");
-      controller = parser.controllers.findClass(aControllerInfo);
+      controller = parser.controllers.findClass(controllerClass);
       if (controller is null)
         error("Can not find this class!");
     }
@@ -418,7 +419,8 @@ class SrdCollectorStatement: SrdCollector
       statement = aStatement;
     }
 
-    override void next(){
+    override void next()
+    {
       super.next();
       statement = null;
     }
@@ -446,12 +448,14 @@ class SrdCollectorBlock: SrdCollectorStatement
 
   public:
 
-    this(SrdParser aParser, SrdStatements aStatements){
+    this(SrdParser aParser, SrdStatements aStatements)
+    {
       super(aParser);
       statements = aStatements;
     }
 
-    override void prepare(){
+    override void prepare()
+    {
       super.prepare();
       if (statement is null) {        
         if (statements is null)
@@ -517,7 +521,7 @@ class SrdCollectorDefine: SrdCollector
         declare.resultType = instruction.identifier;            
     }
 
-    override ClassInfo getControllerInfo(){
+    override ClassInfo getControllerClass(){
       return SrdControllerDefines.classinfo;
     }
 
@@ -710,7 +714,8 @@ class SrdParser: SardStack!SrdCollector, ISardParser
 {
   protected:
 
-  override void doSetToken(string aToken, SardType aType){
+    override void doSetToken(string aToken, SardType aType)
+    {
       debug{        
         writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
       }
@@ -719,7 +724,8 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       actions = [];
     }
 
-    override void doSetOperator(SardObject aOperator){
+    override void doSetOperator(SardObject aOperator)
+    {
       debug{
         writeln("SetOperator: " ~ (cast(OpOperator)aOperator).name);
       }
@@ -731,7 +737,8 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       actions = [];
     }
 
-    override void doSetControl(SardControl aControl){
+    override void doSetControl(SardControl aControl)
+    {
       debug{        
         writeln("SetControl: " ~ to!string(aControl));
       }
@@ -742,7 +749,8 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       actions = [];
     }
 
-    override void afterPush(){
+    override void afterPush()
+    {
       super.afterPush();
       debug{
         writeln("Push: " ~ current.classinfo.name);
@@ -756,7 +764,8 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       }      
     }
 
-    void actionStack(){
+    void actionStack()
+    {
       if (Action.PopCollector in actions){      
         actions = actions - Action.PopCollector;
         pop();

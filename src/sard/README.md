@@ -34,11 +34,13 @@ x:=10;
     := 5;
   }
   
-  bar(z: integer){
+  bar:(z: integer){
     := z * 2;
   }
   
-y := x + 10 + foo + bar(x);
+y := x + 10 + foo + bar(x) + { 
+	  := 100;
+	}
 
 := y;
 ```

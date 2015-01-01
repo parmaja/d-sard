@@ -1,3 +1,8 @@
+SARD Script
+===========
+
+Sard is still crap, i need redign it using the GC of D language.
+
 Modules
 =======
   utils.d 
@@ -18,6 +23,25 @@ Modules
   process.d
     Main object to run script    
 	    
+
+Target Example
+==============
+
+```D
+x:=10;
+
+  foo:{
+    := 5;
+  }
+  
+  bar(z: integer){
+    := z * 2;
+  }
+  
+y := x + 10 + foo + bar(x);
+
+:= y;
+```
 
 Sard Tree
 ======

@@ -908,8 +908,8 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
 
 /**
   x := 10  + ( 500 + 600);
--------------[  Limb    ]-------
-Limb (i dislike the name) it is a block but without pushing stack.
+-------------[  Sub    ]-------
+Sub (i dislike the name) it is a block but without pushing stack.
 */
 
 class SoLimb: SoObject

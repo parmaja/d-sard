@@ -60,7 +60,7 @@ enum Flag {
   Operator,
   Comment,
   Block,
-  Limb
+  Sub
 }
 
 alias Set!Flag Flags;
@@ -213,7 +213,7 @@ class SrdInstruction: SardObject
 		    error("Identifier is already set");
 	    SoLimb result = new SoLimb();
 	    internalSetObject(result);
-	    setFlag(Flag.Limb);
+	    setFlag(Flag.Sub);
 	    return result;
 	  }
   	

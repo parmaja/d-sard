@@ -90,8 +90,8 @@ class SardObject: Object
     }
 }
 
-//class SardObjects(T): SardObject if(is(T: SardNamedObject)) {
-interface IObjects(T: SardObject)
+//class SardObjects(T): SardObject if(is(T: SomeObject)) {
+class SardObjects(T: SardObject): SardObject 
 {
   private:
     T[] _items;
@@ -168,10 +168,6 @@ class SardNamedObjects(T: SardObject): SardObjects!T
       }
       return result;
     }
-}
-
-class SardObjects(T: SardObject):IObjects, SardObject
-{
 }
 
 class SardStack(T): SardObject 

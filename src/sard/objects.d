@@ -47,41 +47,6 @@ class SrdDebugInfo: SardObject
 {
 }
 
-class SrdObjects(T): SardObjects!T 
-{ 
-  private:
-    SoObject _parent;
-
-  public:
-    @property SoObject parent() { return _parent; }
-
-  public:
-  /**BUG1
-    We need default constructor to resolve this error
-    Error	1	Error: class sard.objects.SrdStatement Cannot implicitly generate a default ctor when base class sard.objects.SrdObjects!(SrdClause).SrdObjects is missing a default ctor	W:\home\d\lib\sard\src\sard\objects.d	151	
-    
-    add this to your subclass
-  
-    this(SoObject aParent){
-      super(aParent);    
-    }   
-  */
-
-    this(SoObject aParent){
-      super();
-      _parent = aParent;
-    }   
-}
-
-class SrdDebug: SardObject 
-{
-  public:
-    int line;
-    int column;
-    string fileName;
-    //bool breakPoint; //not sure, do not laugh
-}
-
 /** SrdClause */
 
 class SrdClause: SardObject
@@ -117,12 +82,16 @@ class SrdClause: SardObject
 
 /** SrdStatement */
 
-class SrdStatement: SrdObjects!SrdClause 
+class SrdStatement: SardObjects!SrdClause 
 {
+  private:
+    SoObject _parent;
+    public @property SoObject parent() { return _parent; }
   //check BUG1
   this(SoObject aParent)
   {
-    super(aParent);    
+    super();
+    _parent = aParent;
   }   
 
   public:
@@ -159,13 +128,17 @@ class SrdStatement: SrdObjects!SrdClause
     public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
-class SrdStatements: SrdObjects!SrdStatement
+class SrdStatements: SardObjects!SrdStatement
 {
+  private:
+    SoObject _parent;
+    public @property SoObject parent() { return _parent; }
   public:    
 
     //check BUG1
     this(SoObject aParent){
-      super(aParent);    
+      super();
+      _parent = aParent;    
     }   
 
     SrdStatement add()

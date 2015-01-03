@@ -85,13 +85,13 @@ class SrdClause: SardObject
 class SrdStatement: SardObjects!SrdClause 
 {
   private:
-    ISoObject _owner;
-    public @property ISoObject owner() { return _owner; }
+    SoObject _parent;
+    public @property SoObject parent() { return _parent; }
   
-  this(ISoObject owner)
+  this(SoObject aParent)
   {
     super();
-    _owner = owner;
+    _parent = aParent;
   }   
 
   public:
@@ -102,7 +102,7 @@ class SrdStatement: SardObjects!SrdClause
       }
       if (aObject.parent !is null)
         error("You can not add object to another parent!");
-      aObject.setParent(owner);
+      aObject.parent = parent;
       SrdClause clause = new SrdClause(aOperator, aObject);
       super.add(clause);    
     }
@@ -174,164 +174,10 @@ class SrdStatements: SardObjects!SrdStatement
 
 /** SoObject */
 
-
-interface ISoObject
-{
-private:
-  public @property string name();
-  public @property string name(string value);
-
-protected:
-  public @property ObjectType objectType();
-  public @property ObjectType objectType(ObjectType value);
-
-public:
-  @property ISoObject parent();
-  protected void doSetParent(ISoObject value);
-
-  final void setParent(ISoObject value) 
-  {
-    if (parent !is null) 
-      error("Already have a parent");
-    doSetParent(value);    
-  };
-
-
-public:
-  bool toBool(out bool outValue);
-
-  bool toText(out text outValue);
-
-  bool toNumber(out number outValue);
-
-  bool toInteger(out integer outValue);
-
-public:
-  @property final text asText()
-  {
-    string o;
-    if (toText(o))
-      return o;
-    else
-      return "";
-  };
-
-  @property final number asNumber()
-  {
-    number o;
-    if (toNumber(o))
-      return o;
-    else
-      return 0;
-  };
-
-  @property final integer asInteger()
-  {
-    integer o;
-    if (toInteger(o))
-      return o;
-    else
-      return 0;
-  };
-
-  @property final bool asBool()
-  {
-    bool o;
-    if (toBool(o))
-      return o;
-    else
-      return false;
-  };
-
-  void assign(ISoObject fromObject);
-
-  final SoObject clone(bool withValues = true)
-  { 
-    debug {
-      writeln("Cloneing " ~ this.classinfo.name);
-    }
-    //TODO, here we want to check if subclass have a default ctor 
-    SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
-    if (object is null)
-      error("Error when cloning");      
-
-    if (withValues)
-      object.assign(this);
-    return object;
-  }
-
-protected: 
-  bool doOperate(SoObject object, OpOperator operator);
-
-  final bool operate(SoObject object, OpOperator operator) 
-  {
-    if (operator is null)
-      return false;
-    else
-      return doOperate(object, operator);
-  }
-
-  void beforeExecute(RunStack vStack, OpOperator aOperator);
-  void afterExecute(RunStack vStack, OpOperator aOperator);
-
-  //TODO executeParams will be bigger, i want to add to it SrdStatements Blocks too so i will collect it into a struct
-  void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters);
-
-  void doExecute(RunStack vStack,OpOperator aOperator, ref bool done);
-
-public:
-  final bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
-  {
-    bool result = false;
-    beforeExecute(vStack, aOperator);
-    executeParams(vStack, vDefines, vParameters);
-    doExecute(vStack, aOperator, result);
-    afterExecute(vStack, aOperator);      
-
-    debug 
-    {      
-      string s = stringRepeat("-", vStack.ret.currentItem.level)~ "->";
-      s = s ~ "Execute: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
-      if (aOperator !is null)
-        s = s ~ "{" ~ aOperator.name ~ "}";
-      if (vStack.ret.current.result.object !is null)
-        s = s ~ " Value: " ~ vStack.ret.current.result.object.asText;
-      writeln(s);
-    }
-    return result; 
-  }
-
-  final int addDeclare(SoNamedObject executeObject, SoNamedObject callObject)
-  {
-    SoDeclare declare = new SoDeclare();
-    if (executeObject !is null)
-      declare.name = executeObject.name;
-    else if (callObject !is null)
-      declare.name = callObject.name;
-    declare.executeObject = executeObject;
-    declare.callObject = callObject;
-    return addDeclare(declare);
-  }
-
-  final int addDeclare(SoDeclare aDeclare){
-    if (parent is null)
-      return -1;
-    else
-      return parent.addDeclare(aDeclare);
-  }
-
-  final SoDeclare findDeclare(string vName){
-    if (parent !is null)
-      return parent.findDeclare(vName);
-    else
-      return null;
-  }
-}
-
-abstract class SoObject: SardObject, ISoObject
+abstract class SoObject: SardObject 
 {
   private:
-    ISoObject _parent;
+    SoObject _parent;
     string _name;
     public @property string name(){ return _name; }
     public @property string name(string value){ return _name = value; }
@@ -341,14 +187,19 @@ abstract class SoObject: SardObject, ISoObject
     
     public @property ObjectType objectType() {  return _objectType; }
     public @property ObjectType objectType(ObjectType value) { return _objectType = value; }
-    
-    void doSetParent(ISoObject value){
-      _parent = value;
-    }
 
   public:
+    protected void doSetParent(SoObject aParent){
+    }
 
-    @property ISoObject parent() { return _parent; };
+    @property SoObject parent() {return _parent; };
+    @property SoObject parent(SoObject value) {
+        if (_parent !is null) 
+          error("Already have a parent");
+        _parent = value;
+        doSetParent(_parent);
+        return _parent; 
+      };
 
 
   public:
@@ -370,21 +221,81 @@ abstract class SoObject: SardObject, ISoObject
     }
 
   public:
-    void assign(ISoObject fromObject)
+    @property final text asText()
+    {
+      string o;
+      if (toText(o))
+        return o;
+      else
+        return "";
+    };
+
+    @property final number asNumber()
+    {
+      number o;
+      if (toNumber(o))
+        return o;
+      else
+        return 0;
+    };
+
+    @property final integer asInteger()
+    {
+      integer o;
+      if (toInteger(o))
+        return o;
+      else
+        return 0;
+    };
+
+    @property final bool asBool()
+    {
+      bool o;
+      if (toBool(o))
+        return o;
+      else
+        return false;
+    };
+
+    void assign(SoObject fromObject)
     {
       //nothing
     }
 
+    SoObject clone(bool withValues = true)
+    { 
+      debug {
+        writeln("Cloneing " ~ this.classinfo.name);
+      }
+      //TODO, here we want to check if subclass have a default ctor 
+      SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
+	    if (object is null)
+		    error("Error when cloning");      
+
+      if (withValues)
+        object.assign(this);
+      return object;
+    }
 
   protected: 
     bool doOperate(SoObject object, OpOperator operator) {
       return false;
     }
 
+    final bool operate(SoObject object, OpOperator operator) 
+    {
+      if (operator is null)
+        return false;
+      else
+        return doOperate(object, operator);
+    }
+
     void beforeExecute(RunStack vStack, OpOperator aOperator){
+
     }
 
     void afterExecute(RunStack vStack, OpOperator aOperator){
+
     }
 
     //TODO executeParams will be bigger, i want to add to it SrdStatements Blocks too so i will collect it into a struct
@@ -395,6 +306,52 @@ abstract class SoObject: SardObject, ISoObject
     }
 
   public:
+    final bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
+    {
+      bool result = false;
+      beforeExecute(vStack, aOperator);
+      executeParams(vStack, vDefines, vParameters);
+      doExecute(vStack, aOperator, result);
+      afterExecute(vStack, aOperator);      
+
+      debug 
+      {      
+        string s = stringRepeat("-", vStack.ret.currentItem.level)~ "->";
+        s = s ~ "Execute: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
+        if (aOperator !is null)
+          s = s ~ "{" ~ aOperator.name ~ "}";
+        if (vStack.ret.current.result.object !is null)
+          s = s ~ " Value: " ~ vStack.ret.current.result.object.asText;
+        writeln(s);
+      }
+      return result; 
+    }
+
+    final int addDeclare(SoNamedObject executeObject, SoNamedObject callObject)
+    {
+      SoDeclare declare = new SoDeclare();
+      if (executeObject !is null)
+        declare.name = executeObject.name;
+      else if (callObject !is null)
+        declare.name = callObject.name;
+      declare.executeObject = executeObject;
+      declare.callObject = callObject;
+      return addDeclare(declare);
+    }
+
+    final int addDeclare(SoDeclare aDeclare){
+      if (parent is null)
+        return -1;
+      else
+        return parent.addDeclare(aDeclare);
+    }
+
+    SoDeclare findDeclare(string vName){
+      if (parent !is null)
+        return parent.findDeclare(vName);
+      else
+        return null;
+    }
 }
 
 class SoNamedObject: SoObject 
@@ -414,7 +371,7 @@ class SoNamedObject: SoObject
     {
       this();
       name = vName;
-      setParent(vParent);
+      parent = vParent;
     } 
 
     RunVariable registerVariable(RunStack vStack, RunVarKinds vKind)
@@ -516,7 +473,7 @@ class SoInteger: SoBaseNumber
       value = aValue;
     }
 
-    override void assign(ISoObject fromObject){      
+    override void assign(SoObject fromObject){      
       value = fromObject.asInteger;      
     }    
 
@@ -583,7 +540,7 @@ class SoNumber: SoBaseNumber
       value = aValue;
     }
 
-    override void assign(ISoObject fromObject){      
+    override void assign(SoObject fromObject){      
       value = fromObject.asNumber;      
     }    
 
@@ -650,7 +607,7 @@ class SoBool: SoBaseNumber
       value = aValue;
     }
 
-    override void assign(ISoObject fromObject){      
+    override void assign(SoObject fromObject){      
       value = fromObject.asBool;
     }    
 
@@ -716,7 +673,7 @@ public:
     value = aValue;
   }
 
-  override void assign(ISoObject fromObject){      
+  override void assign(SoObject fromObject){      
     value = fromObject.asText;
   }    
 
@@ -1017,6 +974,9 @@ class SoVariable: SoNamedObject
 class SoAssign: SoNamedObject
 {
   protected:
+    override void doSetParent(SoObject value) {
+      super.doSetParent(value);
+    }
 
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
     {
@@ -1076,7 +1036,7 @@ class SoDeclare: SoNamedObject
       _objectType = ObjectType.otClass;
     }
 
-    override void doSetParent(ISoObject value) {
+    override void doSetParent(SoObject value) {
       super.doSetParent(value);
       value.addDeclare(this);
     }
@@ -1537,3 +1497,23 @@ class RunStack: SardObject
       local.pop();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -539,7 +539,7 @@ class SrdCollectorDefine: SrdCollector
           case SardControl.OpenBlock:
             post();
             SoBlock aBlock = new SoBlock();
-            aBlock.parent = declare;
+            aBlock.setParent(declare);
             declare.callObject = aBlock;
             //We will pass the control to the next Collector
             setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aBlock.statements));

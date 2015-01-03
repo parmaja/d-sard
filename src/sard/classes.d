@@ -50,6 +50,13 @@ class SardParserException: Exception
   }
 }
 
+void error(string err) {
+  debug{
+    writeln(err);
+  }
+  throw new SardException(err);
+}
+
 /**
   SardObject is the base class for all object in this project
 */
@@ -82,12 +89,6 @@ class SardObject: Object
       created(); 
     }
 
-    void error(string err) {
-      debug{
-        writeln(err);
-      }
-      throw new SardException(err);
-    }
 }
 
 //class SardObjects(T): SardObject if(is(T: SomeObject)) {

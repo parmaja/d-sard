@@ -87,7 +87,7 @@ class SrdStatement: SardObjects!SrdClause
   private:
     SoObject _parent;
     public @property SoObject parent() { return _parent; }
-  //check BUG1
+  
   this(SoObject aParent)
   {
     super();
@@ -118,6 +118,7 @@ class SrdStatement: SardObjects!SrdClause
 
     void call(RunStack aStack)
     {
+      //https://en.wikipedia.org/wiki/Shunting-yard_algorithm
       int i = 0;
       while (i < count) {
         this[i].execute(aStack);
@@ -184,16 +185,16 @@ abstract class SoObject: SardObject
   protected:
     ObjectType _objectType;
     
-    public @property ObjectType objectType() {
-      return _objectType;
-    }
-    public @property ObjectType objectType(ObjectType value) {
-      return _objectType = value;
-    }
+    public @property ObjectType objectType() {  return _objectType; }
+    public @property ObjectType objectType(ObjectType value) { return _objectType = value; }
 
   public:
-    @property SoObject parent() {return _parent; };
-    @property SoObject parent(SoObject value) {
+    protected void doSetParent(SoObject aParent){
+    }
+
+    @property SoObject parent() { return _parent; };
+
+    @property final SoObject parent(SoObject value) {
         if (_parent !is null) 
           error("Already have a parent");
         _parent = value;
@@ -201,8 +202,6 @@ abstract class SoObject: SardObject
         return _parent; 
       };
 
-    protected void doSetParent(SoObject aParent){
-    }
 
   public:
 
@@ -264,7 +263,7 @@ abstract class SoObject: SardObject
       //nothing
     }
 
-    SoObject clone(bool withValues = true)
+    final SoObject clone(bool withValues = true)
     { 
       debug {
         writeln("Cloneing " ~ this.classinfo.name);
@@ -293,23 +292,20 @@ abstract class SoObject: SardObject
     }
 
     void beforeExecute(RunStack vStack, OpOperator aOperator){
-
     }
 
     void afterExecute(RunStack vStack, OpOperator aOperator){
-
     }
 
     //TODO executeParams will be bigger, i want to add to it SrdStatements Blocks too so i will collect it into a struct
     void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters) {
-
     }
 
     void doExecute(RunStack vStack,OpOperator aOperator, ref bool done){
     }
 
   public:
-    bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
+    final bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
     {
       bool result = false;
       beforeExecute(vStack, aOperator);
@@ -317,8 +313,8 @@ abstract class SoObject: SardObject
       doExecute(vStack, aOperator, result);
       afterExecute(vStack, aOperator);      
 
-      debug {
-      
+      debug 
+      {      
         string s = stringRepeat("-", vStack.ret.currentItem.level)~ "->";
         s = s ~ "Execute: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
         if (aOperator !is null)
@@ -327,12 +323,10 @@ abstract class SoObject: SardObject
           s = s ~ " Value: " ~ vStack.ret.current.result.object.asText;
         writeln(s);
       }
-      
-
       return result; 
     }
 
-    int addDeclare(SoNamedObject executeObject, SoNamedObject callObject)
+    final int addDeclare(SoNamedObject executeObject, SoNamedObject callObject)
     {
       SoDeclare declare = new SoDeclare();
       if (executeObject !is null)
@@ -344,14 +338,14 @@ abstract class SoObject: SardObject
       return addDeclare(declare);
     }
 
-    int addDeclare(SoDeclare aDeclare){
+    final int addDeclare(SoDeclare aDeclare){
       if (parent is null)
         return -1;
       else
         return parent.addDeclare(aDeclare);
     }
 
-    SoDeclare findDeclare(string vName){
+    final SoDeclare findDeclare(string vName){
       if (parent !is null)
         return parent.findDeclare(vName);
       else
@@ -377,7 +371,7 @@ class SoNamedObject: SoObject
       this();
       name = vName;
       parent = vParent;
-    }
+    } 
 
     RunVariable registerVariable(RunStack vStack, RunVarKinds vKind)
     {
@@ -869,14 +863,6 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
         _declares.debugWrite(level + 1);
       }
     }
-
-    override SoDeclare findDeclare(string vName)
-    {
-      if (parent !is null)
-        return parent.findDeclare(vName);
-      else
-        return null;
-    }
 }
 
 /**
@@ -1102,7 +1088,8 @@ class SoDeclare: SoNamedObject
 */
 
 //TODO maybe struct not a class
-class CtlControl: SardObject{
+class CtlControl: SardObject
+{
   string name;
   SardControl code;
   int level;
@@ -1416,14 +1403,16 @@ class RunResult: SardObject
       return object !is null;
     }
 
-    void assign(RunResult fromResult){
+    void assign(RunResult fromResult)
+    {
       if (fromResult.object is null)
         object = null;
       else
         object = fromResult.object.clone();
     }
 
-    SoObject extract(){
+    SoObject extract()
+    {
       SoObject o = _object;
       _object = null;
       return o;
@@ -1507,4 +1496,23 @@ class RunStack: SardObject
       local.pop();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

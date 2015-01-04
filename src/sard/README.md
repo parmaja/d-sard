@@ -49,11 +49,10 @@ Sard Tree
 ======
 
 	SardObject
-	  |
-	  
+	  |	  
 	Clause 
 		{
-		    OpOperator
+			OpOperator
 			SoObject	
 			
 			execute() -> execute SoObject 

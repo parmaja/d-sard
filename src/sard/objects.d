@@ -872,7 +872,7 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
 Sub (i dislike the name) it is a block but without pushing stack.
 */
 
-class SoLimb: SoObject
+class SoSub: SoObject
 {
   protected:
     SrdStatement _statement;
@@ -1466,7 +1466,6 @@ class RunReturnItem: SardObject
 
 class RunReturn: SardStack!RunReturnItem 
 {
-  public:        
 }
 
 class RunStack: SardObject 
@@ -1474,20 +1473,12 @@ class RunStack: SardObject
   private:
     RunLocal _local = new RunLocal();
     RunReturn _ret = new RunReturn();
-    //RunShadow _shadow = new RunShadow(null);
-  public:
-    //SrdEnvironment env; 
-    
+  public:    
     @property RunLocal local() {return _local;};
-    //   @property RunShadow shadow() {return _shadow ;};
     @property RunReturn ret() {return _ret ;};
-    /*
-    RunShadow TouchMe(SoObject aObject) {
-    }*/
 
     this(){
       super();
-
       local.push();
       ret.push();
     }
@@ -1497,23 +1488,3 @@ class RunStack: SardObject
       local.pop();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

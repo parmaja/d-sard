@@ -1,0 +1,11 @@
+{
+	"name": "SARD project",
+	"description": "SARD script",
+	"authors": ["Zaher Dirkey"],
+	"license": "MIT",
+	"homepage": "https://github.com/parmaja/sard",
+	"dependencies": {
+        "minilib": ">=0.0.1"
+	}
+}
+

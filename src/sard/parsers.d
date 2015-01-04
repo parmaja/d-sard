@@ -207,11 +207,11 @@ class SrdInstruction: SardObject
 	    return result;
 	  }
 
-	  SoLimb setLimb()
+	  SoSub setSub()
     { 
 	    if (identifier != "")
 		    error("Identifier is already set");
-	    SoLimb result = new SoLimb();
+	    SoSub result = new SoSub();
 	    internalSetObject(result);
 	    setFlag(Flag.Sub);
 	    return result;
@@ -666,7 +666,7 @@ class SrdControllerNormal: SrdController
                 push(new SrdCollectorBlock(parser, statements));
             }
             else //No it is just sub statment like: 10+(5*5)
-              with (instruction.setLimb())
+              with (instruction.setSub())
                 push(new SrdCollectorStatement(parser, statement));
             break;
 

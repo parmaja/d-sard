@@ -18,7 +18,7 @@ import sard.objects;
 import sard.scanners;
 import sard.parsers;
 
-class SoVersion_Const: SoNamedObject
+class SoVersion_Const: SoObject
 {
   protected:
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
@@ -26,7 +26,7 @@ class SoVersion_Const: SoNamedObject
     }
 }
 
-class SoTime_Const: SoNamedObject
+class SoTime_Const: SoObject
 {
   protected:
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    

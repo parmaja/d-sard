@@ -48,15 +48,13 @@ y := x + 10 + foo + bar(x) + {
 Sard Tree
 ======
 
-	SardObject
-	  |	  
 	Clause 
-		{
-			OpOperator
-			SoObject	
-			
-			execute() -> execute SoObject 
-		}	 
+	{
+		OpOperator
+		SoObject
+		
+		execute() -> execute SoObject 
+	}	 
 	  	  
 	Statement: List of Clause {
 		execute() -> caluse		

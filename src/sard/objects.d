@@ -59,13 +59,15 @@ class SrdClause: SardObject
     @property OpOperator operator() { return _operator; }
     @property SoObject object() { return _object; }
 
-    this(OpOperator aOperator, SoObject aObject) {
+    this(OpOperator aOperator, SoObject aObject) 
+    {
       super();
       _operator = aOperator;
       _object = aObject;
     }
 
-    bool execute(RunStack aStack) {
+    bool execute(RunStack aStack) 
+{
       if (_object is null)
         error("Object not set!");
       return _object.execute(aStack, _operator);
@@ -177,6 +179,10 @@ class SrdStatements: SardObjects!SrdStatement
 abstract class SoObject: SardObject 
 {
   private:
+    int _id;
+    public @property int id(){ return _id; }
+    public @property int id(int value){ return _id = value; }
+
     SoObject _parent;
     string _name;
     public @property string name(){ return _name; }
@@ -189,6 +195,19 @@ abstract class SoObject: SardObject
     public @property ObjectType objectType(ObjectType value) { return _objectType = value; }
 
   public:
+    this()
+    {       
+      super();
+    }
+
+    this(SoObject aParent, string aName)
+    { 
+      this();      
+      _name = aName;
+      parent = aParent;//to trigger doSetParent
+    }
+
+
     protected void doSetParent(SoObject aParent){
     }
 
@@ -200,7 +219,6 @@ abstract class SoObject: SardObject
         doSetParent(_parent);
         return _parent; 
       };
-
 
   public:
 
@@ -327,7 +345,7 @@ abstract class SoObject: SardObject
       return result; 
     }
 
-    final int addDeclare(SoNamedObject executeObject, SoNamedObject callObject)
+    final int addDeclare(SoObject executeObject, SoObject callObject)
     {
       SoDeclare declare = new SoDeclare();
       if (executeObject !is null)
@@ -352,31 +370,154 @@ abstract class SoObject: SardObject
       else
         return null;
     }
-}
-
-class SoNamedObject: SoObject 
-{
-  private:
-    int _id;
-  public:
-    @property int id(){ return _id; }
-    @property int id(int value){ return _id = value; }
-  public:
-
-    this(){
-      super();
-    }
-
-    this(SoObject vParent, string vName)
-    {
-      this();
-      name = vName;
-      parent = vParent;
-    } 
 
     RunVariable registerVariable(RunStack vStack, RunVarKinds vKind)
     {
       return vStack.local.current.variables.register(name, vKind);
+    }
+}
+
+/**
+  SoStatements is a base class for list of objects (statements)
+*/
+
+abstract class SoStatements: SoObject
+{
+  protected:
+    SrdStatements _statements;
+
+    public @property SrdStatements statements() { return _statements; };
+
+    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters){
+
+      super.executeParams(vStack, vDefines, vParameters);
+      if (vParameters !is null) 
+      { //TODO we need to check if it is a block?      
+        int i = 0;
+        while (i < vParameters.count) { //here i was added -1 to the count | while (i < vParameters.count -1)
+          vStack.ret.push();
+          vParameters[i].call(vStack);
+          if (i < vDefines.count){      
+            RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
+            v.value = vStack.ret.current.releaseResult();
+          }
+          vStack.ret.pop();
+          i++;
+        }        
+      }
+    }
+                     
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    {                
+      vStack.ret.push(); //<--here we can push a variable result or create temp result to drop it
+      call(vStack);
+      auto t = vStack.ret.pull();
+      //I dont know what if ther is an object there what we do???
+      if (t.result.object !is null)
+        t.result.object.execute(vStack, aOperator);
+      t = null; //destroy it
+      done = true;
+    }
+
+  public:
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        _statements.debugWrite(level + 1);
+      }
+    }
+
+    override void created(){
+      super.created();
+      _objectType = ObjectType.otBlock;
+    }
+
+    this(){
+      super();
+      _statements = new SrdStatements(this);      
+    }
+
+    void call(RunStack vStack){ //vBlock here is params
+      statements.execute(vStack);
+    }
+}
+
+/** SoBlock */
+/** 
+  Used by { } 
+  It a block before execute push in stack, after execute will pop the stack, it have return value too in the stack
+*/
+
+class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
+{ 
+  private:
+    SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
+    
+    public @property SrdDeclares declares() { return _declares; };
+
+  protected:
+    override void beforeExecute(RunStack vStack, OpOperator aOperator){
+      super.beforeExecute(vStack, aOperator);
+      vStack.local.push();
+    }
+
+    override void afterExecute(RunStack vStack, OpOperator aOperator){
+      super.afterExecute(vStack, aOperator);
+      vStack.local.pop();
+    }
+
+  public:
+
+    this(){
+      _declares = new SrdDeclares();
+      super();
+    }
+
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        _declares.debugWrite(level + 1);
+      }
+    }
+}
+
+/**
+  x := 10  + ( 500 + 600);
+-------------[  Sub    ]-------
+*/
+
+class SoSub: SoObject
+{
+  protected:
+    SrdStatement _statement;    
+    public @property SrdStatement statement() { return _statement; };
+    public alias statement this;
+
+    override void beforeExecute(RunStack vStack, OpOperator aOperator)
+    {
+      super.beforeExecute(vStack, aOperator);
+      vStack.ret.push();
+    }  
+
+    override void afterExecute(RunStack vStack, OpOperator aOperator)
+    {      
+      super.afterExecute(vStack, aOperator);
+      RunReturnItem T = vStack.ret.pull();
+      if (T.result.object !is null)
+        T.result.object.execute(vStack, aOperator);            
+    }  
+
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    {
+      super.doExecute(vStack, aOperator, done);
+      statement.call(vStack);
+      done = true;
+    }
+
+  public:
+    this(){
+      super();
+      _statement = new SrdStatement(parent);
     }
 }
 
@@ -732,71 +873,6 @@ public:
 
 /** TODO: SoArray **/
 
-/**
-  SoStatements is a base class for list of objects (statements)
-*/
-
-abstract class SoStatements: SoNamedObject
-{
-  protected:
-    SrdStatements _statements;
-
-    public @property SrdStatements statements() { return _statements; };
-
-    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters){
-
-      super.executeParams(vStack, vDefines, vParameters);
-      if (vParameters !is null) 
-      { //TODO we need to check if it is a block?      
-        int i = 0;
-        while (i < vParameters.count) { //here i was added -1 to the count | while (i < vParameters.count -1)
-          vStack.ret.push();
-          vParameters[i].call(vStack);
-          if (i < vDefines.count){      
-            RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-            v.value = vStack.ret.current.releaseResult();
-          }
-          vStack.ret.pop();
-          i++;
-        }        
-      }
-    }
-                     
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
-    {                
-      vStack.ret.push(); //<--here we can push a variable result or create temp result to drop it
-      call(vStack);
-      auto t = vStack.ret.pull();
-      //I dont know what if ther is an object there what we do???
-      if (t.result.object !is null)
-        t.result.object.execute(vStack, aOperator);
-      t = null; //destroy it
-      done = true;
-    }
-
-  public:
-    debug{
-      override void debugWrite(int level){
-        super.debugWrite(level);
-        _statements.debugWrite(level + 1);
-      }
-    }
-
-    override void created(){
-      super.created();
-      _objectType = ObjectType.otBlock;
-    }
-
-    this(){
-      super();
-      _statements = new SrdStatements(this);      
-    }
-
-    void call(RunStack vStack){ //vBlock here is params
-      statements.execute(vStack);
-    }
-}
-
 /*--------------------------------------------*/
 
 /**
@@ -825,85 +901,6 @@ class SrdDefines: SardObjects!SrdDefine
 //Just a references not free inside objects, not sure how to do that in D
 
 class SrdDeclares: SardNamedObjects!SoDeclare {
-}
-
-/** SoBlock */
-/** 
-  Used by { } 
-  It a block before execute push in stack, after execute will pop the stack, it have return value too in the stack
-*/
-
-class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
-{ 
-  private:
-    SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
-    
-    public @property SrdDeclares declares() { return _declares; };
-
-  protected:
-    override void beforeExecute(RunStack vStack, OpOperator aOperator){
-      super.beforeExecute(vStack, aOperator);
-      vStack.local.push();
-    }
-
-    override void afterExecute(RunStack vStack, OpOperator aOperator){
-      super.afterExecute(vStack, aOperator);
-      vStack.local.pop();
-    }
-
-  public:
-
-    this(){
-      _declares = new SrdDeclares();
-      super();
-    }
-
-    debug{
-      override void debugWrite(int level){
-        super.debugWrite(level);
-        _declares.debugWrite(level + 1);
-      }
-    }
-}
-
-/**
-  x := 10  + ( 500 + 600);
--------------[  Sub    ]-------
-Sub (i dislike the name) it is a block but without pushing stack.
-*/
-
-class SoSub: SoObject
-{
-  protected:
-    SrdStatement _statement;
-    public @property SrdStatement statement() { return _statement; };
-
-    override void beforeExecute(RunStack vStack, OpOperator aOperator)
-    {
-      super.beforeExecute(vStack, aOperator);
-      vStack.ret.push();
-    }  
-
-    override void afterExecute(RunStack vStack, OpOperator aOperator)
-    {      
-      super.afterExecute(vStack, aOperator);
-      RunReturnItem T = vStack.ret.pull();
-      if (T.result.object !is null)
-        T.result.object.execute(vStack, aOperator);            
-    }  
-
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
-    {
-      super.doExecute(vStack, aOperator, done);
-      statement.call(vStack);
-      done = true;
-    }
-
-  public:
-    this(){
-      super();
-      _statement = new SrdStatement(parent);
-    }
 }
 
 /**  Variables objects */
@@ -943,7 +940,7 @@ class SoInstance: SoStatements
 }
 
 
-class SoVariable: SoNamedObject
+class SoVariable: SoObject
 { 
   protected:
     override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done)
@@ -971,7 +968,7 @@ class SoVariable: SoNamedObject
 
 /** It is assign a variable value, x:=10 + y */
 
-class SoAssign: SoNamedObject
+class SoAssign: SoObject
 {
   protected:
     override void doSetParent(SoObject value) {
@@ -1024,7 +1021,7 @@ class SoAssign: SoNamedObject
     }
 }
 
-class SoDeclare: SoNamedObject
+class SoDeclare: SoObject
 {
   private:
     SrdDefines _defines;
@@ -1056,10 +1053,10 @@ class SoDeclare: SoNamedObject
 
   public:
     //executeObject will execute in a context of statement if it is not null,
-    SoNamedObject executeObject;//You create it but Declare will free it
+    SoObject executeObject;//You create it but Declare will free it
     //callObject will execute by call, when called from outside,
-    SoNamedObject callObject;//You create it but Declare will free it
-    //** I hate that above, we need one
+    SoObject callObject;//You create it but Declare will free it
+    //** I hate that above, we need just one call object
     string resultType;
 
     //This outside execute it will force to execute the Block

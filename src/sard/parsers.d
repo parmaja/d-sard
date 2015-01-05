@@ -199,7 +199,8 @@ class SrdInstruction: SardObject
       return result;
     }
 
-	  SoInstance setInstance(){
+	  SoInstance setInstance()
+    {
 	    if (identifier == "")
 		  error("Identifier is not set");
 	    SoInstance result = setInstance(identifier);
@@ -659,7 +660,7 @@ class SrdControllerNormal: SrdController
             break;
 
           case SardControl.OpenParams:
-            //params of function or object like: Sin(10)
+            //params of function/object like: Sin(10)
             if (instruction.checkIdentifier())
             {
               with (instruction.setInstance())

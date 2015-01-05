@@ -912,6 +912,11 @@ class SrdDeclares: SardNamedObjects!SoDeclare {
   it will call the object if it is a object not a variable
 */
 
+/**
+  x := 10  + Foo( 500,  600);
+-------------Id [Statements]--------
+*/
+
 class SoInstance: SoStatements
 {
   protected:

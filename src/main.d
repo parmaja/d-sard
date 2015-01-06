@@ -41,19 +41,19 @@ int main(string[] argv)
     x := 5;
     x := x + 5;
     */
-  := x;";
+    := x;";
 +/  
 
-  string source = "//call function
+/+  string source = "//call function
     foo: { 12 + 23; }; //this is a declaration 
     x := foo + 5;
-  := x;";
-
-/+    string source = "//call function
-    y := 10;
-    foo(z): {z + 10;}; //this is a declaration 
-    x := foo;
-  := x;"; +/
+    := x;";
++/
+    string source = "//call function
+    y := 23;
+    foo:(z){ := z + 2; }; //this is a declaration 
+    x := foo + 5;
+    := x;"; 
 
   try {
     writeln();

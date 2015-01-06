@@ -512,10 +512,12 @@ class SrdCollectorDefine: SrdCollector
     {
       if (instruction.identifier == "")
         error("Identifier not set"); //TODO maybe check if he post const or another things
-      if (param){
+      if (param)
+      {
         if (state == State.Name)
           declare.defines.add(instruction.identifier, "");
-        else {
+        else 
+        {
           if (declare.defines.last.result != "") 
             error("Result type already set");
           declare.defines.last.result = instruction.identifier;
@@ -725,7 +727,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
         writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
       }
       current.addIdentifier(aToken, aType);
-      actionStack();
+      doQueue();
       actions = [];
     }
 
@@ -738,7 +740,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       if (o is null) 
         error("SetOperator not OpOperator");
       current.addOperator(o);
-      actionStack();
+      doQueue();
       actions = [];
     }
 
@@ -748,7 +750,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
         writeln("SetControl: " ~ to!string(aControl));
       }
       current.control(aControl);
-      actionStack();
+      doQueue();
       if (Action.Bypass in actions)//TODO check if Set work good here
         current.control(aControl); 
       actions = [];
@@ -769,7 +771,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       }      
     }
 
-    void actionStack()
+    void doQueue()
     {
       if (Action.PopCollector in actions){      
         actions = actions - Action.PopCollector;

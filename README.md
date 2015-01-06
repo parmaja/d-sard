@@ -93,17 +93,6 @@ x := 10;
 := x + foo(5, 5);
 ```
 
-Declare a variable type, type now not working but parsed
-```D
-x:integer;
-
-x:integer=10;
-```
-You can use = as assignment
-```D
-x=10;
-```
-  
 #####TODO:#####
 ```D
 x:=#0; // Boolean values, true and false words are just global variables.
@@ -206,6 +195,10 @@ Library
 --------
 
 https://github.com/parmaja/d-minilib
+
+https://github.com/robik/ConsoleD/tree/master/source
+or
+https://github.com/adamdruppe/arsd/blob/master/terminal.d
 
 
 ###License###

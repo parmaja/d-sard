@@ -1,0 +1,3 @@
+[submodule "src/ConsoleD"]
+	path = src/ConsoleD
+	url = git@github.com:robik/ConsoleD.git

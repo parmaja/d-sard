@@ -241,7 +241,8 @@ class SrdInstruction: SardObject
       return result;
     }
     
-    void setObject(SoObject aObject){
+    void setObject(SoObject aObject)
+    {
       if (identifier != "")
         error("Identifier is already set");
       internalSetObject(aObject);  
@@ -498,7 +499,7 @@ class SrdCollectorDefine: SrdCollector
     bool param;
     SoDeclare declare;
 
-    this(SrdParser aParser){ //TODO BUG why i need to copy it?!
+    this(SrdParser aParser){ 
       super(aParser);    
     }
 
@@ -507,7 +508,8 @@ class SrdCollectorDefine: SrdCollector
       declare = aDeclare;
     }
     
-    override void internalPost(){
+    override void internalPost()
+    {
       if (instruction.identifier == "")
         error("Identifier not set"); //TODO maybe check if he post const or another things
       if (param){
@@ -537,7 +539,8 @@ class SrdCollectorDefine: SrdCollector
       */
       with(parser)
       {
-        switch(aControl){
+        switch(aControl)
+        {
           case SardControl.OpenBlock:
             post();
             SoBlock aBlock = new SoBlock();

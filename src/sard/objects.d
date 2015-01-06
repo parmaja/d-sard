@@ -217,7 +217,8 @@ abstract class SoObject: SardObject
     }
 
     @property SoObject parent() {return _parent; };
-    @property SoObject parent(SoObject value) {
+    @property SoObject parent(SoObject value) 
+    {
         if (_parent !is null) 
           error("Already have a parent");
         _parent = value;
@@ -363,14 +364,16 @@ abstract class SoObject: SardObject
       return addDeclare(declare);
     }
 
-    final int addDeclare(SoDeclare aDeclare){
+    int addDeclare(SoDeclare aDeclare)
+    {
       if (parent is null)
         return -1;
       else
         return parent.addDeclare(aDeclare);
     }
 
-    SoDeclare findDeclare(string vName){
+    SoDeclare findDeclare(string vName)
+    {
       if (parent !is null)
         return parent.findDeclare(vName);
       else
@@ -465,6 +468,7 @@ abstract class SoStatements: SoObject
 class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
 { 
   private:
+    //TODO: move srddeclares to the scope stack, it is bad here
     SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
     
     public @property SrdDeclares declares() { return _declares; };
@@ -486,6 +490,19 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
     this(){
       _declares = new SrdDeclares();
       super();
+    }
+
+    override int addDeclare(SoDeclare aDeclare)
+    {
+      return _declares.add(aDeclare);
+    }
+
+    override SoDeclare findDeclare(string vName)
+    {
+      SoDeclare result = _declares.find(vName);
+      if (result is null)
+        result = super.findDeclare(vName);
+      return result;
     }
 
     debug{
@@ -1055,7 +1072,8 @@ class SoDeclare: SoObject
       _objectType = ObjectType.otClass;
     }
 
-    override void doSetParent(SoObject value) {
+    override void doSetParent(SoObject value) 
+    {
       super.doSetParent(value);
       value.addDeclare(this);
     }
@@ -1325,7 +1343,7 @@ class OpGreater: OpOperator{
 class OpEqual: OpOperator{
   this(){
     super();
-    name = ":=";
+    name = "=";
     title = "Equal";
     level = 52;
     description = "";

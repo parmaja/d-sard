@@ -405,8 +405,8 @@ abstract class SoStatements: SoObject
 
     public @property SrdStatements statements() { return _statements; };
 
-    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters){
-
+    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters)
+    {
       super.executeParams(vStack, vDefines, vParameters);
       if (vParameters !is null) 
       { //TODO we need to check if it is a block?      
@@ -916,10 +916,19 @@ class SrdDefine: SardObject
 {
 public:
   string name;
-  string result;
-  this(string aName, string aResult){
+  string type;
+  this(string aName, string aType){
     super();
     name = aName;
+    type = aType;
+  }
+
+  debug{
+    override void debugWrite(int level){
+      super.debugWrite(level);
+      writeln(stringRepeat(" ", level * 2) ~ "name: " ~ name);
+      writeln(stringRepeat(" ", level * 2) ~ "type: " ~ type);
+    }
   }
 }
 

@@ -52,8 +52,16 @@ int main(string[] argv)
     string source = "//call function
     y := 23;
     foo:(z){ := z + 2; }; //this is a declaration 
+    x := foo(5) + 5;
+    := x;"; 
+
+/+here we must return error but good one
+    string source = "//call function
+    y := 23;
+    foo:(z){ := z + 2; }; //this is a declaration 
     x := foo + 5;
     := x;"; 
++/
 
   try {
     writeln();

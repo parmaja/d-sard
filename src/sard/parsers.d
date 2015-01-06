@@ -518,9 +518,9 @@ class SrdCollectorDefine: SrdCollector
           declare.defines.add(instruction.identifier, "");
         else 
         {
-          if (declare.defines.last.result != "") 
+          if (declare.defines.last.type != "") 
             error("Result type already set");
-          declare.defines.last.result = instruction.identifier;
+          declare.defines.last.type = instruction.identifier;
         }        
       }
       else 

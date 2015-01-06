@@ -44,9 +44,6 @@ class SardParserException: Exception
   }
 
   this(string msg, int line, int column ) {
-    debug{
-      writeln(msg ~ " line:" ~ to!string(line) ~ " column" ~ to!string(column));
-    }
     _line = line;
     _column = column;
     super(msg);

@@ -141,10 +141,7 @@ class SrdLineComment_Scanner: SardScanner
     }
 
     override bool accept(const string text, int column){
-      auto r = scanText("//", text, column);
-      if (r) 
-        writeln("Single line comment");
-      return r;
+      return scanText("//", text, column);
     }
 }
 

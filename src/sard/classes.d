@@ -435,6 +435,8 @@ class SardLexical: SardObject
       _scanners = new SardScanners(this);
       super();
     }
+
+    abstract bool isEOL(char vChar);
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
     abstract bool isControl(char vChar);
     abstract bool isOperator(char vChar);

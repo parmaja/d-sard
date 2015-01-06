@@ -127,19 +127,24 @@ class SrdOperator_Scanner: SardScanner
     }
 }
 
+// Single line comment 
+
 class SrdLineComment_Scanner: SardScanner
 {
   protected:
     override bool scan(const string text, ref int column)
-    {
-      while ((column < text.length) && (sEOL.indexOf(text[column]) >= 0))
+    {                                   
+      while ((column < text.length) && (!lexical.isEOL(text[column])))
         column++;
       column++;//Eat the EOF char
       return true;
     }
 
     override bool accept(const string text, int column){
-      return scanText("//", text, column);
+      auto r = scanText("//", text, column);
+      if (r) 
+        writeln("Single line comment");
+      return r;
     }
 }
 
@@ -170,8 +175,10 @@ class SrdComment_Scanner: SardScanner
     override bool scan(const string text, ref int column)
     {
       int pos = column;    
-      while (column < text.length) {
-        if (scanCompare("*}", text, column)){
+      while (column < text.length) 
+      {
+        if (scanCompare("*}", text, column))
+        {
           buffer = buffer ~ text[pos..column + 1];
           column = column + 2;
           lexical.parser.setToken(buffer, SardType.Comment);
@@ -313,6 +320,11 @@ public:
     _operators = new OpOperators();
     _controls = new CtlControls();
     super();
+  }
+
+  override bool isEOL(char vChar)
+  {
+    return sEOL.indexOf(vChar) >= 0;
   }
 
   override bool isWhiteSpace(char vChar, bool vOpen = true)

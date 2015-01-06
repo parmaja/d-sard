@@ -26,8 +26,12 @@ int main(string[] argv)
   //string source = "x:=10+1;";  
   /*string source = "  x := 10; 
   := x";  */
-  string source = "  x := 10; 
+  /*string source = "  x := 10; 
   x := x + 5;
+  := x;";  */
+
+  string source = "  x := 10; 
+  //x := x + 5;
   := x;";  
 
   writeln();

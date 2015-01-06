@@ -45,9 +45,15 @@ int main(string[] argv)
     := x;";
   +/
     string source = "//call function
-      foo:10+10;
+      foo: 10 + 10; //this is a declaration 
       x = foo;
     := x;";
+
+/+    string source = "//call function
+      y := 10;
+      foo: 10 + y; //this is a declaration 
+      x = foo;
+    := x;"; +/
 
     writeln();
     writeln("--- Compile ---");

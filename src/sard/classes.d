@@ -44,16 +44,17 @@ class SardParserException: Exception
   }
 
   this(string msg, int line, int column ) {
+    debug{
+      writeln(msg ~ " line:" ~ to!string(line) ~ " column" ~ to!string(column));
+    }
     _line = line;
     _column = column;
     super(msg);
   }
 }
 
-void error(string err) {
-  debug{
-    writeln(err);
-  }
+void error(string err) 
+{
   throw new SardException(err);
 }
 
@@ -451,15 +452,17 @@ class SardLexical: SardObject
 
     SardScanner detectScanner(const string text, int column) 
     {
-      if (column >= text.length){
+      SardScanner result = null;
+      if (column >= text.length)
         //do i need to switchScanner?
-        return null; //no scanner for empty line or EOL
-      }
-      else {
-        SardScanner result = null;
+        //return null; //no scanner for empty line or EOL
+        result = null;
+      else 
+      {
         int i = 0;
-        while (i < scanners.count) {
-          if ((scanners[i] != result) && scanners[i].accept(text, column)) 
+        while (i < scanners.count) 
+        {
+          if (scanners[i].accept(text, column)) 
           {
             result = scanners[i];
             break;
@@ -469,20 +472,19 @@ class SardLexical: SardObject
 
         if (result is null)
           error("Scanner not found: " ~ text[column]);
-        switchScanner(result);
-        return result;
       }
+      switchScanner(result);
+      return result;
     }
 
     void switchScanner(SardScanner nextScanner) 
     {
-      if (_scanner != nextScanner) {
-
+      if (_scanner != nextScanner) 
+      {
         _scanner = nextScanner;
-        if (_scanner is null)
+        if (_scanner !is null)
           _scanner.switched();
       }
-
     }
 
     SardScanner findClass(const ClassInfo scannerClass) 
@@ -498,14 +500,16 @@ class SardLexical: SardObject
     }
 
     //This find the class and switch to it
-    void SelectScanner(ClassInfo scannerClass) {
+    void SelectScanner(ClassInfo scannerClass) 
+    {
       SardScanner aScanner = findClass(scannerClass);
       if (aScanner is null)
         error("Scanner not found");
       switchScanner(aScanner);
     }
 
-    void scanLine(const string text, const int aLine) {
+    void scanLine(const string text, const int aLine) 
+    {
       int _line = aLine;
       int column = 0; 
       int len = text.length;

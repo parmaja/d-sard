@@ -36,7 +36,7 @@ class SrdWhitespace_Scanner: SardScanner
     {
       while ((column < text.length) && (lexical.isWhiteSpace(text[column])))
         column++;
-       return true;
+      return true;
     }
 
     override bool accept(const string text, int column){
@@ -86,9 +86,8 @@ class SrdControl_Scanner: SardScanner
     override bool scan(const string text, ref int column) 
     {
       CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
-      if (control !is null){
+      if (control !is null)
         column = column + control.name.length;
-      }
       else
         error("Unkown control started with " ~ text[column]);
       
@@ -96,7 +95,11 @@ class SrdControl_Scanner: SardScanner
       return true;
     }
 
-    override bool accept(const string text, int column){
+    override bool accept(const string text, int column)
+    {
+      debug{
+        writeln("is accept control" ~ text[column]);
+      }
       return lexical.isControl(text[column]);   
     }
 }

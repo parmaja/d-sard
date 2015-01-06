@@ -22,12 +22,12 @@ int main(string[] argv)
   //string source = "   "; //3 spaces
   //string source = ":=10;"; //simple result
   //string source = "  :=10;"; //simple result started with spaces
-  string source = "x:=10;"; //simple assign, this must not return a value
+  //string source = "x:=10;"; //simple assign, this must not return a value
   //string source = "x:=10+1;"; 
   
 
-/*  string source = "  x := 10; 
-  := x";  */
+  string source = "  x := 10; 
+  := x";  
 
   writeln();
   writeln("--- Compile ---");

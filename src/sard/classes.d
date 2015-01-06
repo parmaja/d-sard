@@ -218,10 +218,15 @@ class SardStack(T): SardObject
     }
 
     void afterPush() {
-
+      debug{
+        writeln("push: " ~ to!string(typeid(T)));
+      }
     };
 
     void beforePop() {
+      debug{
+        writeln("pop: " ~ to!string(typeid(T)));
+      }
     };
   }
 

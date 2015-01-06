@@ -1,1 +1,6 @@
-/prj/cb/obj/Debug/minilib/*.obj
+.dub
+docs.json
+__dummy.html
+*.o
+*.obj
+bin

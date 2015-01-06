@@ -23,6 +23,8 @@ import std.stdio;
 import std.conv;
 import std.uni;
 import std.datetime;
+import std.string;
+
 import sard.utils;
 import sard.classes;
 
@@ -76,8 +78,10 @@ class SrdClause: SardObject
     debug{
       override void debugWrite(int level){
         super.debugWrite(level);
-        writeln(stringRepeat(" ", level * 2) ~ "operator: " ~ (_operator? _operator.name : "") );
-        writeln(stringRepeat(" ", level * 2) ~ "name: " ~ (_object? _object.name : "") );
+        if (_operator !is null)
+          _operator.debugWrite(level + 1);
+        if (_object !is null)
+          _object.debugWrite(level + 1);
       }
     }
 }
@@ -122,7 +126,8 @@ class SrdStatement: SardObjects!SrdClause
     {
       //https://en.wikipedia.org/wiki/Shunting-yard_algorithm
       int i = 0;
-      while (i < count) {
+      while (i < count) 
+      {
         this[i].execute(aStack);
         i++;
       }
@@ -327,7 +332,8 @@ abstract class SoObject: SardObject
     final bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
     {
       bool result = false;
-      beforeExecute(vStack, aOperator);
+      
+      beforeExecute(vStack, aOperator);      
       executeParams(vStack, vDefines, vParameters);
       doExecute(vStack, aOperator, result);
       afterExecute(vStack, aOperator);      
@@ -335,13 +341,13 @@ abstract class SoObject: SardObject
       debug 
       {      
         string s = stringRepeat("-", vStack.ret.currentItem.level)~ "->";
-        s = s ~ "Execute: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
+        s = s ~ "Executed: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
         if (aOperator !is null)
           s = s ~ "{" ~ aOperator.name ~ "}";
         if (vStack.ret.current.result.object !is null)
-          s = s ~ " Value: " ~ vStack.ret.current.result.object.asText;
+          s = s ~ " Return Value: " ~ vStack.ret.current.result.object.asText;
         writeln(s);
-      }
+      }  
       return result; 
     }
 
@@ -374,6 +380,14 @@ abstract class SoObject: SardObject
     RunVariable registerVariable(RunStack vStack, RunVarKinds vKind)
     {
       return vStack.local.current.variables.register(name, vKind);
+    }
+
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        writeln(stringRepeat(" ", level * 2) ~ "name: " ~ name);
+        writeln(stringRepeat(" ", level * 2) ~ "value: " ~ asText );
+      }
     }
 }
 
@@ -461,7 +475,8 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
       vStack.local.push();
     }
 
-    override void afterExecute(RunStack vStack, OpOperator aOperator){
+    override void afterExecute(RunStack vStack, OpOperator aOperator)
+    {
       super.afterExecute(vStack, aOperator);
       vStack.local.pop();
     }
@@ -931,6 +946,8 @@ class SoInstance: SoStatements
         if (v is null)
           error("Can not find a variable: " ~ name);
         if (v.value.object is null)
+          error("Variable value is null: " ~ v.name);
+        if (v.value.object is null)
           error("Variable object is null: " ~ v.name);
         done = v.value.object.execute(vStack, aOperator);
       }      
@@ -971,7 +988,7 @@ class SoVariable: SoObject
     }
 }
 
-/** It is assign a variable value, x:=10 + y */
+/** It is assign a variable value, x := 10 + y */
 
 class SoAssign: SoObject
 {
@@ -1167,6 +1184,14 @@ class OpOperator: SardObject{
     final bool execute(RunStack vStack, SoObject vObject){
       return doExecute(vStack, vObject);
     }
+
+    debug{
+      override void debugWrite(int level){
+        super.debugWrite(level);
+        writeln(stringRepeat(" ", level * 2) ~ "operator: " ~ name);        
+      }
+    }
+
 }
 
 class OpOperators: SardNamedObjects!OpOperator{
@@ -1357,12 +1382,18 @@ class RunVariable: SardObject
 
     RunResult _value;
     public @property RunResult value() { return _value; }
-    public @property RunResult value(RunResult newValue) { 
+    public @property RunResult value(RunResult newValue) 
+    { 
       if (_value !is newValue){
         //destory(_value);//TODO hmmm we must leave it to GC
         _value =  newValue;
       }
       return _value; 
+    }
+
+    this(){
+      _value = new RunResult();
+      super();
     }
 }
 

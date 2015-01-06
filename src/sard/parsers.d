@@ -293,7 +293,7 @@ class SrdCollector: SardObject
 
     SrdParser parser;
 
-    void internalPost(){  //virtual
+    void internalPost(){  
     }
 
     ClassInfo getControllerClass(){
@@ -302,7 +302,8 @@ class SrdCollector: SardObject
 
   public:
 
-    void set(SrdParser aParser){
+    void set(SrdParser aParser)
+    {
       parser = aParser;
       switchController(getControllerClass());
       reset();
@@ -529,8 +530,8 @@ class SrdCollectorDefine: SrdCollector
   public:
     override void control(SardControl aControl){
       /*
-        x:int  (p1:int; p2:string);
-         ^typd (------Params-----)^
+        x:int  (p1: int; p2: string);
+         ^type (-------Params------)^
          Declare  ^Declare
          We end with ; or : or )
       */

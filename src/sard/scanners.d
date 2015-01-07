@@ -171,21 +171,27 @@ class SrdComment_Scanner: SardScanner
   protected:
     string buffer;
 
+    string open;
+    string close;
+    
+    override void created(){
+      super.created();
+      open = "{*";
+      close = "*}";      
+    }
+
     override void scan(const string text, ref int column, ref bool resume)
     {
       int pos = column;    
-      if (resume)
-        pos = pos + 2;
+      if (!resume)
+        pos = pos + open.length; //we need to ignore open tag {* here
       while (column < text.length) 
       {
-        if (scanCompare("*}", text, column))
+        if (scanCompare(close, text, column))
         {
           buffer = buffer ~ text[pos..column];
-          column = column + 2;//2 is "{*".length
+          column = column + close.length;
           lexical.parser.setToken(buffer, SardType.Comment);
-          debug{
-            writeln("block comment" ~ buffer);
-          }
           buffer = "";
           resume = false;
           return;
@@ -197,7 +203,7 @@ class SrdComment_Scanner: SardScanner
     }
 
     override bool accept(const string text, int column){
-      return scanText("{*", text, column);
+      return scanText(open, text, column);
     }
 }
 

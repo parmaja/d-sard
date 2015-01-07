@@ -582,7 +582,7 @@ class SardFeeder: SardObject
       start();
       int i = 0;
       while(i < lines.count()){
-        scanLine(lines[i], i);
+        scanLine(lines[i] ~ "\n", i);//TODO i hate to add \n it must be included in the lines itself
         i++;
       }
       stop();

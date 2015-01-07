@@ -68,7 +68,7 @@ int main(string[] argv)
   {*
     x := 5;
     x := x + 5;
-    *}
+    *};
     := x;";
   
 
@@ -137,6 +137,10 @@ i := i + 5.5;
 
 {* First init of the variable define the type *}";
 
+
+/*
+  do not forget add ; after } bad idea
+*/
 string source;
 
   try {

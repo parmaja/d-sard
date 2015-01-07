@@ -365,7 +365,7 @@ class SardScanner: SardObject
 
   protected:
     //Return true if it done, next will auto detect it detect
-    abstract bool scan(const string text, ref int column);
+    abstract void scan(const string text, ref int column, ref bool resume);
 
     bool accept(const string text, int column){
       return false;
@@ -511,15 +511,17 @@ class SardLexical: SardObject
     {
       int _line = aLine;
       int column = 0; 
+      bool resume = false;
       int len = text.length;
-      if (scanner is null)
+      if (scanner is null) 
         detectScanner(text, column);
       while (column < len)
       {
         int oldColumn = column;
         SardScanner oldScanner = _scanner;
         try {
-          if (scanner.scan(text, column))
+          scanner.scan(text, column, resume);
+          if (!resume)
             detectScanner(text, column);
 
           if ((oldColumn == column) && (oldScanner == _scanner))

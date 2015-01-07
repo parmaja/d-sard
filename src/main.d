@@ -42,18 +42,26 @@ int main(string[] argv)
     x := x + 5;
     */
     := x;";
-+/  
++/
+
+  string source = "  x := 10; 
+  {*
+    x := 5;
+    x := x + 5;
+    *}
+    := x;";
+  
 
 /+  string source = "//call function
     foo: { 12 + 23; }; //this is a declaration 
     x := foo + 5;
     := x;";
 +/
-    string source = "//call function
+/+    string source = "//call function
     y := 23;
     foo:(z){ := z + 2; }; //this is a declaration 
     x := foo(5) + 5;
-    := x;"; 
+    := x;"; +/
 
 /+here we must return error but good one
     string source = "//call function
@@ -61,6 +69,50 @@ int main(string[] argv)
     foo:(z){ := z + 2; }; //this is a declaration 
     x := foo + 5;
     := x;"; 
++/
+
+
+  /+  string source = "//call function
+    y := 23;
+    foo:(z){ := z + 2; }; //this is a declaration 
+    x := foo(5 + 1) + 5;
+    := x;"; +/
+
+    /+string source = "//call function
+    y := 23;
+    foo:(z){ := z + y; }; //this is a declaration 
+    x := foo(5 + 1) + 5;
+    := x;";+/
+
+/*
+  This examples are worked, and this comment will ignored, not compiled or parsed as we say.
+*/
+
+/+
+string source = "/*  SARD */
+x := 10 + 5 - (5 * 5); //Single Line comment
+
+x := x + 10; //Using same variable, until now local variable implemented
+x := {    //Block it any where
+      y := 0;
+      := y + 5; //this is a result return of the block
+  }; //do not forget to add ; here
+{* This a block comment, compiled, useful for documentation, or regenrate the code *};
+:= x; //Return result to the main object
+
+s:='Foo';
+s:=s+' Bar';
+:=s; //It will retrun 'Foo Bar';
+
+i := 10;
+i := i + 5.5;
+//variable i now have 15 not 15.5
+
+i := 10.0;
+i := i + 5.5;
+//variable i now have 15.5
+
+{* First init of the variable define the type *}";
 +/
 
   try {

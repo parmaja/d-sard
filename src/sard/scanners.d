@@ -32,11 +32,11 @@ static const char[] sIdentifierSeparator = ".";
 class SrdWhitespace_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       while ((column < text.length) && (lexical.isWhiteSpace(text[column])))
         column++;
-      return true;
+      resume = false;
     }
 
     override bool accept(const string text, int column){
@@ -47,14 +47,14 @@ class SrdWhitespace_Scanner: SardScanner
 class SrdIdentifier_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       int pos = column;
       while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
         column++;
 
       lexical.parser.setToken(text[pos..column], SardType.Identifier);
-      return true;
+      resume = false;
     }
 
     override bool accept(const string text, int column){
@@ -65,14 +65,14 @@ class SrdIdentifier_Scanner: SardScanner
 class SrdNumber_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       int pos = column;      
       while ((column < text.length) && (lexical.isNumber(text[column], false)))
         column++;    
       
       lexical.parser.setToken(text[pos..column], SardType.Number);
-      return true;
+      resume = false;
     }
 
     override bool accept(const string text, int column){
@@ -83,7 +83,7 @@ class SrdNumber_Scanner: SardScanner
 class SrdControl_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column) 
+    override void scan(const string text, ref int column, ref bool resume) 
     {
       CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
       if (control !is null)
@@ -92,7 +92,7 @@ class SrdControl_Scanner: SardScanner
         error("Unkown control started with " ~ text[column]);
       
       lexical.parser.setControl(control.code);
-      return true;
+      resume = false;
     }
 
     override bool accept(const string text, int column)
@@ -107,7 +107,7 @@ class SrdControl_Scanner: SardScanner
 class SrdOperator_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       OpOperator operator = (cast(SrdLexical)lexical).operators.scan(text, column);//TODO need new way to access lexical without typecasting
       if (operator !is null)
@@ -119,7 +119,7 @@ class SrdOperator_Scanner: SardScanner
         lexical.parser.setControl(lOperator.Control)
       else*/
       lexical.parser.setOperator(operator);
-      return true;
+      resume = false;
     }
 
     override bool accept(const string text, int column){
@@ -132,12 +132,12 @@ class SrdOperator_Scanner: SardScanner
 class SrdLineComment_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {                                   
       while ((column < text.length) && (!lexical.isEOL(text[column])))
         column++;
       column++;//Eat the EOF char
-      return true;
+      resume = false;
     }
 
     override bool accept(const string text, int column){
@@ -148,15 +148,17 @@ class SrdLineComment_Scanner: SardScanner
 class SrdBlockComment_Scanner: SardScanner
 {
   protected:
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       while (column < text.length) {      
-        if (scanText("*/", text, column))
-          return true;
+        if (scanText("*/", text, column)) {
+          resume = false;
+          return;
+        }
         column++;
       }
       column++;//Eat the second chat //not sure
-      return false;
+      resume = true;
     }
 
     override bool accept(const string text, int column){
@@ -169,24 +171,27 @@ class SrdComment_Scanner: SardScanner
   protected:
     string buffer;
 
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       int pos = column;    
       while (column < text.length) 
       {
         if (scanCompare("*}", text, column))
         {
-          buffer = buffer ~ text[pos..column + 1];
-          column = column + 2;
+          buffer = buffer ~ text[pos..column];
+          column = column + 2;//2 is "{*".length
           lexical.parser.setToken(buffer, SardType.Comment);
+          debug{
+            writeln("block comment" ~ buffer);
+          }
           buffer = "";
-          return true;
+          resume = false;
+          return;
         }
         column++;
-      }
-      column++;
+      }      
       buffer = buffer ~ text[pos..column];
-      return false;
+      resume = true;
     }
 
     override bool accept(const string text, int column){
@@ -200,22 +205,25 @@ abstract class SrdString_Scanner: SardScanner
     char quote;
     string buffer; //<- not sure it is good idea
 
-    override bool scan(const string text, ref int column)
+    override void scan(const string text, ref int column, ref bool resume)
     {
       int pos = column;    
-      while (column < text.length) {      
-        if (text[column] == quote) { //TODO Escape, not now
+      while (column < text.length) 
+      {      
+        if (text[column] == quote)
+        { //TODO Escape, not now
           buffer = buffer ~ text[pos..column + 1];
           lexical.parser.setToken(buffer, SardType.String);
           column++;
           buffer = "";
-          return true;
+          resume = false;
+          return;
         }
         column++;
       }
       column++;
       buffer = buffer ~ text[pos..column];
-      return false;
+      resume = true;
     }
 
     override bool accept(const string text, int column){    

@@ -519,7 +519,8 @@ class SardLexical: SardObject
       {
         int oldColumn = column;
         SardScanner oldScanner = _scanner;
-        try {
+        try 
+        {
           scanner.scan(text, column, resume);
           if (!resume)
             detectScanner(text, column);

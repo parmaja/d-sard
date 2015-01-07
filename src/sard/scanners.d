@@ -174,6 +174,8 @@ class SrdComment_Scanner: SardScanner
     override void scan(const string text, ref int column, ref bool resume)
     {
       int pos = column;    
+      if (resume)
+        pos = pos + 2;
       while (column < text.length) 
       {
         if (scanCompare("*}", text, column))

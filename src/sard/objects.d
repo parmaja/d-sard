@@ -411,7 +411,8 @@ abstract class SoStatements: SoObject
       if (vParameters !is null) 
       { //TODO we need to check if it is a block?      
         int i = 0;
-        while (i < vParameters.count) { //here i was added -1 to the count | while (i < vParameters.count -1)
+        while (i < vParameters.count) 
+        { //here i was added -1 to the count | while (i < vParameters.count -1)
           vStack.ret.push();
           vParameters[i].call(vStack);
           if (i < vDefines.count){      

@@ -18,33 +18,53 @@ import sard.process;
 int main(string[] argv) 
 {
   writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
+
   Sard sard = new Sard();  
-  //string source = ""; //Empty
-  //string source = "   "; //3 spaces
-  //string source = ":=10;"; //simple result
-  //string source = "  :=10;"; //simple result started with spaces
-  //string source = "x:=10;"; //simple assign, this must not return a value
-  //string source = "x:=10+1;";  
-  /*string source = "  x := 10; 
-  := x";  */
-  /*string source = "  x := 10; 
+  string[] sources;
+  string[] results;
+
+  results ~= "";
+  sources ~=  ""; //Empty
+
+  results ~= "";
+  sources ~= "   "; //3 spaces
+
+  results ~= "10";
+  sources ~= ":=10;"; //simple result
+
+  results ~= "10";
+  sources ~= "  :=10;"; //simple result started with spaces
+
+  results ~= "";
+  sources ~= "x:=10;"; //simple assign, this must not return a value
+
+  results ~= "";
+  sources ~= "x:=10+1;";  
+
+  results ~= "10";
+  sources ~= "  x := 10; 
+  := x";  
+
+  results ~= "15";
+  sources ~= "  x := 10; 
   x := x + 5;
-  := x;";  */
+  := x;";  
 
-  /*string source = "  x := 10; 
+  results ~= "10";
+  sources ~= "  x := 10; 
   //x := x + 5;
-  := x;";*/  
+  := x;";
 
-/+
-  string source = "  x := 10; 
+  results ~= "10";
+  sources ~= "  x := 10; 
   /*
     x := 5;
     x := x + 5;
     */
     := x;";
-+/
 
-  string source = "  x := 10; 
+  results ~= "10";
+  sources ~= "  x := 10; 
   {*
     x := 5;
     x := x + 5;
@@ -52,19 +72,22 @@ int main(string[] argv)
     := x;";
   
 
-/+  string source = "//call function
+   results ~= "40";
+   sources ~= "//call function
     foo: { 12 + 23; }; //this is a declaration 
     x := foo + 5;
     := x;";
-+/
-/+    string source = "//call function
-    y := 23;
-    foo:(z){ := z + 2; }; //this is a declaration 
-    x := foo(5) + 5;
-    := x;"; +/
 
-/+here we must return error but good one
-    string source = "//call function
+    results ~= "20";
+    sources ~= "//call function
+    foo:(z){ := z + 10; }; //this is a declaration 
+    x := foo(5) + 5;
+    := x;"; 
+
+/+
+//here we must return error but good one
+    results ~= "";
+    sources[] = "//call function
     y := 23;
     foo:(z){ := z + 2; }; //this is a declaration 
     x := foo + 5;
@@ -72,24 +95,24 @@ int main(string[] argv)
 +/
 
 
-  /+  string source = "//call function
-    y := 23;
-    foo:(z){ := z + 2; }; //this is a declaration 
-    x := foo(5 + 1) + 5;
-    := x;"; +/
+    results ~= "20";
+    sources ~= "//call function
+    foo:(z){ := z + 10; }; //this is a declaration 
+    x := foo(5 + 1) + 4;
+    := x;"; 
 
-    /+string source = "//call function
+    results ~= "40";
+    sources ~= "//call function
     y := 23;
     foo:(z){ := z + y; }; //this is a declaration 
-    x := foo(5 + 1) + 5;
-    := x;";+/
+    x := foo(5) + 12;
+    := x;";
 
-/*
+    results ~= "";
+    sources ~= "/*
   This examples are worked, and this comment will ignored, not compiled or parsed as we say.
 */
 
-/+
-string source = "/*  SARD */
 x := 10 + 5 - (5 * 5); //Single Line comment
 
 x := x + 10; //Using same variable, until now local variable implemented
@@ -113,11 +136,16 @@ i := i + 5.5;
 //variable i now have 15.5
 
 {* First init of the variable define the type *}";
-+/
+
+string source;
 
   try {
     writeln();
     writeln("--- Compile ---");
+    
+    source = sources[10];
+    writeln(source);
+    writeln("---------------");
     sard.compile(source);
     writeln();
     writeln("Press enter run");
@@ -131,10 +159,8 @@ i := i + 5.5;
     writeln();
     writeln("---------------");
   }
-  catch(SardParserException e) {          
+  catch(SardParserException e) {
     writeln("*******************************");
-    writeln(source);
-    writeln("---------------");
     with (e){
       writeln(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));          
     } 

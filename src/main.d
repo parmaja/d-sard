@@ -23,9 +23,10 @@ int main(string[] argv)
   string[] sources;
   string[] results;
 
-  results ~= "10";
-  sources ~=  "foo:{ := 10; };  
-   := foo;"; 
+/*  results ~= "10"; this an example how to convert id to controls
+  sources ~= "foo: begin := 10; end;
+   := foo;";*/
+
 
   results ~= "";
   sources ~=  ""; //Empty
@@ -66,6 +67,8 @@ int main(string[] argv)
     x := x + 5;
     */
     := x;";
+
+//-10:
 
   results ~= "10";
   sources ~= "  x := 10; 
@@ -151,7 +154,7 @@ string source;
     writeln();
     writeln("--- Compile ---");
     
-    source = sources[0];
+    source = sources[10];
     writeln(source);
     writeln("---------------");
     sard.compile(source);

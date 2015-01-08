@@ -721,7 +721,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
 {
   protected:
 
-    override void doSetToken(string aToken, SardType aType)
+    override void setToken(string aToken, SardType aType)
     {
       debug{        
         writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
@@ -731,7 +731,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       actions = [];
     }
 
-    override void doSetOperator(SardObject aOperator)
+    override void setOperator(SardObject aOperator)
     {
       debug{
         writeln("SetOperator: " ~ (cast(OpOperator)aOperator).name);
@@ -744,7 +744,7 @@ class SrdParser: SardStack!SrdCollector, ISardParser
       actions = [];
     }
 
-    override void doSetControl(SardControl aControl)
+    override void setControl(SardControl aControl)
     {
       debug{        
         writeln("SetControl: " ~ to!string(aControl));

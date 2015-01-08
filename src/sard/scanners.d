@@ -18,11 +18,11 @@ import sard.classes;
 import sard.objects;
 import minilib.sets;
 
-static const char[] sEOL = ['\0', '\n', '\r'];
-static const char[] sWhitespace = sEOL ~ [' ', '\t'];
-static const char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-static const char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
-static const char[] sIdentifierSeparator = ".";
+static immutable char[] sEOL = ['\0', '\n', '\r'];
+static immutable char[] sWhitespace = sEOL ~ [' ', '\t'];
+static immutable char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+static immutable char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
+static immutable char[] sIdentifierSeparator = ".";
 
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
@@ -95,9 +95,6 @@ class SrdControl_Scanner: SardScanner
 
     override bool accept(const string text, int column)
     {
-      debug{
-        writeln("is accept control" ~ text[column]);
-      }
       return lexical.isControl(text[column]);   
     }
 }
@@ -366,5 +363,20 @@ public:
   override bool isIdentifier(char vChar, bool vOpen = true)
   {
     return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
+  }
+
+  override bool doIdentifier(string identifier)
+  {
+      //example just for fun
+/*
+      if (identifier == "begin"){
+        setControl(SardControl.OpenBlock);
+        return true;
+      } if (identifier == "end"){
+        setControl(SardControl.CloseBlock);
+        return true;
+      }   
+      else  */    
+        return super.doIdentifier(identifier);
   }
 }

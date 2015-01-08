@@ -335,9 +335,9 @@ protected:
   abstract void stop();    
   
 public:
-  abstract void doSetToken(string aToken, SardType aType);
-  abstract void doSetControl(SardControl aControl);
-  abstract void doSetOperator(SardObject aOperator);
+  abstract void setToken(string aToken, SardType aType);
+  abstract void setControl(SardControl aControl);
+  abstract void setOperator(SardObject aOperator);
 
 public:
 };
@@ -419,16 +419,7 @@ class SardLexical: SardObject
     //doIdentifier call in setToken if you proceesed it return false
     //You can proceess as to setControl or setOperator
     bool doIdentifier(string identifier){
-      //example just for fun
-      if (identifier == "begin"){
-        setControl(SardControl.OpenBlock);
-        return true;
-      } if (identifier == "end"){
-        setControl(SardControl.CloseBlock);
-        return true;
-      }   
-      else      
-        return false;
+      return false;
     }
 
   public:
@@ -436,18 +427,17 @@ class SardLexical: SardObject
     final void setToken(string aToken, SardType aType){
       //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
       //by default it is id
-      if ((aType != SardType.Identifier) || (doIdentifier(aToken)))
-        parser.doSetToken(aToken, aType);
+      if ((aType != SardType.Identifier) || (!doIdentifier(aToken)))
+        parser.setToken(aToken, aType);
     }
 
     final void setControl(SardControl aControl){
-      parser.doSetControl(aControl);
+      parser.setControl(aControl);
     }
 
     final void setOperator(SardObject aOperator){
-      parser.doSetOperator(aOperator);
+      parser.setOperator(aOperator);
     }
-
 
   public:
     this()

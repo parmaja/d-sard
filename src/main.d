@@ -14,7 +14,7 @@ import std.range;
 import sard.classes;
 import sard.objects;
 import sard.process;
-
+                       
 int main(string[] argv) 
 {
   writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
@@ -22,6 +22,10 @@ int main(string[] argv)
   Sard sard = new Sard();  
   string[] sources;
   string[] results;
+
+  results ~= "10";
+  sources ~=  "foo:{ := 10; };  
+   := foo;"; 
 
   results ~= "";
   sources ~=  ""; //Empty
@@ -147,7 +151,7 @@ string source;
     writeln();
     writeln("--- Compile ---");
     
-    source = sources[10];
+    source = sources[0];
     writeln(source);
     writeln("---------------");
     sard.compile(source);

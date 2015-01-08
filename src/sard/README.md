@@ -5,24 +5,24 @@ Sard is still crap, i need redign it using the GC of D language.
 
 Modules
 =======
-  utils.d 
+	utils.d 
 	Some of usefull functions
-  
-  classes.d
+	
+	classes.d
 	Base classes for every thing, every thing dervied from SardObject
 	
-  objects.d
+	objects.d
 	Run time objects that can execute.
 	
-  parsers.d
+	parsers.d
 	Here is the complex of generating parser tree of objects
 	
-  scanners.d
+	scanners.d
 	Have lexer and scanners, scan the text source code and pass it to the parser
 	
-  process.d
-    Main object to run script    
-	    
+	process.d
+		Main object to run script    
+			
 
 Target Example
 ==============
@@ -30,16 +30,16 @@ Target Example
 ```D
 x:=10;
 
-  foo:{
-    := 5;
-  }
-  
-  bar:(z: integer){
-    := z * 2;
-  }
-  
+	foo:{
+		:= 5;
+	}
+	
+	bar:(z: integer){
+		:= z * 2;
+	}
+	
 y := x + 10 + foo + bar(x) + { 
-	  := 100;
+		:= 100;
 	}
 
 := y;
@@ -55,11 +55,11 @@ Sard Tree
 		
 		execute() -> execute SoObject 
 	}	 
-	  	  
+				
 	Statement: List of Clause {
 		execute() -> caluse		
 	}
-	  
+		
 	Statements: List of Statement{
 		execute() -> for each item execute
 	}
@@ -70,7 +70,7 @@ Sard Tree
 Block: Statements
 	Statement: List!Clause
 		Clause: Operator, Object
-		  Object: Normal | Statement
+			Object: Normal | Statement
 		
 		
 Notes
@@ -85,10 +85,10 @@ Object have Execute and Operate
 Some objects (like Section) have a Block, and some have one Statement
 Block have Statements
 Statement: haves Clauses
-  Clause: Operator,Modifier,Object
+	Clause: Operator,Modifier,Object
 
 Declare: is define how to call that object, it have Defines and link to the object to execute and call
-  Declare is a object of Caluse that call external (or internal) object, until now this object freed by declare and it is wrong :(
+	Declare is a object of Caluse that call external (or internal) object, until now this object freed by declare and it is wrong :(
 
 Stack: have data for run time execute, you cant share value between thread or multiple execute for the main object
 So Stack have Local Variables, Shadow of object
@@ -105,5 +105,3 @@ Op: Operators objects
 
 Schema
 ======
-
-  

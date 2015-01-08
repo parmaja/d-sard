@@ -19,15 +19,13 @@ import sard.objects;
 import minilib.sets;
 
 static const char[] sEOL = ['\0', '\n', '\r'];
-
 static const char[] sWhitespace = sEOL ~ [' ', '\t'];
 static const char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 static const char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
+static const char[] sIdentifierSeparator = ".";
 
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-
-static const char[] sIdentifierSeparator = ".";
 
 class SrdWhitespace_Scanner: SardScanner
 {
@@ -53,7 +51,7 @@ class SrdIdentifier_Scanner: SardScanner
       while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
         column++;
 
-      lexical.parser.setToken(text[pos..column], SardType.Identifier);
+      lexical.setToken(text[pos..column], SardType.Identifier);
       resume = false;
     }
 
@@ -71,7 +69,7 @@ class SrdNumber_Scanner: SardScanner
       while ((column < text.length) && (lexical.isNumber(text[column], false)))
         column++;    
       
-      lexical.parser.setToken(text[pos..column], SardType.Number);
+      lexical.setToken(text[pos..column], SardType.Number);
       resume = false;
     }
 
@@ -91,7 +89,7 @@ class SrdControl_Scanner: SardScanner
       else
         error("Unkown control started with " ~ text[column]);
       
-      lexical.parser.setControl(control.code);
+      lexical.setControl(control.code);
       resume = false;
     }
 
@@ -118,7 +116,7 @@ class SrdOperator_Scanner: SardScanner
       /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
         lexical.parser.setControl(lOperator.Control)
       else*/
-      lexical.parser.setOperator(operator);
+      lexical.setOperator(operator);
       resume = false;
     }
 
@@ -191,7 +189,7 @@ class SrdComment_Scanner: SardScanner
         {
           buffer = buffer ~ text[pos..column];
           column = column + close.length;
-          lexical.parser.setToken(buffer, SardType.Comment);
+          lexical.setToken(buffer, SardType.Comment);
           buffer = "";
           resume = false;
           return;
@@ -221,7 +219,7 @@ abstract class SrdString_Scanner: SardScanner
         if (text[column] == quote)
         { //TODO Escape, not now
           buffer = buffer ~ text[pos..column + 1];
-          lexical.parser.setToken(buffer, SardType.String);
+          lexical.setToken(buffer, SardType.String);
           column++;
           buffer = "";
           resume = false;

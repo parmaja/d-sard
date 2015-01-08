@@ -333,25 +333,13 @@ interface ISardParser
 protected:
   abstract void start();
   abstract void stop();    
-
-  abstract void doSetControl(SardControl aControl);
+  
+public:
   abstract void doSetToken(string aToken, SardType aType);
+  abstract void doSetControl(SardControl aControl);
   abstract void doSetOperator(SardObject aOperator);
 
 public:
-  final void setToken(string aToken, SardType aType){
-    //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
-    //by default it is id
-    doSetToken(aToken, aType);
-  }
-
-  final void setControl(SardControl aControl){
-    doSetControl(aControl);
-  }
-
-  final void setOperator(SardObject aOperator){
-    doSetOperator(aOperator);
-  }
 };
 
 class SardScanner: SardObject 
@@ -425,6 +413,41 @@ class SardLexical: SardObject
     ISardParser _parser;    
     public @property ISardParser  parser() { return _parser; };
     public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
+
+  protected:
+
+    //doIdentifier call in setToken if you proceesed it return false
+    //You can proceess as to setControl or setOperator
+    bool doIdentifier(string identifier){
+      //example just for fun
+      if (identifier == "begin"){
+        setControl(SardControl.OpenBlock);
+        return true;
+      } if (identifier == "end"){
+        setControl(SardControl.CloseBlock);
+        return true;
+      }   
+      else      
+        return false;
+    }
+
+  public:
+
+    final void setToken(string aToken, SardType aType){
+      //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
+      //by default it is id
+      if ((aType != SardType.Identifier) || (doIdentifier(aToken)))
+        parser.doSetToken(aToken, aType);
+    }
+
+    final void setControl(SardControl aControl){
+      parser.doSetControl(aControl);
+    }
+
+    final void setOperator(SardObject aOperator){
+      parser.doSetOperator(aOperator);
+    }
+
 
   public:
     this()
@@ -558,11 +581,11 @@ class SardFeeder: SardObject
   protected:
 
     void doStart() {
-      lexical.parser.setControl(SardControl.Start);
+      lexical.setControl(SardControl.Start);
     }
 
     void doStop() {
-      lexical.parser.setControl(SardControl.Stop);
+      lexical.setControl(SardControl.Stop);
     }
 
   public:

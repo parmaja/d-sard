@@ -1,9 +1,9 @@
 module sard.process;
 /**
-	This file is part of the "SARD"
+    This file is part of the "SARD"
 
-	@license   The MIT License (MIT) Included in this distribution
-	@author    Zaher Dirkey <zaher at yahoo dot com>
+    @license   The MIT License (MIT) Included in this distribution
+    @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 import std.stdio;
@@ -20,77 +20,77 @@ import sard.parsers;
 
 class SoVersion_Const: SoObject
 {
-	protected:
-		override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-			vStack.ret.current.result.object = new SoText(sSardVersion);
-		}
+    protected:
+        override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+            vStack.ret.current.result.object = new SoText(sSardVersion);
+        }
 }
 
 class SoTime_Const: SoObject
 {
-	protected:
-		override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
-			vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
-		}
+    protected:
+        override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
+            vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
+        }
 }
 
 class Sard: SardObject
 {
-	protected:
+    protected:
 
-	public:
-		SoBlock main;
-		string result;
+    public:
+        SoBlock main;
+        string result;
 
-		this(){
-			super();
-		}
-		
-		void compile(string text){
+        this(){
+            super();
+        }
+        
+        void compile(string text){
 
-			//writeln("-------------------------------");
+            //writeln("-------------------------------");
 
-			main = new SoBlock(); //destory the old compile and create new
+            main = new SoBlock(); //destory the old compile and create new
 
-			/* Compile */
+            /* Compile */
 
-			writeln("----Createing lex objects-----");
-			writeln();
-			SrdParser parser = new SrdParser(main.statements);
-			SrdLexical lexical = new SrdLexical();
-			
-			lexical.parser = parser;      
-			SardFeeder feeder = new SardFeeder(lexical);
+            writeln("----Createing lex objects-----");
+            writeln();
+            SrdParser parser = new SrdParser(main.statements);
+            SrdLexical lexical = new SrdLexical();
+            
+            lexical.parser = parser;      
+            SardFeeder feeder = new SardFeeder(lexical);
 
-			writeln("--------Scanning--------");
-			feeder.scan(text);
+            writeln("--------Scanning--------");
+            feeder.scan(text);
 
-			debug
-			{
-				writeln();
-				writeln("-------------");
-				main.debugWrite(0);
-				writeln();
-				writeln("-------------");
+            debug
+            {
+                writeln();
+                writeln("-------------");
+                main.debugWrite(0);
+                writeln();
+                writeln("-------------");
 
-				//main.printTree();
-			}
-		}
+                //main.printTree();
+            }
+        }
 
-		void run()
-		{
-			RunStack stack = new RunStack();
-			main.execute(stack, null);
+        void run()
+        {
+            RunStack stack = new RunStack();
+            main.execute(stack, null);
 
-			if (stack.ret.current.result.object !is null) 
-			{
-				debug {
-					writeln("We have value");
-				}
-				result = stack.ret.current.result.object.asText();
-				debug {
-					writeln("The value isssss: " ~ result);
-				}
-			}
-		};
+            if (stack.ret.current.result.object !is null) 
+            {
+                debug {
+                    writeln("We have value");
+                }
+                result = stack.ret.current.result.object.asText();
+                debug {
+                    writeln("The value isssss: " ~ result);
+                }
+            }
+        };
 }

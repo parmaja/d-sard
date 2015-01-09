@@ -70,10 +70,21 @@ int main(string[] argv)
         := x;";
 
 //10:
+    results ~= "test";
+    sources ~= `//testing change the var type
+        x := 10;
+        x := "test";`;
+
     results ~= "Hello World";
     sources ~= `//Hello World 
         s:="Hello 
             World";
+        := s;`;
+
+    results ~= "Hello World";
+    sources ~= `//Hello World 
+        s:='Hello';
+        s := s+' World';
         := s;`;
 
     results ~= "10";
@@ -135,9 +146,8 @@ x := {    //Block it any where
 := x; //Return result to the main object
 
 s:='Foo';
-s:=s+' Bar';
+s:=s + ' Bar';
 :=s; //It will retrun 'Foo Bar';
-
 
 i := 10;
 i := i + 5.5;

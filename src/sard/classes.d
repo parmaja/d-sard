@@ -302,11 +302,13 @@ class SardStack(T): SardObject
     }
 }
 
+//TokenType
 enum SardType 
 {
     None, 
     Identifier, 
-    Number, Color, 
+    Number, 
+    Color, 
     String, 
     Comment 
 }

@@ -52,21 +52,12 @@ import sard.operators;
 
 import minilib.sets;
 
-enum Flag {
-    None,
-    Instance,
-    Declare,
-    Assign,
-    Identifier,
+enum SrdLexicalType
+{
     Const,
-    Param,
-    Operator,
-    Comment,
-    Block,
-    Sub
+    Control,
+    Operator
 }
-
-alias Set!Flag Flags;
 
 enum Action 
 {
@@ -88,7 +79,7 @@ protected:
 
 public:
 
-    Flag flag;
+//    Flag flag;
     string identifier;
     OpOperator operator;
     SoObject object;
@@ -108,13 +99,13 @@ public:
     //Return true if Object is not nil and Identifier is empty
     bool checkObject(in bool raise = false)
     {
-        bool r = object !is null;
-        if (raise && !r)
+        bool b = object !is null;
+        if (raise && !b)
             error("Object is not set!");
-        r = r && (identifier == "");
-        if (raise && !r) 
+        b = b && (identifier == "");
+        if (raise && !b) 
             error("Identifier is already set!");
-        return r;
+        return b;
     }
 
     //Return true if Operator is not nil
@@ -131,11 +122,6 @@ public:
         return !((identifier != "") || (object !is null) || (operator !is null));
     }
 
-    void setFlag(Flag aFlag)
-    {
-        flag = aFlag;
-    }
-
     void setOperator(OpOperator aOperator)
     {
         if (operator !is null)
@@ -148,7 +134,6 @@ public:
         if (identifier != "")
             error("Identifier is already set");
         identifier = aIdentifier;
-        setFlag(Flag.Identifier);
     }
 
     SoBaseNumber setNumber(string aIdentifier)
@@ -163,7 +148,6 @@ public:
             result = new SoInteger(to!int(aIdentifier));
 
         internalSetObject(result);
-        setFlag(Flag.Const);
         return result;
     }
 
@@ -175,7 +159,6 @@ public:
         SoText result = new SoText(aIdentifier);
 
         internalSetObject(result);
-        setFlag(Flag.Const);
         return result;
     }
 
@@ -188,9 +171,15 @@ public:
         SoComment result = new SoComment();
         result.value = aIdentifier;
         internalSetObject(result);
-        setFlag(Flag.Comment);
         return result;
     }
+
+    void setObject(SoObject aObject)
+    {
+        if (identifier != "")
+            error("Identifier is already set");
+        internalSetObject(aObject);  
+    }  
 
     SoInstance setInstance(string aIdentifier)
     {
@@ -199,7 +188,6 @@ public:
         SoInstance result = new SoInstance();
         result.name = aIdentifier;
         internalSetObject(result);
-        setFlag(Flag.Instance);
         return result;
     }
 
@@ -218,7 +206,6 @@ public:
             error("Identifier is already set");
         SoSub result = new SoSub();
         internalSetObject(result);
-        setFlag(Flag.Sub);
         return result;
     }
 
@@ -229,7 +216,6 @@ public:
         result.name = identifier;    
         internalSetObject(result);
         identifier = "";
-        setFlag(Flag.Assign);
         return result;
     }
 
@@ -241,16 +227,8 @@ public:
         result.name = identifier;    
         internalSetObject(result);
         identifier = "";
-        setFlag(Flag.Declare);
         return result;
     }
-
-    void setObject(SoObject aObject)
-    {
-        if (identifier != "")
-            error("Identifier is already set");
-        internalSetObject(aObject);  
-    }  
 }
 
 class SrdController: SardObject
@@ -274,7 +252,8 @@ public:
 class SrdControllers: SardObjects!SrdController
 {
 public:
-    SrdController findClass(const ClassInfo controllerClass) {
+    SrdController findClass(const ClassInfo controllerClass) 
+    {
         int i = 0;
         while (i < count) {
             //if (this[i].classinfo.name == controllerClass.name) {
@@ -290,7 +269,6 @@ public:
 class SrdCollector: SardObject
 {
 private:
-    Flags _flags;
 
 protected:
     SrdInstruction instruction;
@@ -321,10 +299,6 @@ public:
     this(SrdParser aParser){
         this();
         set(aParser);
-    }
-
-    void setFlag(Flag aFlag){
-        _flags = _flags + aFlag;
     }
 
     //Push to the Parser immediately
@@ -360,14 +334,13 @@ public:
     }
 
     void next(){
-        _flags = [];
     }
 
     void addIdentifier(string aIdentifier, SardType aType)
     {
         switch (aType) {
             case SardType.Number: 
-                instruction.setNumber(aIdentifier); 
+                instruction.setNumber(aIdentifier);
                 break;
             case SardType.String: 
                 instruction.setText(aIdentifier);
@@ -536,7 +509,8 @@ protected:
     }
 
 public:
-    override void control(SardControl aControl){
+    override void control(SardControl aControl)
+    {
         /*
         x:int  (p1: int; p2: string);
         ^type (-------Params------)^
@@ -623,13 +597,14 @@ public:
 }
 
 class SrdControllerNormal: SrdController
-{
+{    
 public:
-    this(SrdParser aParser){ //TODO BUG why i need to copy it?!
+    this(SrdParser aParser){ 
         super(aParser);    
     }
 
-    override void control(SardControl aControl){
+    override void control(SardControl aControl)
+    {
         with(parser.current)
         {
             switch(aControl)

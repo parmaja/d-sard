@@ -70,6 +70,12 @@ int main(string[] argv)
         := x;";
 
 //10:
+    results ~= "block without using semicolon";
+    sources ~= `//block without using semicolon
+        x := { := 5; }
+        :=x;
+        `;
+
     results ~= "test";
     sources ~= `//testing change the var type
         x := 10;
@@ -176,10 +182,10 @@ string source;
         writeln();
         writeln("--- Compile ---");
         
-        //source = sources[11];
+        source = sources[10];
         //source = sources[sources.length-1];
         //source = sources[$-1];        
-        source = sources.back;
+        //source = sources.back;
         
         writeln("---------------");
         sard.compile(source);

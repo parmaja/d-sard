@@ -11,6 +11,7 @@ import std.math;
 import std.conv;
 import std.array;
 import std.range;
+import std.file;
 import sard.runtimes;
 import sard.classes;
 import sard.objects;
@@ -188,7 +189,10 @@ string source;
         writeln();
         writeln("--- Compile ---");
         
-        source = sources[10];
+        if (argv.length > 1)
+            source = readText(argv[1]);
+        else
+            source = sources[10];
         //source = sources[sources.length-1];
         //source = sources[$-1];        
         //source = sources.back;

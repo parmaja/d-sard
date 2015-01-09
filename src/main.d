@@ -70,6 +70,12 @@ int main(string[] argv)
         := x;";
 
 //10:
+    results ~= "statment using semicolon closed by block closer";
+    sources ~= `//notice before }
+        x := { := 5 }
+        :=x;
+        `;
+
     results ~= "block without using semicolon";
     sources ~= `//block without using semicolon
         x := { := 5; }

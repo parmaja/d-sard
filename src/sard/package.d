@@ -6,8 +6,10 @@ module sard;
     @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
-protected import sard.classes;
+public import sard.classes;
 public import sard.objects;
+public import sard.runtimes;
+public import sard.operators;
 public import sard.scanners;
 public import sard.parsers;
 public import sard.process;

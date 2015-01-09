@@ -208,7 +208,8 @@ class SardStack(T): SardObject
                 return _currentItem.parent.object;
         }
 
-        T getCurrent() {
+        T getCurrent() 
+        {
             if (currentItem is null)
                 return null;
             else
@@ -424,7 +425,8 @@ class SardLexical: SardObject
 
     public:
 
-        final void setToken(string aToken, SardType aType){
+        final void setToken(string aToken, SardType aType)
+        {
             //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
             //by default it is id
             if ((aType != SardType.Identifier) || (!doIdentifier(aToken)))

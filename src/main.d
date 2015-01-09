@@ -11,6 +11,7 @@ import std.math;
 import std.conv;
 import std.array;
 import std.range;
+import sard.runtimes;
 import sard.classes;
 import sard.objects;
 import sard.process;

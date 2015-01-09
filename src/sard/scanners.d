@@ -13,9 +13,13 @@ import std.string;
 import std.stdio;
 import std.uni;
 import std.datetime;
+
 import sard.utils;
 import sard.classes;
 import sard.objects;
+import sard.runtimes;
+import sard.operators;
+
 import minilib.sets;
 
 static immutable char[] sEOL = ['\0', '\n', '\r'];
@@ -29,234 +33,234 @@ static immutable char[] sIdentifierSeparator = ".";
 
 class SrdWhitespace_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume)
-        {
-            while ((column < text.length) && (lexical.isWhiteSpace(text[column])))
-                column++;
-            resume = false;
-        }
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        while ((column < text.length) && (lexical.isWhiteSpace(text[column])))
+            column++;
+        resume = false;
+    }
 
-        override bool accept(const string text, int column){
-            return lexical.isWhiteSpace(text[column]);
-        }
+    override bool accept(const string text, int column){
+        return lexical.isWhiteSpace(text[column]);
+    }
 }
 
 class SrdIdentifier_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume)
-        {
-            int pos = column;
-            while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
-                column++;
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;
+        while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
+            column++;
 
-            lexical.setToken(text[pos..column], SardType.Identifier);
-            resume = false;
-        }
+        lexical.setToken(text[pos..column], SardType.Identifier);
+        resume = false;
+    }
 
-        override bool accept(const string text, int column){
-            return lexical.isIdentifier(text[column], true);   
-        }
+    override bool accept(const string text, int column){
+        return lexical.isIdentifier(text[column], true);   
+    }
 }
 
 class SrdNumber_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume)
-        {
-            int pos = column;      
-            while ((column < text.length) && (lexical.isNumber(text[column], false)))
-                column++;    
-            
-            lexical.setToken(text[pos..column], SardType.Number);
-            resume = false;
-        }
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;      
+        while ((column < text.length) && (lexical.isNumber(text[column], false)))
+            column++;    
 
-        override bool accept(const string text, int column){
-            return lexical.isNumber(text[column], true);   
-        }
+        lexical.setToken(text[pos..column], SardType.Number);
+        resume = false;
+    }
+
+    override bool accept(const string text, int column){
+        return lexical.isNumber(text[column], true);   
+    }
 }
 
 class SrdControl_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume) 
-        {
-            CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
-            if (control !is null)
-                column = column + control.name.length;
-            else
-                error("Unkown control started with " ~ text[column]);
-            
-            lexical.setControl(control.code);
-            resume = false;
-        }
+protected:
+    override void scan(const string text, ref int column, ref bool resume) 
+    {
+        CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
+        if (control !is null)
+            column = column + control.name.length;
+        else
+            error("Unkown control started with " ~ text[column]);
 
-        override bool accept(const string text, int column)
-        {
-            return lexical.isControl(text[column]);   
-        }
+        lexical.setControl(control.code);
+        resume = false;
+    }
+
+    override bool accept(const string text, int column)
+    {
+        return lexical.isControl(text[column]);   
+    }
 }
 
 class SrdOperator_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume)
-        {
-            OpOperator operator = (cast(SrdLexical)lexical).operators.scan(text, column);//TODO need new way to access lexical without typecasting
-            if (operator !is null)
-                column = column + operator.name.length;
-            else
-                error("Unkown operator started with " ~ text[column]);
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        OpOperator operator = (cast(SrdLexical)lexical).operators.scan(text, column);//TODO need new way to access lexical without typecasting
+        if (operator !is null)
+            column = column + operator.name.length;
+        else
+            error("Unkown operator started with " ~ text[column]);
 
-            /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
-                lexical.parser.setControl(lOperator.Control)
-            else*/
-            lexical.setOperator(operator);
-            resume = false;
-        }
+        /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
+        lexical.parser.setControl(lOperator.Control)
+        else*/
+        lexical.setOperator(operator);
+        resume = false;
+    }
 
-        override bool accept(const string text, int column){
-            return lexical.isOperator(text[column]);   
-        }
+    override bool accept(const string text, int column){
+        return lexical.isOperator(text[column]);   
+    }
 }
 
 // Single line comment 
 
 class SrdLineComment_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume)
-        {                                   
-            while ((column < text.length) && (!lexical.isEOL(text[column])))
-                column++;
-            column++;//Eat the EOF char
-            resume = false;
-        }
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {                                   
+        while ((column < text.length) && (!lexical.isEOL(text[column])))
+            column++;
+        column++;//Eat the EOF char
+        resume = false;
+    }
 
-        override bool accept(const string text, int column){
-            return scanText("//", text, column);
-        }
+    override bool accept(const string text, int column){
+        return scanText("//", text, column);
+    }
 }
 
 class SrdBlockComment_Scanner: SardScanner
 {
-    protected:
-        override void scan(const string text, ref int column, ref bool resume)
-        {
-            while (column < text.length) {      
-                if (scanText("*/", text, column)) {
-                    resume = false;
-                    return;
-                }
-                column++;
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        while (column < text.length) {      
+            if (scanText("*/", text, column)) {
+                resume = false;
+                return;
             }
-            column++;//Eat the second chat //not sure
-            resume = true;
+            column++;
         }
+        column++;//Eat the second chat //not sure
+        resume = true;
+    }
 
-        override bool accept(const string text, int column){
-            return scanText("/*", text, column);
-        }
+    override bool accept(const string text, int column){
+        return scanText("/*", text, column);
+    }
 }
 
 class SrdComment_Scanner: SardScanner
 {
-    protected:
-        string buffer;
+protected:
+    string buffer;
 
-        string open;
-        string close;
-        
-        override void created(){
-            super.created();
-            open = "{*";
-            close = "*}";      
-        }
+    string open;
+    string close;
 
-        override void scan(const string text, ref int column, ref bool resume)
+    override void created(){
+        super.created();
+        open = "{*";
+        close = "*}";      
+    }
+
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;    
+        if (!resume)
+            pos = pos + open.length; //we need to ignore open tag {* here
+        while (column < text.length) 
         {
-            int pos = column;    
-            if (!resume)
-                pos = pos + open.length; //we need to ignore open tag {* here
-            while (column < text.length) 
+            if (scanCompare(close, text, column))
             {
-                if (scanCompare(close, text, column))
-                {
-                    buffer = buffer ~ text[pos..column];
-                    column = column + close.length;
-                    lexical.setToken(buffer, SardType.Comment);
-                    buffer = "";
-                    resume = false;
-                    return;
-                }
-                column++;
-            }      
-            buffer = buffer ~ text[pos..column];
-            resume = true;
-        }
+                buffer = buffer ~ text[pos..column];
+                column = column + close.length;
+                lexical.setToken(buffer, SardType.Comment);
+                buffer = "";
+                resume = false;
+                return;
+            }
+            column++;
+        }      
+        buffer = buffer ~ text[pos..column];
+        resume = true;
+    }
 
-        override bool accept(const string text, int column){
-            return scanText(open, text, column);
-        }
+    override bool accept(const string text, int column){
+        return scanText(open, text, column);
+    }
 }
 
 abstract class SrdString_Scanner: SardScanner
 {
-    protected:
-        char quote;
-        string buffer; //<- not sure it is good idea
+protected:
+    char quote;
+    string buffer; //<- not sure it is good idea
 
-        override void scan(const string text, ref int column, ref bool resume)
-        {
-            int pos = column;    
-            while (column < text.length) 
-            {      
-                if (text[column] == quote)
-                { //TODO Escape, not now
-                    buffer = buffer ~ text[pos..column + 1];
-                    lexical.setToken(buffer, SardType.String);
-                    column++;
-                    buffer = "";
-                    resume = false;
-                    return;
-                }
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;    
+        while (column < text.length) 
+        {      
+            if (text[column] == quote)
+            { //TODO Escape, not now
+                buffer = buffer ~ text[pos..column + 1];
+                lexical.setToken(buffer, SardType.String);
                 column++;
+                buffer = "";
+                resume = false;
+                return;
             }
             column++;
-            buffer = buffer ~ text[pos..column];
-            resume = true;
         }
+        column++;
+        buffer = buffer ~ text[pos..column];
+        resume = true;
+    }
 
-        override bool accept(const string text, int column){    
-            return scanText(to!string(quote), text, column);
-        }
+    override bool accept(const string text, int column){    
+        return scanText(to!string(quote), text, column);
+    }
 }
 
 /* Single Quote String */
 
 class SrdSQString_Scanner: SrdString_Scanner
 {
-    protected:
-        override void created(){
-            super.created();
-            quote = '\'';
-        }
-    public:
+protected:
+    override void created(){
+        super.created();
+        quote = '\'';
+    }
+public:
 }
 
 /* Double Quote String */
 
 class SrdDQString_Scanner: SrdString_Scanner
 {
-    protected:
-        override void created()
-        {
-            super.created();
-            quote = '"';
-        }
-    public:
+protected:
+    override void created()
+    {
+        super.created();
+        quote = '"';
+    }
+public:
 }
 
 /*******************************************************************/
@@ -367,16 +371,16 @@ public:
 
     override bool doIdentifier(string identifier)
     {
-            //example just for fun
-/*
-            if (identifier == "begin"){
-                setControl(SardControl.OpenBlock);
-                return true;
-            } if (identifier == "end"){
-                setControl(SardControl.CloseBlock);
-                return true;
-            }   
-            else  */    
-                return super.doIdentifier(identifier);
+        //example just for fun
+        /*
+        if (identifier == "begin"){
+        setControl(SardControl.OpenBlock);
+        return true;
+        } if (identifier == "end"){
+        setControl(SardControl.CloseBlock);
+        return true;
+        }   
+        else  */    
+        return super.doIdentifier(identifier);
     }
 }

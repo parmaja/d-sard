@@ -13,84 +13,87 @@ import std.conv;
 import std.array;
 import std.range;
 import std.datetime;
+
 import sard.classes;
+import sard.runtimes;
+import sard.operators;
 import sard.objects;
 import sard.scanners;
 import sard.parsers;
 
 class SoVersion_Const: SoObject
 {
-    protected:
-        override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-            vStack.ret.current.result.object = new SoText(sSardVersion);
-        }
+protected:
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
+        vStack.ret.current.result.object = new SoText(sSardVersion);
+    }
 }
 
 class SoTime_Const: SoObject
 {
-    protected:
-        override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
-            vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
-        }
+protected:
+    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
+        vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
+    }
 }
 
 class Sard: SardObject
 {
-    protected:
+protected:
 
-    public:
-        SoBlock main;
-        string result;
+public:
+    SoBlock main;
+    string result;
 
-        this(){
-            super();
-        }
-        
-        void compile(string text){
+    this(){
+        super();
+    }
 
-            //writeln("-------------------------------");
+    void compile(string text){
 
-            main = new SoBlock(); //destory the old compile and create new
+        //writeln("-------------------------------");
 
-            /* Compile */
+        main = new SoBlock(); //destory the old compile and create new
 
-            writeln("----Createing lex objects-----");
-            writeln();
-            SrdParser parser = new SrdParser(main.statements);
-            SrdLexical lexical = new SrdLexical();
-            
-            lexical.parser = parser;      
-            SardFeeder feeder = new SardFeeder(lexical);
+        /* Compile */
 
-            writeln("--------Scanning--------");
-            feeder.scan(text);
+        writeln("----Createing lex objects-----");
+        writeln();
+        SrdParser parser = new SrdParser(main.statements);
+        SrdLexical lexical = new SrdLexical();
 
-            debug
-            {
-                writeln();
-                writeln("-------------");
-                main.debugWrite(0);
-                writeln();
-                writeln("-------------");
+        lexical.parser = parser;      
+        SardFeeder feeder = new SardFeeder(lexical);
 
-                //main.printTree();
-            }
-        }
+        writeln("--------Scanning--------");
+        feeder.scan(text);
 
-        void run()
+        debug
         {
-            RunStack stack = new RunStack();
-            main.execute(stack, null);
+            writeln();
+            writeln("-------------");
+            main.debugWrite(0);
+            writeln();
+            writeln("-------------");
 
-            if (stack.ret.current.result.object !is null) 
-            {
-                debug {
-                    writeln("We have value");
-                }
-                result = stack.ret.current.result.object.asText();
-                debug {
-                    writeln("The value isssss: " ~ result);
-                }
+            //main.printTree();
+        }
+    }
+
+    void run()
+    {
+        RunStack stack = new RunStack();
+        main.execute(stack, null);
+
+        if (stack.ret.current.result.object !is null) 
+        {
+            debug {
+                writeln("We have value");
             }
-        };
+            result = stack.ret.current.result.object.asText();
+            debug {
+                writeln("The value isssss: " ~ result);
+            }
+        }
+    };
 }

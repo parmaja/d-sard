@@ -69,7 +69,11 @@ int main(string[] argv)
         */
         := x;";
 
-//-10:
+//10:
+    results ~= "Hello World";
+    sources ~= "//Hello World  ; 
+        s:='Hello World';
+        := s;";
 
     results ~= "10";
     sources ~= "  x := 10; 
@@ -101,8 +105,6 @@ int main(string[] argv)
         x := foo + 5;
         := x;"; 
 +/
-
-
         results ~= "20";
         sources ~= "//call function
         foo:(z){ := z + 10; }; //this is a declaration 
@@ -135,6 +137,7 @@ s:='Foo';
 s:=s+' Bar';
 :=s; //It will retrun 'Foo Bar';
 
+
 i := 10;
 i := i + 5.5;
 //variable i now have 15 not 15.5
@@ -155,7 +158,9 @@ string source;
         writeln();
         writeln("--- Compile ---");
         
-        source = sources[10];
+        source = sources[11];
+        //source = sources[sources.length-1];
+        //source = sources[$-1];
         writeln(source);
         writeln("---------------");
         sard.compile(source);

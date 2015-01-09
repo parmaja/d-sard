@@ -165,32 +165,34 @@ protected:
     }
 }
 
-class SrdComment_Scanner: SardScanner
+abstract class SrdMultiLine_Scanner: SardScanner
 {
-protected:
+private:
     string buffer;
 
-    string open;
-    string close;
+protected:
 
-    override void created(){
-        super.created();
-        open = "{*";
-        close = "*}";      
-    }
+    string openSymbol;
+    string closeSymbol;
+    bool trimSymbols; //ommit send open and close tags when setToken
+
+    abstract void setToken(string token);
 
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;    
-        if (!resume)
-            pos = pos + open.length; //we need to ignore open tag {* here
+        if (!resume && trimSymbols)
+            pos = pos + openSymbol.length; //we need to ignore open tag {* here
         while (column < text.length) 
         {
-            if (scanCompare(close, text, column))
+            if (scanCompare(closeSymbol, text, column))
             {
+                if (!trimSymbols)                    
+                    column = column + closeSymbol.length;
                 buffer = buffer ~ text[pos..column];
-                column = column + close.length;
-                lexical.setToken(buffer, SardType.Comment);
+                if (trimSymbols)                    
+                    column = column + closeSymbol.length;
+                setToken(buffer);
                 buffer = "";
                 resume = false;
                 return;
@@ -202,40 +204,34 @@ protected:
     }
 
     override bool accept(const string text, int column){
-        return scanText(open, text, column);
+        return scanText(openSymbol, text, column);
     }
 }
 
-abstract class SrdString_Scanner: SardScanner
+//Comment object {* *}
+class SrdComment_Scanner: SrdMultiLine_Scanner
+{
+    override void created(){
+        super.created();
+        openSymbol = "{*";
+        closeSymbol = "*}";      
+    }
+
+    override void setToken(string token)
+    {
+        lexical.setToken(token, SardType.Comment);
+    }
+}
+
+abstract class SrdString_Scanner: SrdMultiLine_Scanner
 {
 protected:
-    char quote;
-    string buffer; //<- not sure it is good idea
 
-    override void scan(const string text, ref int column, ref bool resume)
+    override void setToken(string token)
     {
-        int pos = column;    
-        while (column < text.length) 
-        {      
-            if (text[column] == quote)
-            { //TODO Escape, not now
-                buffer = buffer ~ text[pos..column + 1];
-                lexical.setToken(buffer, SardType.String);
-                column++;
-                buffer = "";
-                resume = false;
-                return;
-            }
-            column++;
-        }
-        column++;
-        buffer = buffer ~ text[pos..column];
-        resume = true;
+        lexical.setToken(token, SardType.String);
     }
 
-    override bool accept(const string text, int column){    
-        return scanText(to!string(quote), text, column);
-    }
 }
 
 /* Single Quote String */
@@ -245,7 +241,8 @@ class SrdSQString_Scanner: SrdString_Scanner
 protected:
     override void created(){
         super.created();
-        quote = '\'';
+        openSymbol = "\'";
+        closeSymbol = "\'";      
     }
 public:
 }
@@ -258,7 +255,8 @@ protected:
     override void created()
     {
         super.created();
-        quote = '"';
+        openSymbol = "\"";
+        closeSymbol = "\"";      
     }
 public:
 }

@@ -20,6 +20,11 @@ import sard.objects;
 
 import minilib.sets;
 
+
+enum RunVarKind {Local, Param}; //Ok there is more in the future
+
+alias RunVarKinds = Set!RunVarKind;
+
 class RunVariable: SardObject
 {
 public:
@@ -136,7 +141,8 @@ public:
     };
 
     //ReleaseResult return the Result and set FResult to nil witout free it, you need to free the Result by your self
-    RunResult releaseResult(){
+    RunResult releaseResult()
+    {
         auto r = _result;
         _result = null;
         return r;

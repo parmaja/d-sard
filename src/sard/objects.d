@@ -40,10 +40,6 @@ alias string text;
 enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otObject, otClass, otVariable};
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
-enum RunVarKind {Local, Param}; //Ok there is more in the future
-
-alias RunVarKinds = Set!RunVarKind;
-
 class SrdDebugInfo: SardObject 
 {
 }
@@ -75,7 +71,8 @@ public:
     }
 
     debug{
-        override void debugWrite(int level){
+        override void debugWrite(int level)
+        {
             super.debugWrite(level);
             if (_operator !is null)
                 _operator.debugWrite(level + 1);

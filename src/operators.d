@@ -53,7 +53,8 @@ public:
 class OpOperators: SardNamedObjects!OpOperator
 {
 public:
-    OpOperator findByTitle(string title){
+    OpOperator findByTitle(string title)
+    {
         int i = 0;
         while (i < count){
             if (icmp(title, this[i].title) == 0) {
@@ -68,7 +69,8 @@ public:
         return super.add(operator);
     }
 
-    bool isOpenBy(const char c){
+    bool isOpenBy(const char c)
+    {
         int i = 0;
         while (i < count){
             if (this[i].name[0] == toLower(c)) 
@@ -101,7 +103,8 @@ public:
 
 class OpNone: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "";
         title = "None";
@@ -112,7 +115,8 @@ class OpNone: OpOperator
 
 class OpPlus: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "+";
         title = "Plus";
@@ -123,7 +127,8 @@ class OpPlus: OpOperator
 
 class OpMinus: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "-";
         title = "Minus";
@@ -134,7 +139,8 @@ class OpMinus: OpOperator
 
 class OpMultiply: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "*";
         title = "Multiply";
@@ -145,7 +151,8 @@ class OpMultiply: OpOperator
 
 class OpDivide: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "/";
         title = "Divition";
@@ -156,7 +163,8 @@ class OpDivide: OpOperator
 
 class OpPower: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "^";
         title = "Power";
@@ -167,7 +175,8 @@ class OpPower: OpOperator
 
 class OpLesser: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "<";
         title = "Lesser";
@@ -178,7 +187,8 @@ class OpLesser: OpOperator
 
 class OpGreater: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = ">";
         title = "Greater";
@@ -189,7 +199,8 @@ class OpGreater: OpOperator
 
 class OpEqual: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "=";
         title = "Equal";
@@ -201,7 +212,8 @@ class OpEqual: OpOperator
 
 class OpNotEqual: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "<>";
         title = "NotEqual";
@@ -212,7 +224,8 @@ class OpNotEqual: OpOperator
 
 class OpNot: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "!";
         title = "Not";
@@ -223,7 +236,8 @@ class OpNot: OpOperator
 
 class OpAnd: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "&";
         title = "And";
@@ -234,7 +248,8 @@ class OpAnd: OpOperator
 
 class OpOr: OpOperator
 {
-    this(){
+    this()
+    {
         super();
         name = "|";
         title = "Or";
@@ -242,4 +257,3 @@ class OpOr: OpOperator
         description = "";
     }
 }
-

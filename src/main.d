@@ -176,14 +176,15 @@ string source;
         writeln();
         writeln("--- Compile ---");
         
-        source = sources[11];
+        //source = sources[11];
         //source = sources[sources.length-1];
-        //source = sources[$-1];
-        writeln(source);
+        //source = sources[$-1];        
+        source = sources.back;
+        
         writeln("---------------");
         sard.compile(source);
         writeln();
-        writeln("Press enter run");
+        writeln("Press enter to run");
         readln();
         writeln("----- Run -----");
         sard.run();
@@ -194,14 +195,16 @@ string source;
         writeln();
         writeln("---------------");
     }
-    catch(SardParserException e) {
+    catch(SardParserException e)
+    {
         writeln("*******************************");
         with (e){
             writeln(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));          
         } 
         writeln("*******************************");
     }
-    catch(Exception e) {          
+    catch(Exception e) 
+    {
         writeln("*******************************");
         with (e)
             writeln(msg);    

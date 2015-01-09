@@ -32,14 +32,10 @@ public:
     int level;//TODO it is bad idea, we need more intelligent way to define the power level of operators
     string description;
     //SardControl control;// Fall back to control if is initial, only used for for = to fall back as := //TODO remove it :(
+
 protected: 
-    bool doExecute(RunStack vStack, SoObject vObject){  //TODO maybe abstract function
-        return false;
-    }
+
 public:
-    final bool execute(RunStack vStack, SoObject vObject){
-        return doExecute(vStack, vObject);
-    }
 
     debug{
         override void debugWrite(int level){

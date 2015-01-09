@@ -73,7 +73,15 @@ int main(string[] argv)
     results ~= "test";
     sources ~= `//testing change the var type
         x := 10;
-        x := "test";`;
+        x := "test";
+        :=x;
+        `;
+
+    results ~= "test";
+    sources ~= `//testing change the var type
+        := 10;
+        x := 5;
+        `;
 
     results ~= "Hello World";
     sources ~= `//Hello World 
@@ -157,8 +165,7 @@ i := 10.0;
 i := i + 5.5;
 //variable i now have 15.5
 
-{* First init of the variable define the type *}";
-
+{* First init of the variable define the type *}"; 
 
 /*
     do not forget add ; after } bad idea
@@ -169,7 +176,7 @@ string source;
         writeln();
         writeln("--- Compile ---");
         
-        source = sources[10];
+        source = sources[11];
         //source = sources[sources.length-1];
         //source = sources[$-1];
         writeln(source);

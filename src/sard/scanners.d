@@ -6,6 +6,15 @@ module sard.scanners;
     @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
+/**
+    @module: 
+        Scanners: Scan the source code and generate runtime objects
+
+    SrdFeeder: Load the source lines and feed it to the Lexical, line by line
+    SrdLexical: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
+    SrdScanner: Take this part of source code and convert it to control, operator or token/indentifier
+*/
+
 import std.stdio;
 import std.conv;
 import std.array;

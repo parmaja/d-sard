@@ -313,9 +313,11 @@ enum SardType
     Comment 
 }
 
-enum SardControl 
+enum SardControl
 {
     None,
+    Token,//Token like Identifier or Number, not used in fact    
+    Operator,//also not used 
     Start, //Start parsing
     Stop, //Start parsing
     Declare, //Declare a class of object

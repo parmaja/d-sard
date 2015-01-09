@@ -186,7 +186,7 @@ string source;
         //source = sources[sources.length-1];
         //source = sources[$-1];        
         //source = sources.back;
-        
+        writeln(source);
         writeln("---------------");
         sard.compile(source);
         writeln();

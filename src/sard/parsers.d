@@ -7,22 +7,16 @@ module sard.parsers;
 */
 
 /**
-    Module: Scanner, scan the source code and generate runtime objects
-
-    SrdFeeder: Load the source lines and feed it to the Lexical, line by line
-    SrdLexical: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
-    SrdScanner: Take this part of source code and convert it to control, operator or token/indentifier
-    SrdParser: Generate the runtime objects, it use the current Collector
+    Generate the runtime objects, it use the current Collector
 */
 
 /**TODO:
     Arrays: If initial parse [] as an index and passit to executer or assigner, not initial,
     it is be a list of statments then run it in runtime and save the results in the list in TsoArray
 
-    Scanner open: Open with <?sard link php or close it ?> then pass it to the compiler and runner,
-    but my problem i cant mix outputs into the program like php, it is illogical for me, sorry guys :(
+    Optional open source code with <?sard ?> like php
 
-    Preprocessor: When scan {?somthing it will passed to addon in engine to return the result to rescan it or replace it with this preprocessor
+    Preprocessor: When {?somthing it will passed to addon in engine to return the result to rescan it or replace it with this preprocessor
 
     What about private, public or protected, the default must be protected
     x:(p1, p2){ block } //protected
@@ -51,13 +45,6 @@ import sard.runtimes;
 import sard.operators;
 
 import minilib.sets;
-
-enum SrdLexicalType
-{
-    Const,
-    Control,
-    Operator
-}
 
 enum Action 
 {
@@ -307,7 +294,8 @@ public:
     }
 
     //No pop, but when finish Parser will pop it
-    void setAction(Actions aActions = [], SrdCollector aNextCollector = null){
+    void setAction(Actions aActions = [], SrdCollector aNextCollector = null)
+    {
         debug{
             writeln(aActions);
         }
@@ -336,24 +324,25 @@ public:
     void next(){
     }
 
-    void addIdentifier(string aIdentifier, SardType aType)
+    void addToken(string aToken, SardType aType)
     {
         switch (aType) {
             case SardType.Number: 
-                instruction.setNumber(aIdentifier);
+                instruction.setNumber(aToken);
                 break;
             case SardType.String: 
-                instruction.setText(aIdentifier);
+                instruction.setText(aToken);
                 break;
             case SardType.Comment: 
-                instruction.setComment(aIdentifier);
+                instruction.setComment(aToken);
                 break;
             default:
-                instruction.setIdentifier(aIdentifier);
+                instruction.setIdentifier(aToken);
         }
-    }
+    }    
 
-    void addOperator(OpOperator aOperator){
+    void addOperator(OpOperator aOperator)
+    {
         post();
         instruction.setOperator(aOperator);
     }
@@ -387,6 +376,7 @@ protected:
         super.internalPost();
         statement.add(instruction.operator, instruction.object);
     }
+
 public:
 
     this(SrdParser aParser){
@@ -467,6 +457,9 @@ public:
     }
 }
 
+/**
+    Define is a parameters defines in declare 
+*/
 class SrdCollectorDefine: SrdCollector
 {
 private:
@@ -529,6 +522,7 @@ public:
                     //We will pass the control to the next Collector
                     setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aBlock.statements));
                     break;
+
                 case SardControl.Declare:
                     if (param){
                         post();
@@ -546,6 +540,7 @@ public:
                     declare.callObject = new SoVariable(declare, declare.name);
                     setAction(Actions([Action.PopCollector])); //Finish it, mean there is no body/statment for the declare
                     break;
+
                 case SardControl.End:
                     if (param){
                         post();
@@ -556,22 +551,26 @@ public:
                         setAction(Actions([Action.PopCollector]));
                     }
                     break;
+
                 case SardControl.Next:
                     post();
                     state = State.Name;
                     break;
+
                 case SardControl.OpenParams:
                     post();
                     if (declare.defines.count > 0)
                         error("You already define params! we expected open block.");
                     param = true;
                     break;
+
                 case SardControl.CloseParams:
                     post();
                     //pop(); //Finish it
                     param = false;
                     //action(Actions([paPopCollector]), new SrdCollectorBlock(parser, declare.block)); //return to the statment
                     break;
+
                 default: 
                     super.control(aControl);
             }
@@ -699,15 +698,29 @@ public:
 class SrdParser: SardStack!SrdCollector, ISardParser 
 {
 protected:
+    SardControl lastControl;
 
     override void setToken(string aToken, SardType aType)
     {
         debug{        
             writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
         }
-        current.addIdentifier(aToken, aType);
+        /* 
+            We will send ; after } if we find a token  
+                x:= {
+                        ...
+                    } <---------here not need to add ;
+                y := 10;    
+        */
+        if (lastControl == SardControl.CloseBlock) 
+        {
+            lastControl = SardControl.None;//prevent from loop
+            setControl(SardControl.End);
+        }
+        current.addToken(aToken, aType);
         doQueue();
         actions = [];
+        lastControl = SardControl.Token;
     }
 
     override void setOperator(SardObject aOperator)
@@ -721,6 +734,7 @@ protected:
         current.addOperator(o);
         doQueue();
         actions = [];
+        lastControl = SardControl.Operator;
     }
 
     override void setControl(SardControl aControl)
@@ -728,11 +742,19 @@ protected:
         debug{        
             writeln("SetControl: " ~ to!string(aControl));
         }
+
+        if (lastControl == SardControl.CloseBlock) //see setToken
+        {
+            lastControl = SardControl.None;//prevent from loop
+            setControl(SardControl.End);
+        }
+
         current.control(aControl);
         doQueue();
         if (Action.Bypass in actions)//TODO check if Set work good here
             current.control(aControl); 
         actions = [];
+        lastControl = aControl;
     }
 
     override void afterPush()

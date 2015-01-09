@@ -71,9 +71,10 @@ int main(string[] argv)
 
 //10:
     results ~= "Hello World";
-    sources ~= "//Hello World  ; 
-        s:='Hello World';
-        := s;";
+    sources ~= `//Hello World 
+        s:="Hello 
+            World";
+        := s;`;
 
     results ~= "10";
     sources ~= "  x := 10; 
@@ -158,7 +159,7 @@ string source;
         writeln();
         writeln("--- Compile ---");
         
-        source = sources[11];
+        source = sources[10];
         //source = sources[sources.length-1];
         //source = sources[$-1];
         writeln(source);

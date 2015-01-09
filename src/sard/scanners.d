@@ -174,15 +174,19 @@ protected:
 
     string openSymbol;
     string closeSymbol;
-    bool trimSymbols; //ommit send open and close tags when setToken
+    bool trimSymbols = true; //ommit send open and close tags when setToken
 
     abstract void setToken(string token);
 
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;    
-        if (!resume && trimSymbols)
-            pos = pos + openSymbol.length; //we need to ignore open tag {* here
+        if (!resume)
+        {
+            column = column + openSymbol.length;
+            if (trimSymbols)                    
+                pos = pos + openSymbol.length; //we need to ignore open tag {* here
+        }
         while (column < text.length) 
         {
             if (scanCompare(closeSymbol, text, column))
@@ -211,7 +215,8 @@ protected:
 //Comment object {* *}
 class SrdComment_Scanner: SrdMultiLine_Scanner
 {
-    override void created(){
+    override void created()
+    {
         super.created();
         openSymbol = "{*";
         closeSymbol = "*}";      
@@ -226,7 +231,6 @@ class SrdComment_Scanner: SrdMultiLine_Scanner
 abstract class SrdString_Scanner: SrdMultiLine_Scanner
 {
 protected:
-
     override void setToken(string token)
     {
         lexical.setToken(token, SardType.String);
@@ -244,7 +248,6 @@ protected:
         openSymbol = "\'";
         closeSymbol = "\'";      
     }
-public:
 }
 
 /* Double Quote String */

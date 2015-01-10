@@ -84,7 +84,9 @@ f:{
 
 :=f + 10;
 ```
+
 Declare function/object with parameters
+
 ```D
 foo:(p1, p2) {
   := p1 * p2;
@@ -104,10 +106,7 @@ x := #fc0f1c; //Color const and operator mix the colors not just add it
 x := 0xffec;  //hex integer number like but the style of print it as hex we need to override ToString
 x := "foo"\13"bar"; //escape char outside the string
 x := "I said:"\""As he said";
-
-//include external file to compile it
-
-`lib/foo.sard`; //need a good trick, but it must take a relative path to the current file
+```
 
 /*
     Preprocessor, it will run in external addon/command.... and return string into it

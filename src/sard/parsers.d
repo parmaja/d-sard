@@ -10,26 +10,6 @@ module sard.parsers;
     Generate the runtime objects, it use the current Collector
 */
 
-/**TODO:
-    Arrays: If initial parse [] as an index and passit to executer or assigner, not initial,
-    it is be a list of statments then run it in runtime and save the results in the list in TsoArray
-
-    Optional open source code with <?sard ?> like php
-
-    Preprocessor: When {?somthing it will passed to addon in engine to return the result to rescan it or replace it with this preprocessor
-
-    What about private, public or protected, the default must be protected
-    x:(p1, p2){ block } //protected
-    x:-(){} //private
-    x:+(){} //public
-
-    We need to add multi blocks to the identifier like this
-    x(10,10){ ... } { ... }
-    or with : as seperator
-    x(10,10){ ... }:{ ... }
-    it is good to make the "if" object with "else" as the second block.
-*/
-
 import std.stdio;
 import std.conv;
 import std.array;
@@ -720,7 +700,7 @@ protected:
         current.addToken(aToken, aType);
         doQueue();
         actions = [];
-        lastControl = SardControl.Token;
+        lastControl = SardControl.Object;
     }
 
     override void setOperator(SardObject aOperator)

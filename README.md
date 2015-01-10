@@ -1,11 +1,13 @@
-Sard
+Sard Script
 ======
 
 It is an object script language not a programming language, but you can use it as programming language.
 
 The idea behind it, it is not use any of reserved words, only signs, only objects there is no "void", "var", "let" "function" or "procedure" or even "if", "else" or "while".
+But we can implement "if" "while" internal by define it as internal object (not yet)
 
-Ported from my old project writen in Pascal language 
+This project ported to D from my old project writen in Pascal language, and i will continue with D
+
 https://github.com/parmaja/fpc-sard/
 
 Specification
@@ -94,13 +96,14 @@ x := 10;
 ```
 
 #####TODO:#####
+
 ```D
-x:=#0; // Boolean values, true and false words are just global variables.
-x:=#1;
-x:=#fc0f1c; //Color const and operator mix the colors not just add it
-x:=0xffec;  //hex integer number like but the style of print it as hex we need to override ToString
-x:="foo"\13"bar"; //escape char outside the string
-x:="I said:"\""As he said";
+x := #0; // Boolean values, true and false words are just global variables.
+x := #1;
+x := #fc0f1c; //Color const and operator mix the colors not just add it
+x := 0xffec;  //hex integer number like but the style of print it as hex we need to override ToString
+x := "foo"\13"bar"; //escape char outside the string
+x := "I said:"\""As he said";
 
 //include external file to compile it
 
@@ -110,6 +113,7 @@ x:="I said:"\""As he said";
     Preprocessor, it will run in external addon/command.... and return string into it
     similar to <?foo ?> in xml
 */
+
 {?foo
 ?}
 
@@ -117,20 +121,9 @@ x:="I said:"\""As he said";
 f.b;
 ~~~
 
-There is no 'if' so we need this, still have no idea how i can do it by scanner
-```javascript
-(x=10)?{ true bock }:{ false block }
-i am thinking about
-?(x=10){ true bock }:{ false block }
+```D
+// With{}
 
-maybe statment not a blocks
-
-condition statment ? true statment : false statment;
-
-Scope 
-./
-
-// -With-
 object.{     <-not sure
 };
 ```
@@ -142,22 +135,43 @@ No special name/char/case for classes.
 
 ###Thinking loud###
 
-Array:s
+Arrays:
 
+```D
     a := [];
 
     a := ["x", "y", "z"];
     
     a :[10];
-
+```
     mayebe manage property as array inside the object like
 
+```D
     a:{
       num=10;
       str="test";
     }
 
     s := a['num']; <- not sure if is good
+```
+
+    Arrays, If initial parse [] as an index and passit to executer or assigner, not initial,
+    it is be a list of statments then run it in runtime and save the results in the list in TsoArray
+
+    Optional open source code with <?sard ?> like php
+
+    Preprocessor: When {?somthing it will passed to addon in engine to return the result to rescan it or replace it with this preprocessor
+
+    What about private, public or protected, the default must be protected
+    x:(p1, p2){ block } //protected
+    x:-(){} //private
+    x:+(){} //public
+
+    We need to add multi blocks to the identifier like this
+    x(10,10){ ... } { ... }
+    or with : as seperator
+    x(10,10){ ... }:{ ... }
+    it is good to make the "if" object with "else" as the second block.
 
 New object
 

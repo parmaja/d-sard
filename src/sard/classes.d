@@ -316,7 +316,7 @@ enum SardType
 enum SardControl
 {
     None,
-    Token,//Token like Identifier or Number, not used in fact    
+    Object,//Token like Identifier or Number, not used in fact    
     Operator,//also not used 
     Start, //Start parsing
     Stop, //Start parsing

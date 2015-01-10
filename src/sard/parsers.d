@@ -221,13 +221,13 @@ class SrdControllers: SardObjects!SrdController
 public:
     SrdController findClass(const ClassInfo controllerClass) 
     {
-        int i = 0;
-        while (i < count) {
-            //if (this[i].classinfo.name == controllerClass.name) {
-            if (this[i].classinfo == controllerClass) {
-                return this[i];
+        writeln(controllerClass.name);
+        foreach(e; this) {
+            writeln(e.classinfo.name);
+            if (e.classinfo.name == controllerClass.name) {
+            //if (e.classinfo == controllerClass) {
+                return e;
             }
-            i++;
         }
         return null;
     }
@@ -338,7 +338,7 @@ public:
             error("ControllerClass must have a value!");
         controller = parser.controllers.findClass(controllerClass);
         if (controller is null)
-            error("Can not find this class!");
+            error("Can not find this class:" ~ controllerClass.name);
     }
 
     void control(SardControl aControl){

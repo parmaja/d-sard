@@ -123,12 +123,10 @@ public:
 
     void call(RunStack aStack)
     {
-        //https://en.wikipedia.org/wiki/Shunting-yard_algorithm
-        int i = 0;
-        while (i < count) 
+        //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
+        foreach(e; items) 
         {
-            this[i].execute(aStack);
-            i++;
+            e.execute(aStack);
         }
     }
 
@@ -167,12 +165,11 @@ public:
     {
         if (count == 0)
             return false;
-        else{
-            int i = 0;
-            while (i < count) {
-                this[i].execute(aStack);
+        else
+        {            
+            foreach(e; items) {
+                e.execute(aStack);
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
-                i++;
             }
             return true;
         }
@@ -1174,29 +1171,25 @@ class CtlControls: SardNamedObjects!CtlControl
     CtlControl scan(string text, int index)
     {
         CtlControl control = null;
-        int max = 0;
-        int i = 0;
-        while (i < count) 
+        int max = 0;        
+        foreach(e; items) 
         {
-            string w = this[i].name;
+            string w = e.name;
             if (scanCompare(w, text, index)) {
-                if (max < this[i].name.length) {
-                    max = this[i].name.length;
-                    control = this[i];
+                if (max < e.name.length) {
+                    max = e.name.length;
+                    control = e;
                 }
             }
-            i++;
         }
         return control;
     }
 
     bool isOpenBy(const char c)
     {
-        int i = 0;
-        while (i < count){      
-            if (this[i].name[0] == toLower(c))
+        foreach(e; items){      
+            if (e.name[0] == toLower(c))
                 return true;          
-            i++;
         }
         return false;
     }

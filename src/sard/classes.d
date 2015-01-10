@@ -96,7 +96,7 @@ class SardObjects(T: SardObject): SardObject
         T[] _items;
 
     public:
-        alias _items this;
+        alias items = this;
 
     protected:
         T getItem(int index) {
@@ -132,7 +132,24 @@ class SardObjects(T: SardObject): SardObject
             return _items.length;
         }
 
-        @property T last(){
+        @property bool empty(){
+            return _items.length == 0;
+        }
+
+        int opApply(int delegate(ref T) callback) 
+        {
+            int result = 0;            
+            for (int i = 0; i < _items.length; ++i) 
+            {
+                result = callback(_items[i]); 
+                if (result == 0) 
+                    break;                  
+            }
+            return result;                  
+        }
+
+        @property T last()
+        {
             if (_items.length == 0)
                 return null;
             else
@@ -143,11 +160,14 @@ class SardObjects(T: SardObject): SardObject
             override void debugWrite(int level){
                 super.debugWrite(level);
                 writeln(stringRepeat(" ", level * 2) ~ "Count: " ~ to!string(count));
-                int i = 0;
+                foreach(e; items) {
+                    e.debugWrite(level + 1);
+                }
+                /*int i = 0;
                 while (i < count) {
                     this[i].debugWrite(level + 1);
                     i++;
-                }
+                }*/
             }
         }
 }
@@ -155,15 +175,14 @@ class SardObjects(T: SardObject): SardObject
 class SardNamedObjects(T: SardObject): SardObjects!T
 {
     public:
-        T find(string aName) {
-            int i = 0;
-            T result = null;
-            while (i < count) {
-                if (icmp(aName, this[i].name) == 0) {
-                    result = this[i];
+        T find(const string name) 
+        {            
+            T result = null;            
+            foreach(e; items) {
+                if (icmp(name, e.name) == 0) {
+                    result = e;
                     break;
                 }
-                i++;
             }
             return result;
         }
@@ -477,15 +496,13 @@ class SardLexical: SardObject
                 result = null;
             else 
             {
-                int i = 0;
-                while (i < scanners.count) 
+                foreach(e; scanners)                    
                 {
-                    if (scanners[i].accept(text, column)) 
+                    if (e.accept(text, column)) 
                     {
-                        result = scanners[i];
+                        result = e;
                         break;
                     }
-                    i++;
                 }
 
                 if (result is null)
@@ -508,9 +525,9 @@ class SardLexical: SardObject
         SardScanner findClass(const ClassInfo scannerClass) 
         {
             int i = 0;
-            while (i < scanners.count) {
-                if (scanners[i].classinfo == scannerClass) {
-                    return scanners[i];
+            foreach(scanner; scanners) {
+                if (scanner.classinfo == scannerClass) {
+                    return scanner;
                 }
                 i++;
             }

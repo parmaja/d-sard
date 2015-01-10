@@ -226,6 +226,7 @@ public:
             writeln(e.classinfo.name);
             if (e.classinfo.name == controllerClass.name) {
             //if (e.classinfo == controllerClass) {
+                writeln("found " ~ e.classinfo.name);                
                 return e;
             }
         }

@@ -142,7 +142,7 @@ class SardObjects(T: SardObject): SardObject
             for (int i = 0; i < _items.length; ++i) 
             {
                 result = callback(_items[i]); 
-                if (result == 0) 
+                if (result == 0)
                     break;                  
             }
             return result;                  

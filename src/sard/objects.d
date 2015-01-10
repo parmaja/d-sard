@@ -14,6 +14,9 @@ module sard.objects;
     Modifiers: It is like operator but with one side can be in the context before the identifier like + !x %x $x
 */
 
+/**TODO:
+    result and reference are same, we need to remove reference
+*/
 
 import std.stdio;
 import std.conv;
@@ -329,11 +332,11 @@ protected:
 public:
     final bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
     {
-        bool result = false;
+        bool done = false;
 
         beforeExecute(vStack, aOperator);      
         executeParams(vStack, vDefines, vParameters);
-        doExecute(vStack, aOperator, result);
+        doExecute(vStack, aOperator, done);
         afterExecute(vStack, aOperator);      
 
         debug 
@@ -346,7 +349,7 @@ public:
                 s = s ~ " Return Value: " ~ vStack.ret.current.result.object.asText;
             writeln(s);
         }  
-        return result; 
+        return done; 
     }
 
     final int addDeclare(SoObject executeObject, SoObject callObject)
@@ -497,10 +500,10 @@ public:
 
     override SoDeclare findDeclare(string vName)
     {
-        SoDeclare result = _declares.find(vName);
-        if (result is null)
-            result = super.findDeclare(vName);
-        return result;
+        SoDeclare declare = _declares.find(vName);
+        if (declare is null)
+            declare = super.findDeclare(vName);
+        return declare;
     }
 
     debug{
@@ -1017,7 +1020,8 @@ public:
 class SoAssign: SoObject
 {
 protected:
-    override void doSetParent(SoObject value) {
+    override void doSetParent(SoObject value) 
+    {
         super.doSetParent(value);
     }
 
@@ -1028,7 +1032,8 @@ protected:
         done = true;
         if (name == "")
             vStack.ret.current.reference = vStack.ret.parent.result;
-        else {
+        else 
+        {
             SoDeclare aDeclare = findDeclare(name);//TODO: maybe we can cache it
             if (aDeclare !is null) 
             {
@@ -1145,7 +1150,8 @@ class CtlControl: SardObject
         super();
     }
 
-    this(string aName, SardControl aCode){
+    this(string aName, SardControl aCode)
+    {
         this();
         name = aName;
         code = aCode;
@@ -1167,7 +1173,7 @@ class CtlControls: SardNamedObjects!CtlControl
 
     CtlControl scan(string text, int index)
     {
-        CtlControl result = null;
+        CtlControl control = null;
         int max = 0;
         int i = 0;
         while (i < count) 
@@ -1176,15 +1182,16 @@ class CtlControls: SardNamedObjects!CtlControl
             if (scanCompare(w, text, index)) {
                 if (max < this[i].name.length) {
                     max = this[i].name.length;
-                    result = this[i];
+                    control = this[i];
                 }
             }
             i++;
         }
-        return result;
+        return control;
     }
 
-    bool isOpenBy(const char c){
+    bool isOpenBy(const char c)
+    {
         int i = 0;
         while (i < count){      
             if (this[i].name[0] == toLower(c))

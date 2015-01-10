@@ -83,7 +83,7 @@ public:
     void run()
     {
         RunStack stack = new RunStack();
-        main.execute(stack, null);
+        main.execute(stack, null); 
 
         if (stack.ret.current.result.object !is null) 
         {
@@ -94,6 +94,6 @@ public:
             debug {
                 writeln("The value isssss: " ~ result);
             }
-        }
+        }  
     };
 }

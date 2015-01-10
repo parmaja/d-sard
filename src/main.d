@@ -209,7 +209,7 @@ string source;
         string s = sard.result;
         writeln(s);  
         writeln();
-        writeln("---------------");
+        writeln("---------------");  
     }
     catch(SardParserException e)
     {

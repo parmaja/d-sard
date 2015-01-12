@@ -222,7 +222,7 @@ public:
     SrdController findClass(const ClassInfo controllerClass) 
     {
         foreach(e; items) {
-            if (e.classinfo.name == controllerClass.name) {
+            if (e.classinfo == controllerClass) {
                 writeln("we found " ~ e.classinfo.name);                
                 return e;
             }

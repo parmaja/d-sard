@@ -136,16 +136,22 @@ class SardObjects(T: SardObject): SardObject
             return _items.length == 0;
         }
 
-        int opApply(int delegate(ref T) callback) 
-        {
-            int result = 0;            
-            for (int i = 0; i < _items.length; ++i) 
+        @property T front(){
+            if (_items.length == 0)
+                return null;
+            else
+                return _items[0];
+        }
+
+        int opApply(int delegate(T) dg) 
+        {            
+            foreach(e; _items)
             {
-                result = callback(_items[i]); 
-                if (result == 0)
-                    break;                  
+                int b = dg(e);
+                if (b)
+                    return b;                  
             }
-            return result;                  
+            return 0;                  
         }
 
         @property T last()

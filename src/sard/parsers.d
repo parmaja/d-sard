@@ -221,15 +221,13 @@ class SrdControllers: SardObjects!SrdController
 public:
     SrdController findClass(const ClassInfo controllerClass) 
     {
-        writeln(controllerClass.name);
-        foreach(e; this) {
-            writeln(e.classinfo.name);
+        foreach(e; items) {
             if (e.classinfo.name == controllerClass.name) {
-            //if (e.classinfo == controllerClass) {
-                writeln("found " ~ e.classinfo.name);                
+                writeln("we found " ~ e.classinfo.name);                
                 return e;
             }
         }
+        writeln("not found ");                
         return null;
     }
 }

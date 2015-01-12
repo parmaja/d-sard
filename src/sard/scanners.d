@@ -158,8 +158,10 @@ class SrdBlockComment_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
-        while (column < text.length) {      
-            if (scanText("*/", text, column)) {
+        while (column < text.length) 
+        {
+            if (scanText("*/", text, column)) 
+            {
                 resume = false;
                 return;
             }

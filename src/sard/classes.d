@@ -1,9 +1,9 @@
 module sard.classes;
 /**
-    This file is part of the "SARD"
+This file is part of the "SARD"
 
-    @license   The MIT License (MIT) Included in this distribution            
-    @author    Zaher Dirkey <zaher at yahoo dot com>
+@license   The MIT License (MIT) Included in this distribution            
+@author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 import std.stdio;
@@ -22,10 +22,10 @@ class SardException: Exception
     private uint _code;
 
     @property uint code() { return _code; }
-    public:
-        this(string msg) {
-            super(msg);
-        }
+public:
+    this(string msg) {
+        super(msg);
+    }
 }
 
 class SardParserException: Exception 
@@ -56,142 +56,137 @@ void error(string err)
 }
 
 /**
-    SardObject is the base class for all object in this project
+SardObject is the base class for all object in this project
 */
 
 class SardObject: Object 
 {
-    protected:
-        void created() {
-        };
+protected:
+    void created() {
+    };
 
-    public:
+public:
 
-        debug{
-            /*void printTree(){   
-                auto a = [__traits(allMembers, typeof(this))];
-                foreach (member; a) 
-                {
-                        writeln(member);
-                }
-                writeln();
-            }*/
-
-
-            void debugWrite(int level){
-                writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
-            }
+    debug{
+        /*void printTree(){   
+        auto a = [__traits(allMembers, typeof(this))];
+        foreach (member; a) 
+        {
+        writeln(member);
         }
+        writeln();
+        }*/
 
-        this(){
-            created(); 
+
+        void debugWrite(int level){
+            writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
         }
+    }
+
+    this(){
+        created(); 
+    }
 
 }
 
 //class SardObjects(T): SardObject if(is(T: SomeObject)) {
 class SardObjects(T: SardObject): SardObject 
 {
-    private:
-        T[] _items;
+private:
+    T[] _items;
 
-    public:
-        alias items = this;
+public:
+    alias items = this;
 
-    protected:
-        T getItem(int index) {
+protected:
+    T getItem(int index) {
 
-            return _items[index];
-        }
+        return _items[index];
+    }
 
-        void beforeAdd(T object){
-        }
+    void beforeAdd(T object){
+    }
 
-        void afterAdd(T object){
-            debug{
-                //not compiled :(        
-                writeln(this.classinfo.name ~ ".add(" ~ object.classinfo.name ~ ")");
-                //writeln(fullyQualifiedName!this ~ ".add(" ~ object.classinfo.name ~ ")");        
-            }
-        }
-
-    public:
-
-        int add(T object) {      
-            beforeAdd(object);
-            _items = _items  ~ object;            
-            afterAdd(object);
-            return _items.length - 1;
-        }
-
-        T opIndex(size_t index) {
-            return getItem(index);
-        }
-
-        @property int count(){
-            return _items.length;
-        }
-
-        @property bool empty(){
-            return _items.length == 0;
-        }
-
-        @property T front(){
-            if (_items.length == 0)
-                return null;
-            else
-                return _items[0];
-        }
-
-        int opApply(int delegate(T) dg) 
-        {            
-            foreach(e; _items)
-            {
-                int b = dg(e);
-                if (b)
-                    return b;                  
-            }
-            return 0;                  
-        }
-
-        @property T last()
-        {
-            if (_items.length == 0)
-                return null;
-            else
-                return _items[_items.length - 1];
-        }
-
+    void afterAdd(T object){
         debug{
-            override void debugWrite(int level){
-                super.debugWrite(level);
-                writeln(stringRepeat(" ", level * 2) ~ "Count: " ~ to!string(count));
-                foreach(e; items) {
-                    e.debugWrite(level + 1);
-                }
-                /*int i = 0;
-                while (i < count) {
-                    this[i].debugWrite(level + 1);
-                    i++;
-                }*/
+            //not compiled :(        
+            writeln(this.classinfo.name ~ ".add(" ~ object.classinfo.name ~ ")");
+            //writeln(fullyQualifiedName!this ~ ".add(" ~ object.classinfo.name ~ ")");        
+        }
+    }
+
+public:
+
+    int add(T object) {      
+        beforeAdd(object);
+        _items = _items  ~ object;            
+        afterAdd(object);
+        return _items.length - 1;
+    }
+
+    T opIndex(size_t index) {
+        return getItem(index);
+    }
+
+    @property int count(){
+        return _items.length;
+    }
+
+    @property bool empty(){
+        return _items.length == 0;
+    }
+
+    @property T first(){
+        if (_items.length == 0)
+            return null;
+        else
+            return _items[0];
+    }
+
+    int opApply(int delegate(T) dg) 
+    {            
+        foreach(e; _items)
+        {
+            int b = dg(e);
+            if (b)
+                return b;                  
+        }
+        return 0;                  
+    }
+
+    @property T last()
+    {
+        if (_items.length == 0)
+            return null;
+        else
+            return _items[_items.length - 1];
+    }
+
+    debug{
+        override void debugWrite(int level){
+            super.debugWrite(level);
+            writeln(stringRepeat(" ", level * 2) ~ "Count: " ~ to!string(count));
+            foreach(e; items) {
+                e.debugWrite(level + 1);
             }
         }
+    }
 }
 
 class SardNamedObjects(T: SardObject): SardObjects!T
 {
-    public:
-        T find(const string name) 
-        {            
-            T result = null;            
-            foreach(e; items) {
-                if (icmp(name, e.name) == 0) {
-                    result = e;
-                    break;
-                }
-            }
-            return result;
+public:
+    T find(const string name) 
+{            
+    T result = null;            
+    foreach(e; items) {
+        if (icmp(name, e.name) == 0) {
+            result = e;
+            break;
         }
+    }
+    return result;
+}
 }
 
 class SardStack(T): SardObject 
@@ -208,20 +203,20 @@ class SardStack(T): SardObject
         }
     }
 
-    private:
-        int _count;
-        SardStackItem _currentItem; 
+private:
+    int _count;
+    SardStackItem _currentItem; 
 
-    public:
-        @property {
-            int count() {
-                return _count;
-            }
+public:
+    @property {
+        int count() {
+            return _count;
+        }
 
-            SardStackItem currentItem() {
-                return _currentItem;
-            }
-        } 
+        SardStackItem currentItem() {
+            return _currentItem;
+        }
+    } 
 
     protected {
         T getParent() {
@@ -363,7 +358,7 @@ interface ISardParser
 protected:
     abstract void start();
     abstract void stop();    
-    
+
 public:
     abstract void setToken(string aToken, SardType aType);
     abstract void setControl(SardControl aControl);
@@ -374,53 +369,53 @@ public:
 
 class SardScanner: SardObject 
 {
-    private:
-        SardLexical _lexical;
+private:
+    SardLexical _lexical;
 
-        public @property SardLexical lexical() { 
-            return _lexical; 
-        } ;
+    public @property SardLexical lexical() { 
+        return _lexical; 
+    } ;
 
-    protected:
-        //Return true if it done, next will auto detect it detect
-        abstract void scan(const string text, ref int column, ref bool resume);
+protected:
+    //Return true if it done, next will auto detect it detect
+    abstract void scan(const string text, ref int column, ref bool resume);
 
-        bool accept(const string text, int column){
-            return false;
-        }
-        //This function call when switched to it
+    bool accept(const string text, int column){
+        return false;
+    }
+    //This function call when switched to it
 
-        void switched() {
-            //Maybe reseting buffer or something
-        }
+    void switched() {
+        //Maybe reseting buffer or something
+    }
 
-    public:
+public:
 
-        void set(SardLexical lexical) { //todo maybe rename to opCall
-            _lexical = lexical;
-        }
+    void set(SardLexical lexical) { //todo maybe rename to opCall
+        _lexical = lexical;
+    }
 
-        this(){
-            super();
-        }
+    this(){
+        super();
+    }
 
-        this(SardLexical lexical){ 
-            this();
-            set(lexical);
-        }
+    this(SardLexical lexical){ 
+        this();
+        set(lexical);
+    }
 }
 
 class SardScanners: SardObjects!SardScanner{  
 
-    private:
-        SardLexical _lexical;
+private:
+    SardLexical _lexical;
 
-    public:
-        override void beforeAdd(SardScanner scanner)
-        {
-            super.beforeAdd(scanner);
-            scanner._lexical = _lexical;      
-        }
+public:
+    override void beforeAdd(SardScanner scanner)
+    {
+        super.beforeAdd(scanner);
+        scanner._lexical = _lexical;      
+    }
 
     this(SardLexical aLexical){
         _lexical = aLexical;
@@ -430,235 +425,237 @@ class SardScanners: SardObjects!SardScanner{
 
 class SardLexical: SardObject
 {
-    private:
-        int _line;
-        public @property int line() { return _line; };
+private:
+    int _line;
+    public @property int line() { return _line; };
 
-        SardScanners _scanners;
-        public @property SardScanners scanners() { return _scanners; } ;  
+    SardScanners _scanners;
+    public @property SardScanners scanners() { return _scanners; } ;  
 
-        SardScanner _scanner; //current scanner
-        public @property SardScanner scanner() { return _scanner; } ;      
+    SardScanner _scanner; //current scanner
+    public @property SardScanner scanner() { return _scanner; } ;      
 
-        ISardParser _parser;    
-        public @property ISardParser  parser() { return _parser; };
-        public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
+    ISardParser _parser;    
+    public @property ISardParser  parser() { return _parser; };
+    public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
 
-    protected:
+protected:
 
-        //doIdentifier call in setToken if you proceesed it return false
-        //You can proceess as to setControl or setOperator
-        bool doIdentifier(string identifier){
-            return false;
-        }
+    //doIdentifier call in setToken if you proceesed it return false
+    //You can proceess as to setControl or setOperator
+    bool doIdentifier(string identifier){
+        return false;
+    }
 
-    public:
+public:
 
-        final void setToken(string aToken, SardType aType)
+    final void setToken(string aToken, SardType aType)
+    {
+        //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
+        //by default it is id
+        if ((aType != SardType.Identifier) || (!doIdentifier(aToken)))
+            parser.setToken(aToken, aType);
+    }
+
+    final void setControl(SardControl aControl){
+        parser.setControl(aControl);
+    }
+
+    final void setOperator(SardObject aOperator){
+        parser.setOperator(aOperator);
+    }
+
+public:
+    this()
+    {
+        _scanners = new SardScanners(this);
+        super();
+    }
+
+    abstract bool isEOL(char vChar);
+    abstract bool isWhiteSpace(char vChar, bool vOpen= true);
+    abstract bool isControl(char vChar);
+    abstract bool isOperator(char vChar);
+    abstract bool isNumber(char vChar, bool vOpen = true);
+
+    bool isIdentifier(char vChar, bool vOpen = true)
+    {
+        bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar);
+        if (vOpen)
+            r = r && !isNumber(vChar, vOpen);
+        return r;
+    }
+
+public:
+
+    SardScanner detectScanner(const string text, int column) 
+{
+    SardScanner result = null;
+    if (column >= text.length)
+        //do i need to switchScanner?
+        //return null; //no scanner for empty line or EOL
+        result = null;
+    else 
+    {
+        foreach(e; scanners)                    
         {
-            //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
-            //by default it is id
-            if ((aType != SardType.Identifier) || (!doIdentifier(aToken)))
-                parser.setToken(aToken, aType);
-        }
-
-        final void setControl(SardControl aControl){
-            parser.setControl(aControl);
-        }
-
-        final void setOperator(SardObject aOperator){
-            parser.setOperator(aOperator);
-        }
-
-    public:
-        this()
-        {
-            _scanners = new SardScanners(this);
-            super();
-        }
-
-        abstract bool isEOL(char vChar);
-        abstract bool isWhiteSpace(char vChar, bool vOpen= true);
-        abstract bool isControl(char vChar);
-        abstract bool isOperator(char vChar);
-        abstract bool isNumber(char vChar, bool vOpen = true);
-
-        bool isIdentifier(char vChar, bool vOpen = true)
-        {
-            bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar);
-            if (vOpen)
-                r = r && !isNumber(vChar, vOpen);
-            return r;
-        }
-
-    public:
-
-        SardScanner detectScanner(const string text, int column) 
-        {
-            SardScanner result = null;
-            if (column >= text.length)
-                //do i need to switchScanner?
-                //return null; //no scanner for empty line or EOL
-                result = null;
-            else 
+            if (e.accept(text, column)) 
             {
-                foreach(e; scanners)                    
-                {
-                    if (e.accept(text, column)) 
-                    {
-                        result = e;
-                        break;
-                    }
-                }
-
-                if (result is null)
-                    error("Scanner not found: " ~ text[column]);
+                result = e;
+                break;
             }
-            switchScanner(result);
-            return result;
         }
 
-        void switchScanner(SardScanner nextScanner) 
+        if (result is null)
+            error("Scanner not found: " ~ text[column]);
+    }
+    switchScanner(result);
+    return result;
+}
+
+    void switchScanner(SardScanner nextScanner) 
+    {
+        if (_scanner != nextScanner) 
         {
-            if (_scanner != nextScanner) 
+            _scanner = nextScanner;
+            if (_scanner !is null)
+                _scanner.switched();
+        }
+    }
+
+    SardScanner findClass(const ClassInfo scannerClass) 
+    {
+        int i = 0;
+        foreach(scanner; scanners) {
+            if (scanner.classinfo == scannerClass) {
+                return scanner;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    //This find the class and switch to it
+    void SelectScanner(ClassInfo scannerClass) 
+    {
+        SardScanner aScanner = findClass(scannerClass);
+        if (aScanner is null)
+            error("Scanner not found");
+        switchScanner(aScanner);
+    }
+
+    void scanLine(const string text, const int aLine) 
+    {
+        int _line = aLine;
+        int column = 0; 
+        bool resume = false;
+        int len = text.length;
+        if (scanner is null) 
+            detectScanner(text, column);
+        while (column < len)
+        {
+            int oldColumn = column;
+            SardScanner oldScanner = _scanner;
+            try 
             {
-                _scanner = nextScanner;
-                if (_scanner !is null)
-                    _scanner.switched();
+                scanner.scan(text, column, resume);
+                if (!resume)
+                    detectScanner(text, column);
+
+                if ((oldColumn == column) && (oldScanner == _scanner))
+                    error("Feeder in loop with: " ~ _scanner.classinfo.name); //TODO: be careful here
+            }
+            catch(Exception exc) {          
+                throw new SardParserException(exc.msg, aLine, column);
             }
         }
-
-        SardScanner findClass(const ClassInfo scannerClass) 
-        {
-            int i = 0;
-            foreach(scanner; scanners) {
-                if (scanner.classinfo == scannerClass) {
-                    return scanner;
-                }
-                i++;
-            }
-            return null;
-        }
-
-        //This find the class and switch to it
-        void SelectScanner(ClassInfo scannerClass) 
-        {
-            SardScanner aScanner = findClass(scannerClass);
-            if (aScanner is null)
-                error("Scanner not found");
-            switchScanner(aScanner);
-        }
-
-        void scanLine(const string text, const int aLine) 
-        {
-            int _line = aLine;
-            int column = 0; 
-            bool resume = false;
-            int len = text.length;
-            if (scanner is null) 
-                detectScanner(text, column);
-            while (column < len)
-            {
-                int oldColumn = column;
-                SardScanner oldScanner = _scanner;
-                try 
-                {
-                    scanner.scan(text, column, resume);
-                    if (!resume)
-                        detectScanner(text, column);
-
-                    if ((oldColumn == column) && (oldScanner == _scanner))
-                        error("Feeder in loop with: " ~ _scanner.classinfo.name); //todo be careful here
-                }
-                catch(Exception exc) {          
-                    throw new SardParserException(exc.msg, aLine, column);
-                }
-            }
-        }
+    }
 };
 
 class SardFeeder: SardObject 
 {
-    private:
-        bool _active;
-        string _ver;
-        string _charset;
-        SardLexical _lexical; //TODO: use stack to wrap the code inside <?sard ... ?>,
-                                                    //the current one must detect ?> to stop scanning and pop
-                                                    //but the other lexical will throw none code to output provider
+private:
+    bool _active;
+    string _ver;
+    string _charset;
+    SardLexical _lexical; //TODO: use stack to wrap the code inside <?sard ... ?>,
+    //the current one must detect ?> to stop scanning and pop
+    //but the other lexical will throw none code to output provider
 
-    public:
-        
-        @property bool active() { return _active; }
-        @property string ver() { return _ver; }
-        @property string charset() { return _charset; }
+public:
 
-        @property SardLexical lexical() { 
-            return _lexical; 
-        }
+    @property bool active() { return _active; }
+    @property string ver() { return _ver; }
+    @property string charset() { return _charset; }
 
-    protected:
+    @property SardLexical lexical() { 
+        return _lexical; 
+    }
 
-        void doStart() {
-            lexical.setControl(SardControl.Start);
-        }
+protected:
 
-        void doStop() {
-            lexical.setControl(SardControl.Stop);
-        }
+    void doStart() {
+        lexical.setControl(SardControl.Start);
+    }
 
-    public:
-        this(SardLexical lexical) {
-            super();
-            _lexical = lexical;
-        }
+    void doStop() {
+        lexical.setControl(SardControl.Stop);
+    }
 
-        void scanLine(const string text, const int line) {
-            if (!active)
-                error("Feeder not started");
-            lexical.scanLine(text, line);
-        }
+public:
+    this(SardLexical lexical) {
+        super();
+        _lexical = lexical;
+    }
 
-        void scan(const string[] lines)
+    void scanLine(const string text, const int line) 
+    {
+        if (!active)
+            error("Feeder not started");
+        lexical.scanLine(text, line);
+    }
+
+    void scan(const string[] lines)
+    {
+        start();
+        int i = 0;
+        while(i < lines.count())
         {
-            start();
-            int i = 0;
-            while(i < lines.count()){
-                scanLine(lines[i] ~ "\n", i);//TODO i hate to add \n it must be included in the lines itself
-                i++;
-            }
-            stop();
+            scanLine(lines[i] ~ "\n", i);//TODO i hate to add \n it must be included in the lines itself
+            i++;
         }
+        stop();
+    }
 
-        void scan(const File file)
-        {
-            //todo  
-        }
+    void scan(const File file)
+    {
+        //todo  
+    }
 
-        void scan(const string text)
-        {      
-            string[] lines = text.split("\n");      
-            scan(lines);
-        }
+    void scan(const string text)
+    {      
+        string[] lines = text.split("\n");      
+        scan(lines);
+    }
 
-        //void scan(const string fileName);
-        //void scan(const Stream stream);
- 
-        void start()
-        {
-            if (_active)
-                error("File already opened");
-            _active = true;
-            doStart();
-            lexical.parser.start();
-        }
+    //void scan(const string fileName);
+    //void scan(const Stream stream);
 
-        void stop()
-        {
-            if (!_active)
-                error("File already closed");
-            lexical.parser.stop();
-            doStop();
-            _active = false;
-        }
+    void start()
+    {
+        if (_active)
+            error("File already opened");
+        _active = true;
+        doStart();
+        lexical.parser.start();
+    }
+
+    void stop()
+    {
+        if (!_active)
+            error("File already closed");
+        lexical.parser.stop();
+        doStop();
+        _active = false;
+    }
 }

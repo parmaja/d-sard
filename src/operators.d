@@ -51,12 +51,10 @@ class OpOperators: SardNamedObjects!OpOperator
 public:
     OpOperator findByTitle(string title)
     {
-        int i = 0;
-        while (i < count){
-            if (icmp(title, this[i].title) == 0) {
-                return this[i];
+        foreach(o; items){
+            if (icmp(title, o.title) == 0) {
+                return o;
             }
-            i++;
         }
         return null;
     }
@@ -67,12 +65,9 @@ public:
 
     bool isOpenBy(const char c)
     {
-        int i = 0;
-        while (i < count){
-            if (this[i].name[0] == toLower(c)) 
+        foreach(o; items){
+            if (o.name[0] == toLower(c)) 
                 return true;
-
-            i++;
         }
         return false;
     }    
@@ -81,17 +76,16 @@ public:
     {
         OpOperator result = null;
         int max = 0;
-        int i = 0;
-        while (i < count)
+        foreach(o; items)        
         {
-            string w = this[i].name;
-            if (scanCompare(w, text, index)) {
-                if (max < this[i].name.length) {
-                    max = this[i].name.length;
-                    result = this[i];
+            if (scanCompare(o.name, text, index)) 
+            {
+                if (max < o.name.length) 
+                {
+                    max = o.name.length;
+                    result = o;
                 }
             }
-            i++;
         }
         return result;
     }    

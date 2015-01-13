@@ -175,16 +175,43 @@ class SardNamedObjects(T: SardObject): SardObjects!T
 {
 public:
     T find(const string name) 
-{            
-    T result = null;            
-    foreach(e; items) {
-        if (icmp(name, e.name) == 0) {
-            result = e;
-            break;
+    {            
+        T result = null;            
+        foreach(e; items) {
+            if (icmp(name, e.name) == 0) {
+                result = e;
+                break;
+            }
         }
+        return result;
     }
-    return result;
-}
+
+    bool isOpenBy(const char c)
+    {
+        foreach(o; items){      
+            if (o.name[0] == toLower(c))
+                return true;          
+        }
+        return false;
+    }
+
+    T scan(string text, int index)
+    {
+        T result = null;
+        int max = 0;        
+        foreach(e; items) 
+        {
+            if (scanCompare(e.name, text, index))
+            {
+                if (max < e.name.length) 
+                {
+                    max = e.name.length;
+                    result = e;
+                }
+            }
+        }
+        return result;
+    }
 }
 
 class SardStack(T): SardObject 
@@ -657,3 +684,87 @@ public:
         _active = false;
     }
 }
+
+/*---------------------------*/
+/*        Controls           */
+/*---------------------------*/
+
+/**
+This will used in the scanner
+*/
+
+//TODO maybe struct not a class
+
+class CtlControl: SardObject
+{
+    string name;
+    SardControl code;
+    int level;
+    string description;
+
+    this(){
+        super();
+    }
+
+    this(string aName, SardControl aCode)
+    {
+        this();
+        name = aName;
+        code = aCode;
+    }
+}
+
+/* Controls */
+
+class CtlControls: SardNamedObjects!CtlControl
+{
+    CtlControl add(string name, SardControl code)
+    {
+        CtlControl c = new CtlControl(name, code);    
+        super.add(c);
+        return c;
+    }
+}
+
+/*---------------------------*/
+/*        Operators          */
+/*---------------------------*/
+
+class OpOperator: SardObject
+{
+public:
+    string name;
+    string title;
+    int level;//TODO it is bad idea, we need more intelligent way to define the power level of operators
+    string description;
+    //SardControl control;// Fall back to control if is initial, only used for for = to fall back as := //TODO remove it :(
+
+protected: 
+
+public:
+
+    debug{
+        override void debugWrite(int level){
+            super.debugWrite(level);
+            writeln(stringRepeat(" ", level * 2) ~ "operator: " ~ name);        
+        }
+    }
+
+}
+
+/* Operators */
+
+class OpOperators: SardNamedObjects!OpOperator
+{
+public:
+    OpOperator findByTitle(string title)
+{
+    foreach(o; items){
+        if (icmp(title, o.title) == 0) {
+            return o;
+        }
+    }
+    return null;
+}
+}
+

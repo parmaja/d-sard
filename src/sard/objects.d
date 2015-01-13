@@ -84,7 +84,7 @@ public:
     }
 }
 
-/** SrdStatement */
+/* SrdStatement */
 
 class SrdStatement: SardObjects!SrdClause 
 {
@@ -173,7 +173,7 @@ public:
     }
 }
 
-/** SoObject */
+/* SoObject */
 
 abstract class SoObject: SardObject 
 {
@@ -357,7 +357,7 @@ public:
     }
 }
 
-/**
+/*
 SoStatements is a base class for list of objects (statements)
 */
 
@@ -491,11 +491,11 @@ abstract class SoConstObject: SoObject
     }
 }
 
-/**-------------------------------**/
-/**-------- Const Objects --------**/
-/**-------------------------------**/
+/*-------------------------------*/
+/* Const Objects
+/*-------------------------------*/
 
-/** SoNone **/
+/* SoNone */
 
 class SoNone: SoConstObject  //None it is not Null, it is an initial value we sart it
 { 
@@ -503,7 +503,7 @@ class SoNone: SoConstObject  //None it is not Null, it is an initial value we sa
     //Convert to 0 or ''
 }
 
-/** SoComment **/
+/* SoComment */
 
 class SoComment: SoObject
 {
@@ -522,7 +522,7 @@ public:
     string value;
 }
 
-/** SoPreprocessor **/
+/* SoPreprocessor */
 /*
 class SoPreprocessor: SoObject{
 protected:
@@ -544,7 +544,7 @@ abstract class SoBaseNumber: SoConstObject //base class for Number and Integer
 { 
 }
 
-/** SoInteger **/
+/* SoInteger */
 
 class SoInteger: SoBaseNumber 
 {
@@ -610,7 +610,7 @@ public:
     }
 }
 
-/** SoNumber **/
+/* SoNumber */
 
 class SoNumber: SoBaseNumber 
 {
@@ -678,7 +678,7 @@ public:
     }
 }
 
-/** SoBool **/
+/* SoBool */
 
 class SoBool: SoBaseNumber 
 {
@@ -744,7 +744,7 @@ public:
     }
 }
 
-/** SoText **/
+/* SoText */
 
 class SoText: SoConstObject 
 {
@@ -822,7 +822,7 @@ public:
     }
 }
 
-/** TODO: SoArray **/
+/* TODO: SoArray */
 
 /*--------------------------------------------*/
 
@@ -1075,73 +1075,5 @@ public:
 
 /*TODO
 class SoArray ....
-
 */
 
-/**---------------------------**/
-/**-------- Controls  --------**/
-/**---------------------------**/
-/**
-This will used in the scanner
-*/
-
-//TODO maybe struct not a class
-
-class CtlControl: SardObject
-{
-    string name;
-    SardControl code;
-    int level;
-    string description;
-
-    this(){
-        super();
-    }
-
-    this(string aName, SardControl aCode)
-    {
-        this();
-        name = aName;
-        code = aCode;
-    }
-}
-
-/*****************/
-/** CtlControls **/
-/*****************/
-
-class CtlControls: SardNamedObjects!CtlControl
-{
-    CtlControl add(string aName, SardControl aCode)
-    {
-        CtlControl c = new CtlControl(aName, aCode);    
-        super.add(c);
-        return c;
-    }
-
-    CtlControl scan(string text, int index)
-    {
-        CtlControl control = null;
-        int max = 0;        
-        foreach(e; items) 
-        {
-            string w = e.name;
-            if (scanCompare(w, text, index)) {
-                if (max < e.name.length) {
-                    max = e.name.length;
-                    control = e;
-                }
-            }
-        }
-        return control;
-    }
-
-    bool isOpenBy(const char c)
-    {
-        foreach(e; items){      
-            if (e.name[0] == toLower(c))
-                return true;          
-        }
-        return false;
-    }
-}

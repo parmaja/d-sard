@@ -196,7 +196,7 @@
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
- <Folder name="d_sard">
+ <Folder name="sard">
   <Folder name="minilib">
    <File path="..\..\..\minilib\metaclasses.d" />
    <File path="..\..\..\minilib\package.d" />

@@ -343,34 +343,6 @@ public:
         return done; 
     }
 
-    final int addDeclare(SoObject executeObject, SoObject callObject)
-    {
-        SoDeclare declare = new SoDeclare();
-        if (executeObject !is null)
-            declare.name = executeObject.name;
-        else if (callObject !is null)
-            declare.name = callObject.name;
-        declare.executeObject = executeObject;
-        declare.callObject = callObject;
-        return addDeclare(declare);
-    }
-
-    int addDeclare(SoDeclare aDeclare)
-    {
-        if (parent is null)
-            return -1;
-        else
-            return parent.addDeclare(aDeclare);
-    }
-
-    SoDeclare findDeclare(string vName)
-    {
-        if (parent !is null)
-            return parent.findDeclare(vName);
-        else
-            return null;
-    }
-
     RunVariable registerVariable(RunStack stack, RunVarKinds vKind)
     {
         return stack.local.current.variables.register(name, vKind);
@@ -440,10 +412,6 @@ public:
 class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
 { 
 private:
-    //TODO: move srddeclares to the scope stack, it is bad here
-    SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
-
-    public @property SrdDeclares declares() { return _declares; };
 
 protected:
     override void beforeExecute(RunStack stack, OpOperator operator){
@@ -460,28 +428,7 @@ protected:
 public:
 
     this(){
-        _declares = new SrdDeclares();
         super();
-    }
-
-    override int addDeclare(SoDeclare aDeclare)
-    {
-        return _declares.add(aDeclare);
-    }
-
-    override SoDeclare findDeclare(string vName)
-    {
-        SoDeclare declare = _declares.find(vName);
-        if (declare is null)
-            declare = super.findDeclare(vName);
-        return declare;
-    }
-
-    debug{
-        override void debugWrite(int level){
-            super.debugWrite(level);
-            _declares.debugWrite(level + 1);
-        }
     }
 }
 
@@ -970,7 +917,7 @@ class SoInstance: SoStatements
 protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {            
-        SoDeclare p = findDeclare(name);
+        SoDeclare p = stack.findDeclare(name);
         if (p !is null) //maybe we must check Define.count, cuz it refere to it class
             p.call(stack, operator, statements, done);
         else 
@@ -1040,7 +987,7 @@ protected:
             stack.ret.current.reference = stack.ret.parent;
         else 
         {
-            SoDeclare aDeclare = findDeclare(name);
+            SoDeclare aDeclare = stack.findDeclare(name);
             if (aDeclare !is null) 
             {
                 if (aDeclare.callObject !is null)
@@ -1088,12 +1035,6 @@ protected:
     override void created(){
         super.created();
         _objectType = ObjectType.otClass;
-    }
-
-    override void doSetParent(SoObject value) 
-    {
-        super.doSetParent(value);
-        value.addDeclare(this);
     }
 
 public:

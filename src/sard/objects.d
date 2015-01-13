@@ -116,8 +116,6 @@ public:
     {
         aStack.ret.push(); //Each statement have own result
         call(aStack);
-        if (aStack.ret.current.reference !is null)
-            aStack.ret.current.reference.object = aStack.ret.current.result.extract();  //it is responsible of assgin to parent result or to a variable
         aStack.ret.pop();
     }
 
@@ -342,8 +340,8 @@ public:
             s = s ~ "Executed: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
             if (aOperator !is null)
                 s = s ~ "{" ~ aOperator.name ~ "}";
-            if (vStack.ret.current.result.object !is null)
-                s = s ~ " Return Value: " ~ vStack.ret.current.result.object.asText;
+            if (vStack.ret.current.value !is null)
+                s = s ~ " Return Value: " ~ vStack.ret.current.value.asText;
             writeln(s);
         }  
         return done; 
@@ -402,19 +400,19 @@ protected:
 
     public @property SrdStatements statements() { return _statements; };
 
-    override void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters)
+    override void executeParams(RunStack vStack, SrdDefines defines, SrdStatements parameters)
     {
-        super.executeParams(vStack, vDefines, vParameters);
-        if (vParameters !is null) 
+        super.executeParams(vStack, defines, parameters);
+        if (parameters !is null) 
         { //TODO we need to check if it is a block?      
             int i = 0;
-            while (i < vParameters.count) 
-            { //here i was added -1 to the count | while (i < vParameters.count -1)
+            while (i < parameters.count) 
+            { //here i was added -1 to the count | while (i < parameters.count -1)
                 vStack.ret.push();
-                vParameters[i].call(vStack);
-                if (i < vDefines.count){      
-                    RunVariable v = vStack.local.current.variables.register(vDefines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-                    v.value = vStack.ret.current.releaseResult();
+                parameters[i].call(vStack);
+                if (i < defines.count){      
+                    RunVariable v = vStack.local.current.variables.register(defines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
+                    v.value = vStack.ret.current.value;
                 }
                 vStack.ret.pop();
                 i++;
@@ -428,8 +426,8 @@ protected:
         call(vStack);
         auto t = vStack.ret.pull();
         //I dont know what if ther is an object there what we do???
-        if (t.result.object !is null)
-            t.result.object.execute(vStack, aOperator);
+        if (t.value !is null)
+            t.value.execute(vStack, aOperator);
         t = null; //destroy it
         done = true;
     }
@@ -533,8 +531,8 @@ protected:
     {      
         super.afterExecute(vStack, aOperator);
         RunReturnItem T = vStack.ret.pull();
-        if (T.result.object !is null)
-            T.result.object.execute(vStack, aOperator);            
+        if (T.value !is null)
+            T.value.execute(vStack, aOperator);            
     }  
 
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
@@ -556,16 +554,16 @@ public:
 abstract class SoConstObject: SoObject
 {
     override final void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-        if ((vStack.ret.current.result.object is null) && (aOperator is null)) 
+        if ((vStack.ret.current.value is null) && (aOperator is null)) 
         {
-            vStack.ret.current.result.object = clone();
+            vStack.ret.current.value = clone();
             done = true;
         }
         else 
         {      
-            if (vStack.ret.current.result.object is null)
-                vStack.ret.current.result.object = clone(false);
-            done = vStack.ret.current.result.object.operate(this, aOperator);
+            if (vStack.ret.current.value is null)
+                vStack.ret.current.value = clone(false);
+            done = vStack.ret.current.value.operate(this, aOperator);
         }
     }
 }
@@ -969,11 +967,11 @@ protected:
             RunVariable v = vStack.local.current.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
-            if (v.value.object is null)
+            if (v.value is null)
                 error("Variable value is null: " ~ v.name);
-            if (v.value.object is null)
+            if (v.value is null)
                 error("Variable object is null: " ~ v.name);
-            done = v.value.object.execute(vStack, aOperator);
+            done = v.value.execute(vStack, aOperator);
         }      
     }
 
@@ -994,9 +992,9 @@ protected:
         RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));
         if (v is null)
             error("Can not register a varibale: " ~ name) ;
-        if (v.value.object is null)
+        if (v.value is null)
             error(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
-        done = v.value.object.execute(vStack, aOperator);
+        done = v.value.execute(vStack, aOperator);
     }
 
 public:
@@ -1028,10 +1026,10 @@ protected:
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            vStack.ret.current.reference = vStack.ret.parent.result;
+            vStack.ret.current.reference = vStack.ret.parent;
         else 
         {
-            SoDeclare aDeclare = findDeclare(name);//TODO: maybe we can cache it
+            SoDeclare aDeclare = findDeclare(name);
             if (aDeclare !is null) 
             {
                 if (aDeclare.callObject !is null)
@@ -1039,7 +1037,7 @@ protected:
                     RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
                     if (v is null)
                         error("Variable not found!");
-                    vStack.ret.current.reference = v.value;
+                    vStack.ret.current.value = v.value;
                 }
             }
             else 
@@ -1047,7 +1045,7 @@ protected:
                 RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
                 if (v is null)
                     error("Variable not found!");
-                vStack.ret.current.reference = v.value;
+                vStack.ret.current.value = v.value;
             }
         }
     }

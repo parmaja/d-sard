@@ -25,7 +25,7 @@ class SoVersion_Const: SoObject
 {
 protected:
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-        vStack.ret.current.result.object = new SoText(sSardVersion);
+        vStack.ret.current.value = new SoText(sSardVersion);
     }
 }
 
@@ -33,7 +33,7 @@ class SoTime_Const: SoObject
 {
 protected:
     override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
-        vStack.ret.current.result.object = new SoText(Clock.currTime().toISOExtString());
+        vStack.ret.current.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
 
@@ -85,12 +85,12 @@ public:
         RunStack stack = new RunStack();
         main.execute(stack, null); 
 
-        if (stack.ret.current.result.object !is null) 
+        if (stack.ret.current.value !is null) 
         {
             debug {
                 writeln("We have value");
             }
-            result = stack.ret.current.result.object.asText();
+            result = stack.ret.current.value.asText();
             debug {
                 writeln("The value isssss: " ~ result);
             }

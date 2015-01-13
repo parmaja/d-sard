@@ -20,8 +20,8 @@ import minilib.metaclasses;
 class SardException: Exception 
 {
     private uint _code;
-
     @property uint code() { return _code; }
+
 public:
     this(string msg) {
         super(msg);
@@ -93,7 +93,7 @@ public:
 class SardObjects(T: SardObject): SardObject 
 {
 private:
-    T[] _items;
+    T[] _items;//TODO hash string list for namedobjects    
 
 public:
     alias items = this;
@@ -117,7 +117,8 @@ protected:
 
 public:
 
-    int add(T object) {      
+    int add(T object) 
+    {
         beforeAdd(object);
         _items = _items  ~ object;            
         afterAdd(object);

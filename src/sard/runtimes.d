@@ -20,7 +20,6 @@ import sard.objects;
 
 import minilib.sets;
 
-
 enum RunVarKind {Local, Param}; //Ok there is more in the future
 
 alias RunVarKinds = Set!RunVarKind;

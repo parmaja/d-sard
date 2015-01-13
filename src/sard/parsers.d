@@ -89,11 +89,11 @@ public:
         return !((identifier != "") || (object !is null) || (operator !is null));
     }
 
-    void setOperator(OpOperator aOperator)
+    void setOperator(OpOperator operator)
     {
         if (operator !is null)
             error("Operator is already set");
-        operator = aOperator;
+        operator = operator;
     }
 
     void setIdentifier(string aIdentifier)
@@ -320,10 +320,10 @@ public:
         }
     }    
 
-    void addOperator(OpOperator aOperator)
+    void addOperator(OpOperator operator)
     {
         post();
-        instruction.setOperator(aOperator);
+        instruction.setOperator(operator);
     }
 
     //IsInitial: check if the next object will be the first one, usefule for Assign and Declare
@@ -702,12 +702,12 @@ protected:
         lastControl = SardControl.Object;
     }
 
-    override void setOperator(SardObject aOperator)
+    override void setOperator(SardObject operator)
     {
         debug{
-            writeln("SetOperator: " ~ (cast(OpOperator)aOperator).name);
+            writeln("SetOperator: " ~ (cast(OpOperator)operator).name);
         }
-        OpOperator o = cast(OpOperator)aOperator; //TODO do something, i hate typecasting
+        OpOperator o = cast(OpOperator)operator; //TODO do something, i hate typecasting
         if (o is null) 
             error("SetOperator not OpOperator");
         current.addOperator(o);

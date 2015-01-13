@@ -30,7 +30,6 @@ import sard.runtimes;
 import sard.operators;
 
 import minilib.sets;
-import minilib.metaclasses;
 
 
 const string sSardVersion = "0.01";
@@ -59,10 +58,10 @@ public:
     @property OpOperator operator() { return _operator; }
     @property SoObject object() { return _object; }
 
-    this(OpOperator aOperator, SoObject aObject) 
+    this(OpOperator operator, SoObject aObject) 
     {
         super();
-        _operator = aOperator;
+        _operator = operator;
         _object = aObject;
     }
 
@@ -100,15 +99,15 @@ private:
     }   
 
 public:
-    void add(OpOperator aOperator, SoObject aObject)
+    void add(OpOperator operator, SoObject aObject)
     {
         debug{
-            writeln("Statement.AddClause: " ~ (aOperator? aOperator.name : "none") ~ "," ~ aObject.classinfo.name);
+            writeln("Statement.AddClause: " ~ (operator? operator.name : "none") ~ "," ~ aObject.classinfo.name);
         }
         if (aObject.parent !is null)
             error("You can not add object to another parent!");
         aObject.parent = parent;
-        SrdClause clause = new SrdClause(aOperator, aObject);
+        SrdClause clause = new SrdClause(operator, aObject);
         super.add(clause);    
     }
 
@@ -309,39 +308,39 @@ protected:
             return doOperate(object, operator);
     }
 
-    void beforeExecute(RunStack vStack, OpOperator aOperator){
+    void beforeExecute(RunStack stack, OpOperator operator){
 
     }
 
-    void afterExecute(RunStack vStack, OpOperator aOperator){
+    void afterExecute(RunStack stack, OpOperator operator){
 
     }
 
     //TODO executeParams will be bigger, i want to add to it SrdStatements Blocks too so i will collect it into a struct
-    void executeParams(RunStack vStack, SrdDefines vDefines, SrdStatements vParameters) {
+    void executeParams(RunStack stack, SrdDefines vDefines, SrdStatements vParameters) {
     }
 
-    void doExecute(RunStack vStack,OpOperator aOperator, ref bool done){
+    void doExecute(RunStack stack,OpOperator operator, ref bool done){
     }
 
 public:
-    final bool execute(RunStack vStack, OpOperator aOperator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
+    final bool execute(RunStack stack, OpOperator operator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
     {
         bool done = false;
 
-        beforeExecute(vStack, aOperator);      
-        executeParams(vStack, vDefines, vParameters);
-        doExecute(vStack, aOperator, done);
-        afterExecute(vStack, aOperator);      
+        beforeExecute(stack, operator);      
+        executeParams(stack, vDefines, vParameters);
+        doExecute(stack, operator, done);
+        afterExecute(stack, operator);      
 
         debug 
         {      
-            string s = stringRepeat("-", vStack.ret.currentItem.level)~ "->";
-            s = s ~ "Executed: " ~ this.classinfo.name ~ " Level=" ~ to!string(vStack.ret.currentItem.level);
-            if (aOperator !is null)
-                s = s ~ "{" ~ aOperator.name ~ "}";
-            if (vStack.ret.current.value !is null)
-                s = s ~ " Return Value: " ~ vStack.ret.current.value.asText;
+            string s = stringRepeat("-", stack.ret.currentItem.level)~ "->";
+            s = s ~ "Executed: " ~ this.classinfo.name ~ " Level=" ~ to!string(stack.ret.currentItem.level);
+            if (operator !is null)
+                s = s ~ "{" ~ operator.name ~ "}";
+            if (stack.ret.current.value !is null)
+                s = s ~ " Return Value: " ~ stack.ret.current.value.asText;
             writeln(s);
         }  
         return done; 
@@ -375,9 +374,9 @@ public:
             return null;
     }
 
-    RunVariable registerVariable(RunStack vStack, RunVarKinds vKind)
+    RunVariable registerVariable(RunStack stack, RunVarKinds vKind)
     {
-        return vStack.local.current.variables.register(name, vKind);
+        return stack.local.current.variables.register(name, vKind);
     }
 
     debug{
@@ -400,34 +399,34 @@ protected:
 
     public @property SrdStatements statements() { return _statements; };
 
-    override void executeParams(RunStack vStack, SrdDefines defines, SrdStatements parameters)
+    override void executeParams(RunStack stack, SrdDefines defines, SrdStatements parameters)
     {
-        super.executeParams(vStack, defines, parameters);
+        super.executeParams(stack, defines, parameters);
         if (parameters !is null) 
         { //TODO we need to check if it is a block?      
             int i = 0;
             while (i < parameters.count) 
             { //here i was added -1 to the count | while (i < parameters.count -1)
-                vStack.ret.push();
-                parameters[i].call(vStack);
+                stack.ret.push();
+                parameters[i].call(stack);
                 if (i < defines.count){      
-                    RunVariable v = vStack.local.current.variables.register(defines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-                    v.value = vStack.ret.current.value;
+                    RunVariable v = stack.local.current.variables.register(defines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
+                    v.value = stack.ret.current.value;
                 }
-                vStack.ret.pop();
+                stack.ret.pop();
                 i++;
             }        
         }
     }
 
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {                
-        vStack.ret.push(); //<--here we can push a variable result or create temp result to drop it
-        call(vStack);
-        auto t = vStack.ret.pull();
+        stack.ret.push(); //<--here we can push a variable result or create temp result to drop it
+        call(stack);
+        auto t = stack.ret.pull();
         //I dont know what if ther is an object there what we do???
         if (t.value !is null)
-            t.value.execute(vStack, aOperator);
+            t.value.execute(stack, operator);
         t = null; //destroy it
         done = true;
     }
@@ -450,8 +449,8 @@ public:
         _statements = new SrdStatements(this);      
     }
 
-    void call(RunStack vStack){ //vBlock here is params
-        statements.execute(vStack);
+    void call(RunStack stack){ //vBlock here is params
+        statements.execute(stack);
     }
 }
 
@@ -470,15 +469,15 @@ private:
     public @property SrdDeclares declares() { return _declares; };
 
 protected:
-    override void beforeExecute(RunStack vStack, OpOperator aOperator){
-        super.beforeExecute(vStack, aOperator);
-        vStack.local.push();
+    override void beforeExecute(RunStack stack, OpOperator operator){
+        super.beforeExecute(stack, operator);
+        stack.local.push();
     }
 
-    override void afterExecute(RunStack vStack, OpOperator aOperator)
+    override void afterExecute(RunStack stack, OpOperator operator)
     {
-        super.afterExecute(vStack, aOperator);
-        vStack.local.pop();
+        super.afterExecute(stack, operator);
+        stack.local.pop();
     }
 
 public:
@@ -521,24 +520,24 @@ protected:
     public @property SrdStatement statement() { return _statement; };
     public alias statement this;
 
-    override void beforeExecute(RunStack vStack, OpOperator aOperator)
+    override void beforeExecute(RunStack stack, OpOperator operator)
     {
-        super.beforeExecute(vStack, aOperator);
-        vStack.ret.push();
+        super.beforeExecute(stack, operator);
+        stack.ret.push();
     }  
 
-    override void afterExecute(RunStack vStack, OpOperator aOperator)
+    override void afterExecute(RunStack stack, OpOperator operator)
     {      
-        super.afterExecute(vStack, aOperator);
-        RunReturnItem T = vStack.ret.pull();
+        super.afterExecute(stack, operator);
+        RunReturnItem T = stack.ret.pull();
         if (T.value !is null)
-            T.value.execute(vStack, aOperator);            
+            T.value.execute(stack, operator);            
     }  
 
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
-        super.doExecute(vStack, aOperator, done);
-        statement.call(vStack);
+        super.doExecute(stack, operator, done);
+        statement.call(stack);
         done = true;
     }
 
@@ -553,17 +552,17 @@ public:
 
 abstract class SoConstObject: SoObject
 {
-    override final void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-        if ((vStack.ret.current.value is null) && (aOperator is null)) 
+    override final void doExecute(RunStack stack, OpOperator operator, ref bool done){
+        if ((stack.ret.current.value is null) && (operator is null)) 
         {
-            vStack.ret.current.value = clone();
+            stack.ret.current.value = clone();
             done = true;
         }
         else 
         {      
-            if (vStack.ret.current.value is null)
-                vStack.ret.current.value = clone(false);
-            done = vStack.ret.current.value.operate(this, aOperator);
+            if (stack.ret.current.value is null)
+                stack.ret.current.value = clone(false);
+            done = stack.ret.current.value.operate(this, operator);
         }
     }
 }
@@ -585,7 +584,7 @@ class SoNone: SoConstObject  //None it is not Null, it is an initial value we sa
 class SoComment: SoObject
 {
 protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+    override void doExecute(RunStack stack, OpOperator operator,ref bool done){
         //Guess what!, we will not to execute the comment ;)
         done = true;
     }
@@ -603,7 +602,7 @@ public:
 /*
 class SoPreprocessor: SoObject{
 protected:
-override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done){
+override void doExecute(RunStack stack, OpOperator operator,ref bool done){
 //TODO execute external program and replace it with the result
 done = true;
 }
@@ -957,21 +956,21 @@ x := 10  + Foo( 500,  600);
 class SoInstance: SoStatements
 {
 protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {            
         SoDeclare p = findDeclare(name);
         if (p !is null) //maybe we must check Define.count, cuz it refere to it class
-            p.call(vStack, aOperator, statements, done);
+            p.call(stack, operator, statements, done);
         else 
         {
-            RunVariable v = vStack.local.current.variables.find(name);
+            RunVariable v = stack.local.current.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
             if (v.value is null)
                 error("Variable value is null: " ~ v.name);
             if (v.value is null)
                 error("Variable object is null: " ~ v.name);
-            done = v.value.execute(vStack, aOperator);
+            done = v.value.execute(stack, operator);
         }      
     }
 
@@ -987,14 +986,14 @@ public:
 class SoVariable: SoObject
 { 
 protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator,ref bool done)
+    override void doExecute(RunStack stack, OpOperator operator,ref bool done)
     {            
-        RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));
+        RunVariable v = registerVariable(stack, RunVarKinds([RunVarKind.Local]));
         if (v is null)
             error("Can not register a varibale: " ~ name) ;
         if (v.value is null)
             error(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
-        done = v.value.execute(vStack, aOperator);
+        done = v.value.execute(stack, operator);
     }
 
 public:
@@ -1020,13 +1019,13 @@ protected:
         super.doSetParent(value);
     }
 
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done)
+    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
-        //super.doExecute(vStack, aOperator, done);
+        //super.doExecute(stack, operator, done);
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            vStack.ret.current.reference = vStack.ret.parent;
+            stack.ret.current.reference = stack.ret.parent;
         else 
         {
             SoDeclare aDeclare = findDeclare(name);
@@ -1034,18 +1033,18 @@ protected:
             {
                 if (aDeclare.callObject !is null)
                 {
-                    RunVariable v = aDeclare.callObject.registerVariable(vStack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
+                    RunVariable v = aDeclare.callObject.registerVariable(stack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
                     if (v is null)
                         error("Variable not found!");
-                    vStack.ret.current.value = v.value;
+                    stack.ret.current.value = v.value;
                 }
             }
             else 
             { //Ok let is declare it locally
-                RunVariable v = registerVariable(vStack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
+                RunVariable v = registerVariable(stack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
                 if (v is null)
                     error("Variable not found!");
-                vStack.ret.current.value = v.value;
+                stack.ret.current.value = v.value;
             }
         }
     }
@@ -1107,14 +1106,14 @@ public:
     string resultType;
 
     //This outside execute it will force to execute the Block
-    void call(RunStack vStack, OpOperator aOperator, SrdStatements aParameters, ref bool done){
-        done = callObject.execute(vStack, aOperator, defines, aParameters);
+    void call(RunStack stack, OpOperator operator, SrdStatements aParameters, ref bool done){
+        done = callObject.execute(stack, operator, defines, aParameters);
     }
 
-    override protected void doExecute(RunStack vStack, OpOperator aOperator,ref bool done)
+    override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)
     {
         if (executeObject !is null)
-            done = executeObject.execute(vStack, aOperator);
+            done = executeObject.execute(stack, operator);
         else
             done = true;
     }

@@ -7,15 +7,12 @@ This file is part of the "SARD"
 */
 
 import std.stdio;
-//import std.stream;
-//import std.traits;
 import std.string;
 import std.conv;
 import std.uni;
 import std.array;
 import std.range;
 import sard.utils;
-import minilib.metaclasses;
 
 class SardException: Exception 
 {
@@ -256,14 +253,14 @@ public:
             return currentItem is null;
         }
 
-        void push(T vObject) {
+        void push(T aObject) {
             SardStackItem aItem;
 
-            if (vObject is null)
+            if (aObject is null)
                 error("Can't push null");
 
             aItem = new SardStackItem();
-            aItem.object = vObject;
+            aItem.object = aObject;
             aItem.parent = _currentItem;
             aItem.owner = this;
             if (_currentItem is null)
@@ -363,7 +360,7 @@ protected:
 public:
     abstract void setToken(string aToken, SardType aType);
     abstract void setControl(SardControl aControl);
-    abstract void setOperator(SardObject aOperator);
+    abstract void setOperator(SardObject operator);
 
 public:
 };
@@ -462,8 +459,8 @@ public:
         parser.setControl(aControl);
     }
 
-    final void setOperator(SardObject aOperator){
-        parser.setOperator(aOperator);
+    final void setOperator(SardObject operator){
+        parser.setOperator(operator);
     }
 
 public:

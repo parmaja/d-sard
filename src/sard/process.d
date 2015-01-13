@@ -24,16 +24,16 @@ import sard.parsers;
 class SoVersion_Const: SoObject
 {
 protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){
-        vStack.ret.current.value = new SoText(sSardVersion);
+    override void doExecute(RunStack stack, OpOperator operator, ref bool done){
+        stack.ret.current.value = new SoText(sSardVersion);
     }
 }
 
 class SoTime_Const: SoObject
 {
 protected:
-    override void doExecute(RunStack vStack, OpOperator aOperator, ref bool done){    
-        vStack.ret.current.value = new SoText(Clock.currTime().toISOExtString());
+    override void doExecute(RunStack stack, OpOperator operator, ref bool done){    
+        stack.ret.current.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
 

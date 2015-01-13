@@ -320,12 +320,12 @@ protected:
     }
 
 public:
-    final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements parameters = null) 
+    final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
     {
         bool done = false;
 
         beforeExecute(stack, operator);      
-        defines.execute(stack, parameters);
+        defines.execute(stack, arguments);
         doExecute(stack, operator, done);
         afterExecute(stack, operator);      
 
@@ -888,13 +888,15 @@ class SrdDefine: SardObject
 public:
     string name;
     string type;
-    this(string aName, string aType){
+
+    this(string aName, string aType)
+    {
         super();
         name = aName;
         type = aType;
     }
 
-    debug{
+    debug {
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", level * 2) ~ "name: " ~ name);
@@ -903,23 +905,36 @@ public:
     }
 }
 
-class SrdDefines: SardObjects!SrdDefine 
+class SrdDefineItems: SardObjects!SrdDefine 
 {
-    void add(string aName, string aResult) {
-        super.add(new SrdDefine(aName, aResult));
+    void add(string name, string type) {
+        super.add(new SrdDefine(name, type));
+    }
+}
+
+class SrdDefines: SardObject
+{
+    SrdDefineItems parameters;
+    SrdDefineItems blocks;
+
+    this(){
+        super();
+        parameters = new SrdDefineItems();
+        blocks = new SrdDefineItems();
     }
 
-    void execute(RunStack stack, SrdStatements parameters)
+    void execute(RunStack stack, SrdStatements arguments)
     {        
-        if (parameters !is null) 
+        if (arguments !is null) 
         { //TODO we need to check if it is a block?      
             int i = 0;
-            while (i < parameters.count) 
-            { //here i was added -1 to the count | while (i < parameters.count -1)
+            while (i < parameters.count)
+            { 
                 stack.ret.push();
-                parameters[i].call(stack);
-                if (i < count){      
-                    RunVariable v = stack.local.current.variables.register(items[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
+                arguments[i].call(stack);
+                if (i < arguments.count){      
+                    SrdDefine p = parameters[i];
+                    RunVariable v = stack.local.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
                     v.value = stack.ret.current.value;
                 }
                 stack.ret.pop();
@@ -1101,8 +1116,8 @@ public:
     string resultType;
 
     //This outside execute it will force to execute the Block
-    void call(RunStack stack, OpOperator operator, SrdStatements aParameters, ref bool done){
-        done = callObject.execute(stack, operator, defines, aParameters);
+    void call(RunStack stack, OpOperator operator, SrdStatements arguments, ref bool done){
+        done = callObject.execute(stack, operator, defines, arguments);
     }
 
     override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)

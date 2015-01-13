@@ -438,6 +438,8 @@ public:
 
 /**
     Define is a parameters defines in declare 
+    
+    //parameters are in the declaration, arguments are the things actually passed to it. so void f(x), f(0), x is the parameter, 0 is the argument
 */
 class SrdCollectorDefine: SrdCollector
 {
@@ -464,12 +466,12 @@ protected:
         if (param)
         {
             if (state == State.Name)
-                declare.defines.add(instruction.identifier, "");
+                declare.defines.parameters.add(instruction.identifier, "");
             else 
             {
-                if (declare.defines.last.type != "") 
+                if (declare.defines.parameters.last.type != "") 
                     error("Result type already set");
-                declare.defines.last.type = instruction.identifier;
+                declare.defines.parameters.last.type = instruction.identifier;
             }        
         }
         else 
@@ -538,7 +540,7 @@ public:
 
                 case SardControl.OpenParams:
                     post();
-                    if (declare.defines.count > 0)
+                    if (declare.defines.parameters.count > 0)
                         error("You already define params! we expected open block.");
                     param = true;
                     break;
@@ -788,3 +790,5 @@ public:
     override void stop(){
     }
 }        
+
+

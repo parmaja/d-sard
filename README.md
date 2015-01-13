@@ -26,8 +26,8 @@ Specification
   * Multiline strings "" or ''
   * Identifiers can take unicode/utf8 characters, so it will support any forign language
   * Blocks have return value
-  * Functions is objects, or Object can take parameters.
-  * When execute object we can pass parameters (), array [] and blocks {}{}{} //not yet
+  * Functions is objects, or Object can take arguments.
+  * When execute object we can pass arguments (), array [] and blocks {}{}{} //not yet
   * There is no "For" "While" "Repeat" or even "If" "Else" those are objects //not yet
   * No global, but object functions is global for child objects
   

@@ -336,8 +336,8 @@ public:
             s = s ~ this.classinfo.name ~ " = " ~ to!string(stack.ret.currentItem.level);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
-            if (stack.ret.current.value !is null)
-                s = s ~ " ret: " ~ stack.ret.current.value.asText;
+            if (stack.ret.current.variable.value !is null)
+                s = s ~ " ret: " ~ stack.ret.current.variable.value.asText;
             writeln(s);
         }  
         return done; 
@@ -374,8 +374,8 @@ protected:
         call(stack);
         auto t = stack.ret.pull();
         //I dont know what if ther is an object there what we do???
-        if (t.value !is null)
-            t.value.execute(stack, operator);
+        if (t.variable.value !is null)
+            t.variable.value.execute(stack, operator);
         t = null; //destroy it
         done = true;
     }
@@ -454,8 +454,8 @@ protected:
     {      
         super.afterExecute(stack, operator);
         RunReturnItem T = stack.ret.pull();
-        if (T.value !is null)
-            T.value.execute(stack, operator);            
+        if (T.variable.value !is null)
+            T.variable.value.execute(stack, operator);            
     }  
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
@@ -476,17 +476,18 @@ public:
 
 abstract class SoConstObject: SoObject
 {
-    override final void doExecute(RunStack stack, OpOperator operator, ref bool done){
-        if ((stack.ret.current.value is null) && (operator is null)) 
+    override final void doExecute(RunStack stack, OpOperator operator, ref bool done)
+    {
+        if ((stack.ret.current.variable.value is null) && (operator is null)) 
         {
-            stack.ret.current.value = clone();
+            stack.ret.current.variable.value = clone();
             done = true;
         }
         else 
         {      
-            if (stack.ret.current.value is null)
-                stack.ret.current.value = clone(false);
-            done = stack.ret.current.value.operate(this, operator);
+            if (stack.ret.current.variable.value is null)
+                stack.ret.current.variable.value = clone(false);
+            done = stack.ret.current.variable.value.operate(this, operator);
         }
     }
 }
@@ -884,7 +885,7 @@ class SrdDefines: SardObject
                 {      
                     SrdDefine p = parameters[i];
                     RunVariable v = stack.local.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-                    v.value = stack.ret.current.value;
+                    v.value = stack.ret.current.variable.value;
                 }
                 stack.ret.pop();
                 i++;
@@ -984,7 +985,7 @@ protected:
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            stack.ret.current.reference = stack.ret.parent;
+            stack.ret.current.variable = stack.ret.parent.variable;
         else 
         {
             SoDeclare aDeclare = stack.findDeclare(name);
@@ -995,7 +996,7 @@ protected:
                     RunVariable v = aDeclare.callObject.registerVariable(stack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
                     if (v is null)
                         error("Variable not found!");
-                    stack.ret.current.value = v.value;
+                    stack.ret.current.variable.value = v.value;
                 }
             }
             else 
@@ -1003,7 +1004,7 @@ protected:
                 RunVariable v = registerVariable(stack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
                 if (v is null)
                     error("Variable not found!");
-                stack.ret.current.value = v.value;
+                stack.ret.current.variable.value = v.value;
             }
         }
     }

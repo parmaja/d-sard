@@ -72,40 +72,12 @@ class RunLocal: SardStack!RunLocalItem
 
 class RunReturnItem: SardObject
 {
-private 
-    SoObject _value;
-    RunReturnItem _reference;
+private:
 public:
-    @property SoObject value() { 
-        if (_reference !is null)
-            return _reference._value; 
-        else
-            return _value; 
-    };
-
-    @property SoObject value(SoObject newValue) 
-    { 
-        if (_reference !is null) {
-            if (_value !is null) 
-                error("Already have a value can not set value for reference!");
-            return _reference._value = newValue;  
-        }
-        else
-            return _value = newValue; 
-        
-    };
-
-    @property RunReturnItem reference(RunReturnItem value) 
-    { 
-        if (_value !is null) 
-            error("Already have a value can not set reference!");
-        if (_reference !is null) 
-            error("Already have a reference!");
-        _reference = value;
-        return _reference; 
-    };
+    RunVariable variable;
 
     this(){        
+        variable = new RunVariable();
         super();      
     }
 }

@@ -65,11 +65,11 @@ public:
         _object = aObject;
     }
 
-    bool execute(RunStack aStack) 
+    bool execute(RunStack stack) 
     {
         if (_object is null)
             error("Object not set!");
-        return _object.execute(aStack, _operator);
+        return _object.execute(stack, _operator);
     }
 
     debug{
@@ -111,19 +111,19 @@ public:
         super.add(clause);    
     }
 
-    void execute(RunStack aStack)
+    void execute(RunStack stack)
     {
-        aStack.ret.push(); //Each statement have own result
-        call(aStack);
-        aStack.ret.pop();
+        stack.ret.push(); //Each statement have own result
+        call(stack);
+        stack.ret.pop();
     }
 
-    void call(RunStack aStack)
+    void call(RunStack stack)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
         foreach(e; items) 
         {
-            e.execute(aStack);
+            e.execute(stack);
         }
     }
 
@@ -158,14 +158,14 @@ public:
         }
     }
 
-    bool execute(RunStack aStack)
+    bool execute(RunStack stack)
     {
         if (count == 0)
             return false;
         else
         {            
             foreach(e; items) {
-                e.execute(aStack);
+                e.execute(stack);
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
             return true;

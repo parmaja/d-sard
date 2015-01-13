@@ -1065,6 +1065,7 @@ public:
 
     override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)
     {
+        //stack.addDeclare(this);
         if (executeObject !is null)
             done = executeObject.execute(stack, operator);
         else

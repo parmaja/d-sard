@@ -325,18 +325,19 @@ public:
         bool done = false;
 
         beforeExecute(stack, operator);      
-        defines.execute(stack, arguments);
+        if (defines !is null)
+            defines.execute(stack, arguments);
         doExecute(stack, operator, done);
         afterExecute(stack, operator);      
 
         debug 
         {      
-            string s = stringRepeat("-", stack.ret.currentItem.level)~ "->";
-            s = s ~ "Executed: " ~ this.classinfo.name ~ " Level=" ~ to!string(stack.ret.currentItem.level);
+            string s = stringRepeat("", stack.ret.currentItem.level);
+            s = s ~ this.classinfo.name ~ " = " ~ to!string(stack.ret.currentItem.level);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
             if (stack.ret.current.value !is null)
-                s = s ~ " Return Value: " ~ stack.ret.current.value.asText;
+                s = s ~ " ret: " ~ stack.ret.current.value.asText;
             writeln(s);
         }  
         return done; 
@@ -932,7 +933,8 @@ class SrdDefines: SardObject
             { 
                 stack.ret.push();
                 arguments[i].call(stack);
-                if (i < arguments.count){      
+                if (i < arguments.count)
+                {      
                     SrdDefine p = parameters[i];
                     RunVariable v = stack.local.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
                     v.value = stack.ret.current.value;

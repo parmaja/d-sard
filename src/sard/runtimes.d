@@ -29,36 +29,27 @@ class RunVariable: SardObject
 public:
     string name;
     RunVarKinds kind;
-
-private:
-    SoObject _value;
-    public @property SoObject value() { return _value; }
-    public @property SoObject value(SoObject newValue) 
-    { 
-        if (_value !is newValue){
-            _value =  newValue;
-        }
-        return _value; 
-    }
+    SoObject value;
 
     this(){
         super();
     }
 
     void clear(){
-        _value = null;
+        value = null;
     }
 }
 
 class RunVariables: SardNamedObjects!RunVariable
 {
-    RunVariable register(string vName, RunVarKinds vKind)
+    RunVariable register(string name, RunVarKinds kind)
     {
-        RunVariable result = find(vName);
-        if (result is null){      
+        RunVariable result = find(name);
+        if (result is null)
+        {
             result = new RunVariable();
-            result.name = vName;
-            result.kind = vKind;
+            result.name = name;
+            result.kind = kind;
             add(result);
         }
         return result;

@@ -275,9 +275,9 @@ protected:
 public:
 }
 
-/*******************************************************************/
-/******************     SrdLexical    ******************************/
-/*******************************************************************/
+/*-----------------------*/
+/*      SrdLexical       */
+/*-----------------------*/
 
 class SrdLexical: SardLexical
 {
@@ -385,12 +385,15 @@ public:
     {
         //example just for fun
         /*
-        if (identifier == "begin"){
-        setControl(SardControl.OpenBlock);
-        return true;
-        } if (identifier == "end"){
-        setControl(SardControl.CloseBlock);
-        return true;
+        if (identifier == "begin")
+        {
+            setControl(SardControl.OpenBlock);
+            return true;
+        } 
+        if (identifier == "end")
+        {
+            setControl(SardControl.CloseBlock);
+            return true;
         }   
         else  */    
         return super.doIdentifier(identifier);

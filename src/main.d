@@ -29,7 +29,7 @@ int main(string[] argv)
     sources ~= "foo: begin := 10; end;
      := foo;";*/
 
-
+//0
     results ~= "";
     sources ~=  ""; //Empty
 
@@ -45,6 +45,7 @@ int main(string[] argv)
     results ~= "";
     sources ~= "x:=10;"; //simple assign, this must not return a value
 
+//5
     results ~= "";
     sources ~= "x:=10+1;";  
 
@@ -180,9 +181,6 @@ i := i + 5.5;
 
 {* First init of the variable define the type *}"; 
 
-/*
-    do not forget add ; after } bad idea
-*/
 string source;
 
     try {
@@ -192,7 +190,7 @@ string source;
         if (argv.length > 1)
             source = readText(argv[1]);
         else
-            source = sources[10];
+            source = sources[4];
         //source = sources[sources.length-1];
         //source = sources[$-1];        
         //source = sources.back;
@@ -209,7 +207,7 @@ string source;
         string s = sard.result;
         writeln(s);  
         writeln();
-        writeln("---------------");  
+        writeln("---------------");
     }
     catch(SardParserException e)
     {

@@ -316,20 +316,16 @@ protected:
 
     }
 
-    //TODO executeParams will be bigger, i want to add to it SrdStatements Blocks too so i will collect it into a struct
-    void executeParams(RunStack stack, SrdDefines vDefines, SrdStatements vParameters) {
-    }
-
     void doExecute(RunStack stack,OpOperator operator, ref bool done){
     }
 
 public:
-    final bool execute(RunStack stack, OpOperator operator, SrdDefines vDefines = null, SrdStatements vParameters = null) 
+    final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements parameters = null) 
     {
         bool done = false;
 
         beforeExecute(stack, operator);      
-        executeParams(stack, vDefines, vParameters);
+        defines.execute(stack, parameters);
         doExecute(stack, operator, done);
         afterExecute(stack, operator);      
 
@@ -398,26 +394,6 @@ protected:
     SrdStatements _statements;
 
     public @property SrdStatements statements() { return _statements; };
-
-    override void executeParams(RunStack stack, SrdDefines defines, SrdStatements parameters)
-    {
-        super.executeParams(stack, defines, parameters);
-        if (parameters !is null) 
-        { //TODO we need to check if it is a block?      
-            int i = 0;
-            while (i < parameters.count) 
-            { //here i was added -1 to the count | while (i < parameters.count -1)
-                stack.ret.push();
-                parameters[i].call(stack);
-                if (i < defines.count){      
-                    RunVariable v = stack.local.current.variables.register(defines[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-                    v.value = stack.ret.current.value;
-                }
-                stack.ret.pop();
-                i++;
-            }        
-        }
-    }
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {                
@@ -931,6 +907,25 @@ class SrdDefines: SardObjects!SrdDefine
 {
     void add(string aName, string aResult) {
         super.add(new SrdDefine(aName, aResult));
+    }
+
+    void execute(RunStack stack, SrdStatements parameters)
+    {        
+        if (parameters !is null) 
+        { //TODO we need to check if it is a block?      
+            int i = 0;
+            while (i < parameters.count) 
+            { //here i was added -1 to the count | while (i < parameters.count -1)
+                stack.ret.push();
+                parameters[i].call(stack);
+                if (i < count){      
+                    RunVariable v = stack.local.current.variables.register(items[i].name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
+                    v.value = stack.ret.current.value;
+                }
+                stack.ret.pop();
+                i++;
+            }        
+        }
     }
 }
 

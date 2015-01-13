@@ -171,8 +171,7 @@ public:
 
     SoDeclare findDeclare(string vName)
     {
-        SoDeclare declare = _declares.find(vName);
-        return declare;
+        return _declares.find(vName);         
     }
 
     this(){

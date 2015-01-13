@@ -21,7 +21,6 @@ import std.datetime;
 import sard.utils;
 import sard.classes;
 import sard.objects;
-import sard.runtimes;
 import sard.operators;
 
 import minilib.sets;
@@ -327,7 +326,8 @@ public:
     }
 
     //IsInitial: check if the next object will be the first one, usefule for Assign and Declare
-    @property bool isInitial(){
+    @property bool isInitial()
+    {
         return false;
     }
 

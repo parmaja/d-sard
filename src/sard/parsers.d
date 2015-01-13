@@ -222,11 +222,9 @@ public:
     {
         foreach(e; items) {
             if (e.classinfo == controllerClass) {
-                writeln("we found " ~ e.classinfo.nakename);                
                 return e;
             }
         }
-        writeln("not found ");                
         return null;
     }
 }
@@ -742,14 +740,14 @@ protected:
     {
         super.afterPush();
         debug{
-            writeln("Push: " ~ current.classinfo.nakename);
+            writeln("push: " ~ current.classinfo.nakename);
         }
     }
 
     override void beforePop(){
         super.beforePop();
         debug{
-            writeln("Pop: " ~ current.classinfo.nakename);
+            writeln("pop: " ~ current.classinfo.nakename);
         }      
     }
 
@@ -789,6 +787,4 @@ public:
 
     override void stop(){
     }
-}        
-
-
+}

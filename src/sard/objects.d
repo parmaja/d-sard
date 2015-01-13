@@ -332,8 +332,8 @@ public:
 
         debug 
         {      
-            string s = stringRepeat("", stack.results.currentItem.level);
-            s = s ~ this.classinfo.nakename ~ " = " ~ to!string(stack.results.currentItem.level);
+            string s = "  " ~ stringRepeat(" ", stack.results.currentItem.level) ~ ">";
+            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(stack.results.currentItem.level);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
             if (stack.results.current.variable.value !is null)
@@ -493,7 +493,7 @@ abstract class SoConstObject: SoObject
 }
 
 /*-------------------------------*/
-/* Const Objects
+/*       Const Objects
 /*-------------------------------*/
 
 /* SoNone */

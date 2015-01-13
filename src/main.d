@@ -39,8 +39,8 @@ int main(string[] argv)
     results ~= "10";
     sources ~= ":=10;"; //simple result
 
-    results ~= "10";
-    sources ~= "  :=10;"; //simple result started with spaces
+    results ~= "11";
+    sources ~= "  :=10+1;"; //simple result started with spaces
 
     results ~= "";
     sources ~= "x:=10;"; //simple assign, this must not return a value
@@ -190,7 +190,7 @@ string source;
         if (argv.length > 1)
             source = readText(argv[1]);
         else
-            source = sources[4];
+            source = sources[3];
         //source = sources[sources.length-1];
         //source = sources[$-1];        
         //source = sources.back;

@@ -106,9 +106,7 @@ protected:
 
     void afterAdd(T object){
         debug{
-            //not compiled :(        
-            writeln(this.classinfo.nakename ~ ".add(" ~ object.classinfo.nakename ~ ")");
-            //writeln(fullyQualifiedName!this ~ ".add(" ~ object.classinfo.nakename ~ ")");        
+            //writeln(this.classinfo.nakename ~ ".add(" ~ object.classinfo.nakename ~ ")");
         }
     }
 

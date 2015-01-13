@@ -101,8 +101,8 @@ private:
 public:
     void add(OpOperator operator, SoObject aObject)
     {
-        debug{
-            writeln("Statement.AddClause: " ~ (operator? operator.name : "none") ~ "," ~ aObject.classinfo.name);
+        debug{            
+            writeln("Statement.AddClause: " ~ (operator? operator.name : "none") ~ "," ~ aObject.classinfo.nakename);
         }
         if (aObject.parent !is null)
             error("You can not add object to another parent!");
@@ -113,9 +113,9 @@ public:
 
     void execute(RunStack stack)
     {
-        stack.ret.push(); //Each statement have own result
+        stack.results.push(); //Each statement have own result
         call(stack);
-        stack.ret.pop();
+        stack.results.pop();
     }
 
     void call(RunStack stack)
@@ -283,7 +283,7 @@ public:
     SoObject clone(bool withValues = true)
     { 
         debug {
-            writeln("Cloneing " ~ this.classinfo.name);
+            writeln("Cloneing " ~ this.classinfo.nakename);
         }
         //TODO, here we want to check if subclass have a default ctor 
         SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
@@ -332,12 +332,12 @@ public:
 
         debug 
         {      
-            string s = stringRepeat("", stack.ret.currentItem.level);
-            s = s ~ this.classinfo.name ~ " = " ~ to!string(stack.ret.currentItem.level);
+            string s = stringRepeat("", stack.results.currentItem.level);
+            s = s ~ this.classinfo.nakename ~ " = " ~ to!string(stack.results.currentItem.level);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
-            if (stack.ret.current.variable.value !is null)
-                s = s ~ " ret: " ~ stack.ret.current.variable.value.asText;
+            if (stack.results.current.variable.value !is null)
+                s = s ~ " result: " ~ stack.results.current.variable.value.asText;
             writeln(s);
         }  
         return done; 
@@ -370,9 +370,9 @@ protected:
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {                
-        stack.ret.push(); //<--here we can push a variable result or create temp result to drop it
+        stack.results.push(); //<--here we can push a variable result or create temp result to drop it
         call(stack);
-        auto t = stack.ret.pull();
+        auto t = stack.results.pull();
         //I dont know what if ther is an object there what we do???
         if (t.variable.value !is null)
             t.variable.value.execute(stack, operator);
@@ -447,13 +447,13 @@ protected:
     override void beforeExecute(RunStack stack, OpOperator operator)
     {
         super.beforeExecute(stack, operator);
-        stack.ret.push();
+        stack.results.push();
     }  
 
     override void afterExecute(RunStack stack, OpOperator operator)
     {      
         super.afterExecute(stack, operator);
-        RunReturnItem T = stack.ret.pull();
+        RunResult T = stack.results.pull();
         if (T.variable.value !is null)
             T.variable.value.execute(stack, operator);            
     }  
@@ -478,16 +478,16 @@ abstract class SoConstObject: SoObject
 {
     override final void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
-        if ((stack.ret.current.variable.value is null) && (operator is null)) 
+        if ((stack.results.current.variable.value is null) && (operator is null)) 
         {
-            stack.ret.current.variable.value = clone();
+            stack.results.current.variable.value = clone();
             done = true;
         }
         else 
         {      
-            if (stack.ret.current.variable.value is null)
-                stack.ret.current.variable.value = clone(false);
-            done = stack.ret.current.variable.value.operate(this, operator);
+            if (stack.results.current.variable.value is null)
+                stack.results.current.variable.value = clone(false);
+            done = stack.results.current.variable.value.operate(this, operator);
         }
     }
 }
@@ -879,15 +879,15 @@ class SrdDefines: SardObject
             int i = 0;
             while (i < parameters.count)
             { 
-                stack.ret.push();
+                stack.results.push();
                 arguments[i].call(stack);
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
                     RunVariable v = stack.local.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-                    v.value = stack.ret.current.variable.value;
+                    v.value = stack.results.current.variable.value;
                 }
-                stack.ret.pop();
+                stack.results.pop();
                 i++;
             }        
         }
@@ -985,7 +985,7 @@ protected:
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            stack.ret.current.variable = stack.ret.parent.variable;
+            stack.results.current.variable = stack.results.parent.variable;
         else 
         {
             SoDeclare aDeclare = stack.findDeclare(name);
@@ -996,7 +996,7 @@ protected:
                     RunVariable v = aDeclare.callObject.registerVariable(stack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
                     if (v is null)
                         error("Variable not found!");
-                    stack.ret.current.variable.value = v.value;
+                    stack.results.current.variable.value = v.value;
                 }
             }
             else 
@@ -1004,7 +1004,7 @@ protected:
                 RunVariable v = registerVariable(stack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
                 if (v is null)
                     error("Variable not found!");
-                stack.ret.current.variable.value = v.value;
+                stack.results.current.variable.value = v.value;
             }
         }
     }

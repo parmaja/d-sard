@@ -10,6 +10,15 @@ import std.conv;
 import std.string;
 import std.array;
 
+@property string nakename(TypeInfo_Class classinfo){
+    if (classinfo.name == "")
+        return "";
+    else {
+        int p = classinfo.name.lastIndexOf(".");
+        return classinfo.name[p + 1..$];
+    }
+}
+
 bool scanCompare(string s, const string text, int index){
     return scanText(s, text, index);
 }

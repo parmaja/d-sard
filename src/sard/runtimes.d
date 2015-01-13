@@ -70,7 +70,7 @@ class RunLocal: SardStack!RunLocalItem
 {
 }
 
-class RunReturnItem: SardObject
+class RunResult: SardObject
 {
 private:
 public:
@@ -82,7 +82,7 @@ public:
     }
 }
 
-class RunReturn: SardStack!RunReturnItem
+class RunResults: SardStack!RunResult
 {
 }
 
@@ -113,12 +113,12 @@ private:
     public @property SrdDeclares declares() { return _declares; };
 
     RunLocal _local = new RunLocal();
-    RunReturn _ret = new RunReturn();
+    RunResults _results = new RunResults();
     RunRoot root = new RunRoot();
 
 public:    
     @property RunLocal local() {return _local;};
-    @property RunReturn ret() {return _ret ;};
+    @property RunResults results() {return _results; };
 
     int addDeclare(SoObject executeObject, SoObject callObject)
     {
@@ -141,11 +141,11 @@ public:
         _declares = new SrdDeclares();
         super();
         local.push();
-        ret.push();
+        results.push();
     }
 
     ~this(){      
-        ret.pop();
+        results.pop();
         local.pop();
     }
 

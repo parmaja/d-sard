@@ -25,7 +25,7 @@ class SoVersion_Const: SoObject
 {
 protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done){
-        stack.ret.current.variable.value = new SoText(sSardVersion);
+        stack.results.current.variable.value = new SoText(sSardVersion);
     }
 }
 
@@ -33,7 +33,7 @@ class SoTime_Const: SoObject
 {
 protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done){    
-        stack.ret.current.variable.value = new SoText(Clock.currTime().toISOExtString());
+        stack.results.current.variable.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
 
@@ -54,6 +54,7 @@ public:
         //writeln("-------------------------------");
 
         main = new SoBlock(); //destory the old compile and create new
+        main.name = "main";
 
         /* Compile */
 
@@ -85,12 +86,12 @@ public:
         RunStack stack = new RunStack();
         main.execute(stack, null); 
 
-        if (stack.ret.current.variable.value !is null) 
+        if (stack.results.current.variable.value !is null) 
         {
             debug {
                 writeln("We have value");
             }
-            result = stack.ret.current.variable.value.asText();
+            result = stack.results.current.variable.value.asText();
             debug {
                 writeln("The value isssss: " ~ result);
             }

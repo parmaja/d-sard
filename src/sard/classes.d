@@ -76,7 +76,7 @@ public:
 
 
         void debugWrite(int level){
-            writeln(stringRepeat(" ", level * 2) ~ this.classinfo.name);
+            writeln(stringRepeat(" ", level * 2) ~ this.classinfo.nakename);
         }
     }
 
@@ -107,8 +107,8 @@ protected:
     void afterAdd(T object){
         debug{
             //not compiled :(        
-            writeln(this.classinfo.name ~ ".add(" ~ object.classinfo.name ~ ")");
-            //writeln(fullyQualifiedName!this ~ ".add(" ~ object.classinfo.name ~ ")");        
+            writeln(this.classinfo.nakename ~ ".add(" ~ object.classinfo.nakename ~ ")");
+            //writeln(fullyQualifiedName!this ~ ".add(" ~ object.classinfo.nakename ~ ")");        
         }
     }
 
@@ -263,13 +263,13 @@ public:
 
         void afterPush() {
             debug{
-                writeln("push: " ~ to!string(typeid(T)));
+                writeln("push: " ~ T.classinfo.nakename);
             }
         };
 
         void beforePop() {
             debug{
-                writeln("pop: " ~ to!string(typeid(T)));
+                writeln("pop: " ~ T.classinfo.nakename);
             }
         };
     }
@@ -588,7 +588,7 @@ public:
                     detectScanner(text, column);
 
                 if ((oldColumn == column) && (oldScanner == _scanner))
-                    error("Feeder in loop with: " ~ _scanner.classinfo.name); //TODO: be careful here
+                    error("Feeder in loop with: " ~ _scanner.classinfo.nakename); //TODO: be careful here
             }
             catch(Exception exc) {          
                 throw new SardParserException(exc.msg, aLine, column);

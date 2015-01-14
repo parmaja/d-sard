@@ -16,10 +16,13 @@ import sard.runtimes;
 import sard.classes;
 import sard.objects;
 import sard.process;
+import consoled;
                                              
 int main(string[] argv) 
 {
+    foreground = Color.red;
     writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
+    foreground = Color.initial;
 
     Sard sard = new Sard();  
     string[] sources;

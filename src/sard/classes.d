@@ -52,6 +52,17 @@ void error(string err)
     throw new SardException(err);
 }
 
+/+
+class SardPrint: SardObject {
+public:
+    void text(string s){
+        writeln(s);
+    }
+}
+
+SardPrint print = new SardPrint(); 
++/
+
 /**
 SardObject is the base class for all object in this project
 */
@@ -772,4 +783,3 @@ public:
     return null;
 }
 }
-

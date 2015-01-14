@@ -102,7 +102,7 @@ public:
     void add(OpOperator operator, SoObject aObject)
     {
         debug{            
-            writeln("Statement.AddClause: " ~ (operator? operator.name : "none") ~ "," ~ aObject.classinfo.nakename);
+            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
         }
         if (aObject.parent !is null)
             error("You can not add object to another parent!");

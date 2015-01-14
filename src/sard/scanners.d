@@ -96,7 +96,7 @@ class SrdControl_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume) 
     {
-        CtlControl control = (cast(SrdLexical)lexical).controls.scan(text, column);//TODO need new way to access lexical without typecasting
+        CtlControl control = lexical.controls.scan(text, column);
         if (control !is null)
             column = column + control.name.length;
         else
@@ -117,7 +117,7 @@ class SrdOperator_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
-        OpOperator operator = (cast(SrdLexical)lexical).operators.scan(text, column);//TODO need new way to access lexical without typecasting
+        OpOperator operator = lexical.operators.scan(text, column);
         if (operator !is null)
             column = column + operator.name.length;
         else
@@ -282,16 +282,12 @@ public:
 class SrdLexical: SardLexical
 {
 private:
-    OpOperators _operators;
-    @property public OpOperators operators () { return _operators; }
-    CtlControls _controls;
-    @property public CtlControls controls() { return _controls; }    
 
 protected:
 
     override void created()
     {     
-        with(_controls)
+        with(controls)
         {
             add("(", SardControl.OpenParams);
             add("[", SardControl.OpenArray);
@@ -341,8 +337,6 @@ protected:
 
 public:
     this(){
-        _operators = new OpOperators();
-        _controls = new CtlControls();
         super();
     }
 

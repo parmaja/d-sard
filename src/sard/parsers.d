@@ -86,13 +86,14 @@ public:
     @property bool isEmpty() 
     {
         return !((identifier != "") || (object !is null) || (operator !is null));
+        //TODO and attributes
     }
 
-    void setOperator(OpOperator operator)
+    void setOperator(OpOperator aOperator)
     {
         if (operator !is null)
             error("Operator is already set");
-        operator = operator;
+        operator = aOperator;
     }
 
     void setIdentifier(string aIdentifier)
@@ -289,7 +290,7 @@ public:
     void post(){            
         if (!instruction.isEmpty) {      
             debug{
-                writeln("post(" ~ instruction.identifier ~ ")");
+                writeln("post(" ~ to!string(instruction.operator) ~ ", " ~ instruction.identifier ~ ")");
             }
             prepare();
             internalPost();
@@ -408,6 +409,7 @@ public:
             if (statements is null)
                 error("Maybe you need to set a block, or it single statment block");
             statement = statements.add();
+            debug writeln("statements.add");
         }
     }
 }
@@ -702,12 +704,12 @@ protected:
         lastControl = SardControl.Object;
     }
 
-    override void setOperator(SardObject operator)
+    override void setOperator(OpOperator operator)
     {
         debug{
-            writeln("SetOperator: " ~ (cast(OpOperator)operator).name);
+            writeln("SetOperator: " ~ operator.name);
         }
-        OpOperator o = cast(OpOperator)operator; //TODO do something, i hate typecasting
+        OpOperator o = operator; 
         if (o is null) 
             error("SetOperator not OpOperator");
         current.addOperator(o);

@@ -385,7 +385,7 @@ protected:
 public:
     abstract void setToken(string aToken, SardType aType);
     abstract void setControl(SardControl aControl);
-    abstract void setOperator(SardObject operator);
+    abstract void setOperator(OpOperator operator);
 
 public:
 };
@@ -462,6 +462,11 @@ private:
     public @property ISardParser  parser() { return _parser; };
     public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
 
+    OpOperators _operators;
+    @property public OpOperators operators () { return _operators; }
+    CtlControls _controls;
+    @property public CtlControls controls() { return _controls; }    
+
 protected:
 
     //doIdentifier call in setToken if you proceesed it return false
@@ -484,7 +489,7 @@ public:
         parser.setControl(aControl);
     }
 
-    final void setOperator(SardObject operator){
+    final void setOperator(OpOperator operator){
         parser.setOperator(operator);
     }
 
@@ -492,6 +497,8 @@ public:
     this()
     {
         _scanners = new SardScanners(this);
+        _operators = new OpOperators();
+        _controls = new CtlControls();
         super();
     }
 

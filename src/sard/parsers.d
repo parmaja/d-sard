@@ -499,7 +499,7 @@ public:
                     post();
                     SoBlock aBlock = new SoBlock();
                     aBlock.parent(declare);
-                    declare.callObject = aBlock;
+                    declare.executeObject = aBlock;
                     //We will pass the control to the next Collector
                     setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aBlock.statements));
                     break;
@@ -518,7 +518,6 @@ public:
                 case SardControl.Assign:
                     post();
                     declare.executeObject = new SoAssign(declare, declare.name);            
-                    declare.callObject = new SoVariable(declare, declare.name);
                     setAction(Actions([Action.PopCollector])); //Finish it, mean there is no body/statment for the declare
                     break;
 

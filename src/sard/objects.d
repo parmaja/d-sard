@@ -343,11 +343,6 @@ public:
         return done; 
     }
 
-    RunVariable registerVariable(RunStack stack, RunVarKinds vKind)//TODO move it into stack
-    {
-        return stack.local.current.variables.register(name, vKind);
-    }
-
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);
@@ -948,7 +943,8 @@ class SoVariable: SoObject
 protected:
     override void doExecute(RunStack stack, OpOperator operator,ref bool done)
     {            
-        RunVariable v = registerVariable(stack, RunVarKinds([RunVarKind.Local]));
+        RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
+        
         if (v is null)
             error("Can not register a varibale: " ~ name) ;
         if (v.value is null)
@@ -991,9 +987,9 @@ protected:
             SoDeclare aDeclare = stack.findDeclare(name);
             if (aDeclare !is null) 
             {
-                if (aDeclare.callObject !is null)
+                if (aDeclare.executeObject !is null)
                 {
-                    RunVariable v = aDeclare.callObject.registerVariable(stack, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
+                    RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
                     if (v is null)
                         error("Variable not found!");
                     stack.results.current.variable.value = v.value;
@@ -1001,7 +997,7 @@ protected:
             }
             else 
             { //Ok let is declare it locally
-                RunVariable v = registerVariable(stack, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
+                RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
                 if (v is null)
                     error("Variable not found!");
                 stack.results.current.variable.value = v.value;
@@ -1054,14 +1050,12 @@ public:
 public:
     //executeObject will execute in a context of statement if it is not null,
     SoObject executeObject;//You create it but Declare will free it
-    //callObject will execute by call, when called from outside,
-    SoObject callObject;//You create it but Declare will free it
-    //** I hate that above, we need just one call object
+
     string resultType;
 
     //This outside execute it will force to execute the Block
     void call(RunStack stack, OpOperator operator, SrdStatements arguments, ref bool done){
-        done = callObject.execute(stack, operator, defines, arguments);
+        done = executeObject.execute(stack, operator, defines, arguments);
     }
 
     override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)

@@ -120,15 +120,12 @@ public:
     @property RunLocal local() {return _local;};
     @property RunResults results() {return _results; };
 
-    int addDeclare(SoObject executeObject, SoObject callObject)
+    int addDeclare(SoObject executeObject)
     {
         SoDeclare declare = new SoDeclare();
         if (executeObject !is null)
             declare.name = executeObject.name;
-        else if (callObject !is null)
-            declare.name = callObject.name;
-        declare.executeObject = executeObject;
-        declare.callObject = callObject;
+        declare.executeObject = executeObject;        
         return _declares.add(declare);
     }
 

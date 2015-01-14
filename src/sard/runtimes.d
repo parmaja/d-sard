@@ -100,6 +100,16 @@ class RunRoot: RunBranch
     string name;
 }
 
+class RunDeclare: SardObject
+{
+    string name;
+    //SoObject executeObject;
+    SoDeclare object;
+}
+
+class RunDeclares: SardNamedObjects!RunDeclare {
+}
+
 /**
     @class RunStack
 */
@@ -108,9 +118,9 @@ class RunStack: SardObject
 {
 private:
     //TODO: move srddeclares to the scope stack, it is bad here
-    SrdDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
+    RunDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
 
-    public @property SrdDeclares declares() { return _declares; };
+    public @property RunDeclares declares() { return _declares; };
 
     RunLocal _local = new RunLocal();
     RunResults _results = new RunResults();
@@ -120,22 +130,20 @@ public:
     @property RunLocal local() {return _local;};
     @property RunResults results() {return _results; };
 
-    int addDeclare(SoObject executeObject)
+    int addDeclare(SoDeclare object)
     {
-        SoDeclare declare = new SoDeclare();
-        if (executeObject !is null)
-            declare.name = executeObject.name;
-        declare.executeObject = executeObject;        
+        RunDeclare declare = new RunDeclare();
+        declare.name = object.name;        
         return _declares.add(declare);
     }
 
-    SoDeclare findDeclare(string vName)
+    RunDeclare findDeclare(string vName)
     {
         return _declares.find(vName);         
     }
 
     this(){
-        _declares = new SrdDeclares();
+        _declares = new RunDeclares();
         super();
         local.push();
         results.push();

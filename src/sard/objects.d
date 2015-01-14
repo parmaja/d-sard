@@ -316,7 +316,7 @@ protected:
 
     }
 
-    void doExecute(RunStack stack,OpOperator operator, ref bool done){
+    void doExecute(RunStack stack, OpOperator operator, ref bool done){
     }
 
 public:
@@ -891,9 +891,6 @@ class SrdDefines: SardObject
 
 //Just a references not free inside objects, not sure how to do that in D
 
-class SrdDeclares: SardNamedObjects!SoDeclare {
-}
-
 /**  Variables objects */
 
 /**   SoInstance */
@@ -913,9 +910,9 @@ class SoInstance: SoStatements
 protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {            
-        SoDeclare p = stack.findDeclare(name);
+        RunDeclare p = stack.findDeclare(name);
         if (p !is null) //maybe we must check Define.count, cuz it refere to it class
-            p.call(stack, operator, statements, done);
+            p.object.executeObject.execute(stack, operator, p.object.defines, statements, null);
         else 
         {
             RunVariable v = stack.local.current.variables.find(name);
@@ -970,10 +967,6 @@ public:
 class SoAssign: SoObject
 {
 protected:
-    override void doSetParent(SoObject value) 
-    {
-        super.doSetParent(value);
-    }
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
@@ -984,10 +977,10 @@ protected:
             stack.results.current.variable = stack.results.parent.variable;
         else 
         {
-            SoDeclare aDeclare = stack.findDeclare(name);
+            RunDeclare aDeclare = stack.findDeclare(name);
             if (aDeclare !is null) 
             {
-                if (aDeclare.executeObject !is null)
+                if (aDeclare.object.executeObject !is null)
                 {
                     RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
                     if (v is null)
@@ -1049,7 +1042,7 @@ public:
 
 public:
     //executeObject will execute in a context of statement if it is not null,
-    SoObject executeObject;//You create it but Declare will free it
+    SoObject executeObject;
 
     string resultType;
 
@@ -1060,11 +1053,7 @@ public:
 
     override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)
     {
-        //stack.addDeclare(this);
-        if (executeObject !is null)
-            done = executeObject.execute(stack, operator);
-        else
-            done = true;
+        stack.addDeclare(this);
     }
 }
 

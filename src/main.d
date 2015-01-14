@@ -190,7 +190,7 @@ string source;
         if (argv.length > 1)
             source = readText(argv[1]);
         else
-            source = sources[3];
+            source = sources[6];
         //source = sources[sources.length-1];
         //source = sources[$-1];        
         //source = sources.back;

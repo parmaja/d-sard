@@ -343,7 +343,7 @@ public:
         return done; 
     }
 
-    RunVariable registerVariable(RunStack stack, RunVarKinds vKind)
+    RunVariable registerVariable(RunStack stack, RunVarKinds vKind)//TODO move it into stack
     {
         return stack.local.current.variables.register(name, vKind);
     }

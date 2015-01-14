@@ -42,7 +42,7 @@ public:
 
 class RunVariables: SardNamedObjects!RunVariable
 {
-    RunVariable register(string name, RunVarKinds kind)
+    RunVariable register(string name, RunVarKinds kind)//TODO bad idea
     {
         RunVariable result = find(name);
         if (result is null)

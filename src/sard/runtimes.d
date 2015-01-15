@@ -117,8 +117,8 @@ class RunDeclares: SardNamedObjects!RunDeclare {
 class RunStack: SardObject 
 {
 private:
-    //TODO: move srddeclares to the scope stack, it is bad here
-    RunDeclares _declares; //It is cache of objects listed inside statements, it is for fast find the object
+    //TODO: move _declares to the scope stack, it is bad here
+    RunDeclares _declares; 
 
     public @property RunDeclares declares() { return _declares; };
 

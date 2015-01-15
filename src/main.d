@@ -16,15 +16,11 @@ import sard.runtimes;
 import sard.classes;
 import sard.objects;
 import sard.process;
+import sard.utils;
 import consoled;
                                              
 int main(string[] argv) 
 {
-    foreground = Color.red;
-    writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
-    foreground = Color.initial;
-
-    Sard sard = new Sard();  
     string[] sources;
     string[] results;
 
@@ -184,50 +180,79 @@ i := i + 5.5;
 
 {* First init of the variable define the type *}"; 
 
-string source;
 
-    try {
-        writeln();
-        writeln("--- Compile ---");
-        
-        if (argv.length > 1)
-            source = readText(argv[1]);
-        else
-            source = sources[6];
-        //source = sources[sources.length-1];
-        //source = sources[$-1];        
-        //source = sources.back;
-        writeln(source);
-        writeln("---------------");
-        sard.compile(source);
-        writeln();
-        writeln("Press enter to run");
-        readln();
-        writeln("----- Run -----");
-        sard.run();
-        writeln();
-        writeln("----- Result -----");
-        string s = sard.result;
-        writeln(s);  
-        writeln();
+    try {        
+        bool loop = true;
+        while (loop) 
+        {
+            foreground = Color.lightYellow;
+            writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
+            writeln();
+            foreground = Color.initial;
+
+            string source;
+            if (argv.length > 1){
+                source = readText(argv[1]);
+                loop = false;
+            }
+            else {
+                write("Enter test source #");
+                string answer;
+                answer = readln();
+                if (answer =="") {
+                    loop = false;
+                    break;
+                }                    
+                int i = to!int(answer.trim());
+                source = sources[i];
+            }
+            writeln();
+            writeln("--- Compile ---");
+            writeln();
+            Sard sard = new Sard();  
+            //source = sources[sources.length-1];
+            //source = sources[$-1];        
+            //source = sources.back;
+            foreground = Color.green;
+            writeln(source);
+            foreground = Color.initial;
+            writeln("---------------");
+            sard.compile(source);
+            writeln();
+            writeln("Press enter to run");
+            //getch();
+            readln();
+            writeln("----- Run -----");
+            sard.run();
+            writeln();
+            writeln("----- Result -----");
+            string s = sard.result;
+            writeln(s);  
+            writeln();
+        }
         writeln("---------------");
     }
     catch(SardParserException e)
     {
+        foreground = Color.red;
         writeln("*******************************");
         with (e){
             writeln(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));          
         } 
         writeln("*******************************");
+        foreground = Color.initial;
     }
     catch(Exception e) 
     {
+        foreground = Color.red;
         writeln("*******************************");
         with (e)
             writeln(msg);    
         writeln("*******************************");
+        foreground = Color.initial;
     }
     writeln("Press enter to stop");
+    //getch();
     readln();
     return 0;
 }

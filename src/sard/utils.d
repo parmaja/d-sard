@@ -19,6 +19,15 @@ import std.array;
     }
 }
 
+string trim(string s)
+{
+    if (s == "")
+        return "";
+    else {
+        return s.chomp();
+    }
+}
+
 bool scanCompare(string s, const string text, int index){
     return scanText(s, text, index);
 }

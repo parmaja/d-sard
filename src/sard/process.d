@@ -93,7 +93,7 @@ public:
             }
             result = stack.results.current.result.value.asText();
             debug {
-                writeln("The value isssss: " ~ result);
+                writeln("The value is: " ~ result);
             }
         }  
     };

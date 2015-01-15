@@ -198,12 +198,12 @@ i := i + 5.5;
             else {
                 write("Enter test source #");
                 string answer;
-                answer = readln();
+                answer = trim(readln());                
                 if (answer =="") {
                     loop = false;
                     break;
                 }                    
-                int i = to!int(answer.trim());
+                int i = to!int(answer);
                 source = sources[i];
             }
             writeln();
@@ -219,15 +219,17 @@ i := i + 5.5;
             writeln("---------------");
             sard.compile(source);
             writeln();
-            writeln("Press enter to run");
+//            writeln("Press enter to run");
             //getch();
-            readln();
+            //readln();
             writeln("----- Run -----");
             sard.run();
             writeln();
             writeln("----- Result -----");
+            foreground = Color.lightCyan;
             string s = sard.result;
             writeln(s);  
+            foreground = Color.initial;
             writeln();
         }
         writeln("---------------");
@@ -252,7 +254,7 @@ i := i + 5.5;
         foreground = Color.initial;
     }
     writeln("Press enter to stop");
-    //getch();
-    readln();
+    getch();
+    //readln();
     return 0;
 }

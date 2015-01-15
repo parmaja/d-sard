@@ -74,10 +74,10 @@ class RunResult: SardObject
 {
 private:
 public:
-    RunVariable variable;
+    RunVariable result;
 
     this(){        
-        variable = new RunVariable();
+        result = new RunVariable();
         super();      
     }
 }

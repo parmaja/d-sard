@@ -160,4 +160,4 @@ public:
             _declares.debugWrite(level + 1);
         }
     }
-}
+} 

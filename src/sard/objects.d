@@ -934,34 +934,6 @@ public:
     }
 }
 
-
-class SoVariable: SoObject
-{ 
-protected:
-    override void doExecute(RunStack stack, OpOperator operator,ref bool done)
-    {            
-        RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
-        
-        if (v is null)
-            error("Can not register a varibale: " ~ name) ;
-        if (v.value is null)
-            error(v.name ~ " variable have no value yet:" ~ name);//TODO make it as empty
-        done = v.value.execute(stack, operator);
-    }
-
-public:
-    ClassInfo resultType;
-
-    this(){
-        super();
-    }
-
-    this(SoObject vParent, string vName)
-    {       
-        super(vParent, vName);
-    }
-}
-
 /** It is assign a variable value, x := 10 + y */
 
 class SoAssign: SoObject

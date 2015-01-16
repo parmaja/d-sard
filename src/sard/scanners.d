@@ -192,7 +192,7 @@ protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;    
-        if (!resume)
+        if (!resume) //first time after accept()
         {
             column = column + openSymbol.length;
             if (trimSymbols)                    

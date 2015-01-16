@@ -460,7 +460,9 @@ public:
 class SardLexical: SardObject
 {
 private:
-    int _line;
+    int _line;    
+    bool resume = false; //resume the line to current scanner
+
     public @property int line() { return _line; };
 
     SardScanners _scanners;
@@ -530,14 +532,14 @@ public:
 public:
 
     SardScanner detectScanner(const string text, int column) 
-{
-    SardScanner result = null;
-    if (column >= text.length)
+    {
+        SardScanner result = null;
+        if (column >= text.length)
         //do i need to switchScanner?
         //return null; //no scanner for empty line or EOL
         result = null;
-    else 
-    {
+        else 
+        {
         foreach(e; scanners)                    
         {
             if (e.accept(text, column)) 
@@ -549,10 +551,10 @@ public:
 
         if (result is null)
             error("Scanner not found: " ~ text[column]);
+        }
+        switchScanner(result);
+        return result;
     }
-    switchScanner(result);
-    return result;
-}
 
     void switchScanner(SardScanner nextScanner) 
     {
@@ -589,9 +591,8 @@ public:
     {
         int _line = aLine;
         int column = 0; 
-        bool resume = false;
         int len = text.length;
-        if (scanner is null) 
+        if (scanner is null)
             detectScanner(text, column);
         while (column < len)
         {

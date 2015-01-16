@@ -49,8 +49,8 @@ public:
         super();
     }
 
-    void compile(string text){
-
+    void compile(string text)
+    {
         //writeln("-------------------------------");
 
         main = new SoBlock(); //destory the old compile and create new

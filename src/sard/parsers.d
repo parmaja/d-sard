@@ -39,7 +39,8 @@ alias Set!Action Actions;
 
 class SrdInstruction: SardObject
 {
-    public this(){
+    public this()
+    {
         super();
         debug writeln("new instruction");
     }

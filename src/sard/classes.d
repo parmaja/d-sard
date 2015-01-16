@@ -461,7 +461,6 @@ class SardLexical: SardObject
 {
 private:
     int _line;    
-    bool resume = false; //resume the line to current scanner
 
     public @property int line() { return _line; };
 
@@ -592,17 +591,22 @@ public:
         int _line = aLine;
         int column = 0; 
         int len = text.length;
-        if (scanner is null)
-            detectScanner(text, column);
+        bool resume = false;
         while (column < len)
         {
             int oldColumn = column;
             SardScanner oldScanner = _scanner;
             try 
             {
-                scanner.scan(text, column, resume);
-                if (!resume)
+                if (scanner is null) //resume the line to current/last scanner
                     detectScanner(text, column);
+                else
+                    resume = true;
+
+                scanner.scan(text, column, resume);
+                
+                if (!resume)
+                    switchScanner(null);
 
                 if ((oldColumn == column) && (oldScanner == _scanner))
                     error("Feeder in loop with: " ~ _scanner.classinfo.nakename); //TODO: be careful here

@@ -98,11 +98,10 @@ int main(string[] argv)
         x := 5;
         `;
 
-    results ~= "Hello\n\rWorld";
-    sources ~= `//Hello World 
-        s:="Hello
-World";
-        := s;`;
+    results ~= "Hello\nWorld";
+    sources ~= "//Hello World 
+        s:=\"Hello\nWorld\";
+        := s;";
 
     results ~= "Hello World";
     sources ~= `//Hello World 

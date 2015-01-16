@@ -316,8 +316,7 @@ protected:
 
     }
 
-    void doExecute(RunStack stack, OpOperator operator, ref bool done){
-    }
+    abstract void doExecute(RunStack stack, OpOperator operator, ref bool done);    
 
 public:
     final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
@@ -405,7 +404,8 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
 private:
 
 protected:
-    override void beforeExecute(RunStack stack, OpOperator operator){
+    override void beforeExecute(RunStack stack, OpOperator operator)
+    {
         super.beforeExecute(stack, operator);
         stack.local.push();
     }
@@ -451,7 +451,6 @@ protected:
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
-        super.doExecute(stack, operator, done);
         statement.execute(stack, false);
         done = true;
     }
@@ -500,7 +499,8 @@ class SoNone: SoConstObject  //None it is not Null, it is an initial value we sa
 class SoComment: SoObject
 {
 protected:
-    override void doExecute(RunStack stack, OpOperator operator,ref bool done){
+    override void doExecute(RunStack stack, OpOperator operator,ref bool done)
+    {
         //Guess what!, we will not to execute the comment ;)
         done = true;
     }
@@ -516,19 +516,21 @@ public:
 
 /* SoPreprocessor */
 /*
-class SoPreprocessor: SoObject{
+class SoPreprocessor: SoObject
+{
 protected:
-override void doExecute(RunStack stack, OpOperator operator,ref bool done){
-//TODO execute external program and replace it with the result
-done = true;
-}
+    override void doExecute(RunStack stack, OpOperator operator,ref bool done){
+        //TODO execute external program and replace it with the result
+        done = true;
+    }
 
-void created(){
-super.created();
-objectType = ObjectType.otComment;
-}
+    void created(){
+        super.created();
+        objectType = ObjectType.otComment;
+    }
+
 public:
-string value;
+    string value;
 }
 */
 
@@ -947,32 +949,17 @@ protected:
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
-        //super.doExecute(stack, operator, done);
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
             stack.results.current.result = stack.results.parent.result;
         else 
         {
-            /*RunDeclare aDeclare = stack.findDeclare(name);
-            if (aDeclare !is null) 
-            {
-                if (aDeclare.object.executeObject !is null)
-                {
-                    RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local])); //parent becuase we are in the statement
-                    if (v is null)
-                        error("Variable not found!");
-                    stack.results.current.variable.value = v.value;
-                }
-            }
-            else 
-            {    */
-                //Ok let is declare it locally
-                RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
-                if (v is null)
-                    error("Variable not found!");
-                stack.results.current.result = v;
-           // }
+            //Ok let is declare it locally
+            RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
+            if (v is null)
+                error("Variable not found!");
+            stack.results.current.result = v;
         }
     }
 

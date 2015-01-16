@@ -111,21 +111,18 @@ public:
         super.add(clause);    
     }
 
-    void execute(RunStack stack)
-    {
-        stack.results.push(); //Each statement have own result
-        call(stack);
-        stack.results.pop();
-    }
-
-    void call(RunStack stack)
+    void execute(RunStack stack, bool pushIt)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
+        stack.results.push(); //Each statement have own result
+
         foreach(e; items) 
         {
             e.execute(stack);
         }
+        stack.results.pop();
     }
+
 
     public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
@@ -158,14 +155,14 @@ public:
         }
     }
 
-    bool execute(RunStack stack)
+    bool execute(RunStack stack, bool pushIt)
     {
         if (count == 0)
             return false;
         else
         {            
             foreach(e; items) {
-                e.execute(stack);
+                e.execute(stack, pushIt);
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
             return true;
@@ -353,20 +350,19 @@ public:
 }
 
 /*
-SoStatements is a base class for list of objects (statements)
+*   SoStatements is a base class for list of objects (statements) like SoBlock
 */
 
 abstract class SoStatements: SoObject
 {
 protected:
     SrdStatements _statements;
-
     public @property SrdStatements statements() { return _statements; };
 
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {                
         stack.results.push(); //<--here we can push a variable result or create temp result to drop it
-        call(stack);
+        statements.execute(stack, false);
         auto t = stack.results.pull();
         //I dont know what if ther is an object there what we do???
         if (t.result.value !is null)
@@ -392,11 +388,8 @@ public:
         super();
         _statements = new SrdStatements(this);      
     }
-
-    void call(RunStack stack){ //vBlock here is params
-        statements.execute(stack);
-    }
 }
+
 
 /** SoBlock */
 /** 
@@ -456,7 +449,7 @@ protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {
         super.doExecute(stack, operator, done);
-        statement.call(stack);
+        statement.execute(stack, false);
         done = true;
     }
 
@@ -875,7 +868,7 @@ class SrdDefines: SardObject
             while (i < parameters.count)
             { 
                 stack.results.push();
-                arguments[i].call(stack);
+                arguments[i].execute(stack, false);
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
@@ -905,14 +898,18 @@ x := 10  + Foo( 500,  600);
 -------------Id [Statements]--------
 */
 
-class SoInstance: SoStatements
+class SoInstance: SoObject
 {
+private
+    SrdStatements _arguments;
+    public @property SrdStatements arguments() { return _arguments; };
+
 protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {            
         RunDeclare p = stack.findDeclare(name);
         if (p !is null) //maybe we must check Define.count, cuz it refere to it class
-            p.object.executeObject.execute(stack, operator, p.object.defines, statements, null);
+            p.object.executeObject.execute(stack, operator, p.object.defines, arguments, null);
         else 
         {
             RunVariable v = stack.local.current.variables.find(name);
@@ -931,6 +928,11 @@ public:
     {
         super.created();
         objectType = ObjectType.otObject;
+    }
+
+    this(){
+        super();
+        _arguments = new SrdStatements(this);      
     }
 }
 
@@ -1018,11 +1020,6 @@ public:
     SoObject executeObject;
 
     string resultType;
-
-    //This outside execute it will force to execute the Block
-    void call(RunStack stack, OpOperator operator, SrdStatements arguments, ref bool done){
-        done = executeObject.execute(stack, operator, defines, arguments);
-    }
 
     override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)
     {

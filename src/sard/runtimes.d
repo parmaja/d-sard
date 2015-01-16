@@ -150,7 +150,7 @@ public:
         results.push();
     }
 
-    ~this(){      
+    ~this(){
         results.pop();
         local.pop();
     }

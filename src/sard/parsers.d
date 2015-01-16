@@ -212,28 +212,6 @@ public:
 }
 
 /**
-*    @class Controller
-*/
-
-class SrdController: SardObject
-{
-protected:
-    SrdParser parser;
-
-public:
-    this(){
-        super();
-    }
-
-    this(SrdParser aParser){
-        this();
-        parser = aParser;
-    }
-
-    abstract void control(SardControl aControl);
-}
-
-/**
 *    @class Collector
 *    list if controller
 */
@@ -251,8 +229,8 @@ protected:
     void internalPost(){  
     }
 
-    SrdController createControllerClass(){
-        return new SrdControllerNormal(parser);
+    SrdController createControllerClass() {
+        return new SrdControllerNormal(this);
     }
 
 public:
@@ -261,7 +239,8 @@ public:
         super();
     }
 
-    this(SrdParser aParser){
+    this(SrdParser aParser)
+    {
         this();
         parser = aParser;
         controller = createControllerClass();
@@ -478,7 +457,7 @@ protected:
     }
 
     override SrdController createControllerClass(){
-        return new SrdControllerDefines(parser);
+        return new SrdControllerDefines(this);
     }
 
 public:
@@ -574,16 +553,39 @@ public:
     }
 }
 
+/**
+*    @class Controller
+*/
+
+abstract class SrdController: SardObject
+{
+protected:
+    SrdCollector collector;
+
+public:
+
+    this(SrdCollector aCollector){
+        super();
+        collector = aCollector;
+    }
+
+    abstract void control(SardControl aControl);
+}
+
+/**
+*    SrdControllerNormal
+*/
+
 class SrdControllerNormal: SrdController
 {    
-public:
-    this(SrdParser aParser){ 
-        super(aParser);    
+public:    
+    this(SrdCollector aCollector){
+        super(aCollector);
     }
 
     override void control(SardControl aControl)
     {
-        with(parser.current)
+        with(collector)
         {
             switch(aControl)
             {
@@ -627,7 +629,7 @@ public:
                     if (instruction.checkIdentifier())
                     {
                         with (instruction.setInstance())
-                            push(new SrdCollectorBlock(parser, statements));
+                            push(new SrdCollectorBlock(parser, arguments));
                     }
                     else //No it is just sub statment like: 10+(5*5)
                         with (instruction.setSub())
@@ -661,11 +663,15 @@ public:
     }
 }
 
-class SrdControllerDefines: SrdControllerNormal
+/**
+*    SrdControllerDefines
+*/
+
+class SrdControllerDefines: SrdControllerNormal  //TODO should i inherited it from SrdController?
 {
 public:
-    this(SrdParser aParser){ //TODO BUG why i need to copy it?!
-        super(aParser);    
+    this(SrdCollector aCollector){
+        super(aCollector);
     }
 
     override void control(SardControl aControl)
@@ -677,8 +683,6 @@ public:
 
 /**
 *    @class Parser
-*
-*
 *
 */
 

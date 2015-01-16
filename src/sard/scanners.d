@@ -123,9 +123,6 @@ protected:
         else
             error("Unkown operator started with " ~ text[column]);
 
-        /*if (operator.control <> Control.None) and ((lexical.parser as SrdParser).current.isInitial) //<- very stupid idea
-        lexical.parser.setControl(lOperator.Control)
-        else*/
         lexical.setOperator(operator);
         resume = false;
     }

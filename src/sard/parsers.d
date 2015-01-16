@@ -234,25 +234,6 @@ public:
 }
 
 /**
-*    @class Controllers
-*    list if controller
-*/
-
-class SrdControllers: SardObjects!SrdController
-{
-public:
-    SrdController findClass(const ClassInfo controllerClass) 
-    {
-        foreach(e; items) {
-            if (e.classinfo == controllerClass) {
-                return e;
-            }
-        }
-        return null;
-    }
-}
-
-/**
 *    @class Collector
 *    list if controller
 */
@@ -270,8 +251,8 @@ protected:
     void internalPost(){  
     }
 
-    ClassInfo getControllerClass(){
-        return SrdControllerNormal.classinfo;
+    SrdController createControllerClass(){
+        return new SrdControllerNormal(parser);
     }
 
 public:
@@ -283,7 +264,7 @@ public:
     this(SrdParser aParser){
         this();
         parser = aParser;
-        switchController(getControllerClass());
+        controller = createControllerClass();
         reset();        
     }
 
@@ -355,15 +336,6 @@ public:
     @property bool isInitial()
     {
         return false;
-    }
-
-    void switchController(ClassInfo controllerClass)
-    {
-        if (controllerClass is null)
-            error("ControllerClass must have a value!");
-        controller = parser.controllers.findClass(controllerClass);
-        if (controller is null)
-            error("Can not find this class:" ~ controllerClass.name);
     }
 
     void control(SardControl aControl){
@@ -505,8 +477,8 @@ protected:
             declare.resultType = instruction.identifier;            
     }
 
-    override ClassInfo getControllerClass(){
-        return SrdControllerDefines.classinfo;
+    override SrdController createControllerClass(){
+        return new SrdControllerDefines(parser);
     }
 
 public:
@@ -802,19 +774,14 @@ protected:
 
 public:
     Actions actions;
-    SrdCollector nextCollector;
-    SrdControllers controllers;
+    SrdCollector nextCollector;    
 
     this(SrdStatements aStatements)
     {
         super();      
-         controllers = new SrdControllers();
 
         if (aStatements is null)
-            error("You must set a block");
-
-        controllers.add(new SrdControllerNormal(this));
-        controllers.add(new SrdControllerDefines(this));      
+            error("You must set a block");      
 
         push(new SrdCollectorBlock(this, aStatements));
     }

@@ -114,13 +114,16 @@ public:
     void execute(RunStack stack, bool pushIt)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
-        stack.results.push(); //Each statement have own result
+        if (pushIt)
+            stack.results.push(); //Each statement have own result
 
         foreach(e; items) 
         {
             e.execute(stack);
         }
-        stack.results.pop();
+
+        if (pushIt)
+            stack.results.pop();
     }
 
 

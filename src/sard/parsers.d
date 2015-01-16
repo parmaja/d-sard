@@ -33,8 +33,20 @@ enum Action
 
 alias Set!Action Actions;
 
+/**
+*    Instruction
+*/
+
 class SrdInstruction: SardObject
 {
+    public this(){
+        super();
+        debug writeln("new instruction");
+    }
+
+    public ~this(){        
+        debug writeln("kill instruction");
+    }
 protected:
     void internalSetObject(SoObject aObject)
     {
@@ -99,14 +111,14 @@ public:
     void setIdentifier(string aIdentifier)
     {
         if (identifier != "")
-            error("Identifier is already set");
+            error("Identifier is already set to " ~ identifier);
         identifier = aIdentifier;
     }
 
     SoBaseNumber setNumber(string aIdentifier)
     {
         if (identifier != "")
-            error("Identifier is already set");
+            error("Identifier is already set to " ~ identifier);
         //TODO need to check object too
         SoBaseNumber result;
         if ((aIdentifier.indexOf(".") >= 0) || ((aIdentifier.indexOf("E") >= 0)))
@@ -198,6 +210,10 @@ public:
     }
 }
 
+/**
+*    Controller
+*/
+
 class SrdController: SardObject
 {
 protected:
@@ -216,6 +232,11 @@ public:
     abstract void control(SardControl aControl);
 }
 
+/**
+*    Controllers
+*    list if controller
+*/
+
 class SrdControllers: SardObjects!SrdController
 {
 public:
@@ -229,6 +250,11 @@ public:
         return null;
     }
 }
+
+/**
+*    Collector
+*    list if controller
+*/
 
 class SrdCollector: SardObject
 {
@@ -249,20 +275,15 @@ protected:
 
 public:
 
-    void set(SrdParser aParser)
-    {
-        parser = aParser;
-        switchController(getControllerClass());
-        reset();
-    }
-
     this(){
         super();
     }
 
     this(SrdParser aParser){
         this();
-        set(aParser);
+        parser = aParser;
+        switchController(getControllerClass());
+        reset();        
     }
 
     //Push to the Parser immediately
@@ -287,15 +308,20 @@ public:
     void prepare(){            
     }
 
-    void post(){            
-        if (!instruction.isEmpty) {      
-            debug{
-                writeln("post(" ~ to!string(instruction.operator) ~ ", " ~ instruction.identifier ~ ")");
-            }
+    void post(){
+        debug{
+            writeln("post(" ~ to!string(instruction.operator) ~ ", " ~ instruction.identifier ~ ")");
+        }
+
+        if (instruction.isEmpty) 
+        {
+            writeln("post() empty");
+        }
+        else  {
             prepare();
             internalPost();
-            reset();
-        }
+        } 
+        reset();
     }
 
     void next(){
@@ -669,11 +695,19 @@ public:
         super(aParser);    
     }
 
-    override void control(SardControl aControl){
+    override void control(SardControl aControl)
+    {
         //nothing O.o
         //TODO change the inheretance 
     }
 }
+
+/**
+*    Parser
+*
+*
+*
+*/
 
 class SrdParser: SardStack!SrdCollector, ISardParser 
 {
@@ -768,11 +802,12 @@ protected:
 public:
     Actions actions;
     SrdCollector nextCollector;
-    SrdControllers controllers = new SrdControllers();
+    SrdControllers controllers;
 
     this(SrdStatements aStatements)
     {
         super();      
+         controllers = new SrdControllers();
 
         if (aStatements is null)
             error("You must set a block");

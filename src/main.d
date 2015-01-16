@@ -71,13 +71,15 @@ int main(string[] argv)
         := x;";
 
 //10:
-    results ~= "statment using semicolon closed by block closer";
+    //statment using semicolon closed by block closer
+    results ~= "5";
     sources ~= `//notice before }
         x := { := 5 }
         :=x;
         `;
 
-    results ~= "block without using semicolon";
+    //block without using semicolon
+    results ~= "5";
     sources ~= `//block without using semicolon
         x := { := 5; }
         :=x;
@@ -96,10 +98,10 @@ int main(string[] argv)
         x := 5;
         `;
 
-    results ~= "Hello World";
+    results ~= "Hello\n\rWorld";
     sources ~= `//Hello World 
-        s:="Hello 
-            World";
+        s:="Hello
+World";
         := s;`;
 
     results ~= "Hello World";
@@ -191,6 +193,8 @@ i := i + 5.5;
             foreground = Color.initial;
 
             string source;
+            int index;
+
             if (argv.length > 1){
                 source = readText(argv[1]);
                 loop = false;
@@ -203,8 +207,8 @@ i := i + 5.5;
                     loop = false;
                     break;
                 }                    
-                int i = to!int(answer);
-                source = sources[i];
+                index = to!int(answer);
+                source = sources[index];
             }
             writeln();
             writeln("--- Compile ---");
@@ -230,6 +234,8 @@ i := i + 5.5;
             string s = sard.result;
             writeln(s);  
             foreground = Color.initial;
+            if (s != results[index])
+                error("Not expcepted result: " ~ results[index]);
             writeln();
         }
         writeln("---------------");
@@ -254,7 +260,7 @@ i := i + 5.5;
         foreground = Color.initial;
     }
     writeln("Press enter to stop");
-    getch();
-    //readln();
+    //getch();
+    readln();
     return 0;
 }

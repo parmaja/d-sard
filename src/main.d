@@ -121,7 +121,7 @@ World";
 
      results ~= "40";
      sources ~= "//call function
-        foo: { 12 + 23; }; //this is a declaration 
+        foo: { := 12 + 23; }; //this is a declaration 
         x := foo + 5;
         := x;";
 

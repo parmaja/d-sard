@@ -134,6 +134,7 @@ public:
     {
         RunDeclare declare = new RunDeclare();
         declare.name = object.name;        
+        declare.object = object;
         return _declares.add(declare);
     }
 

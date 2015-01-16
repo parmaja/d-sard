@@ -34,7 +34,7 @@ enum Action
 alias Set!Action Actions;
 
 /**
-*    Instruction
+*    @class Instruction
 */
 
 class SrdInstruction: SardObject
@@ -212,7 +212,7 @@ public:
 }
 
 /**
-*    Controller
+*    @class Controller
 */
 
 class SrdController: SardObject
@@ -234,7 +234,7 @@ public:
 }
 
 /**
-*    Controllers
+*    @class Controllers
 *    list if controller
 */
 
@@ -253,7 +253,7 @@ public:
 }
 
 /**
-*    Collector
+*    @class Collector
 *    list if controller
 */
 
@@ -704,7 +704,7 @@ public:
 }
 
 /**
-*    Parser
+*    @class Parser
 *
 *
 *

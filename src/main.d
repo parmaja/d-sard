@@ -85,19 +85,6 @@ int main(string[] argv)
         :=x;
         `;
 
-    results ~= "test";
-    sources ~= `//testing change the var type
-        x := 10;
-        x := "test";
-        :=x;
-        `;
-
-    results ~= "test";
-    sources ~= `//testing change the var type
-        := 10;
-        x := 5;
-        `;
-
     results ~= "Hello\nWorld";
     sources ~= "//Hello World 
         s:=\"Hello\nWorld\";
@@ -131,7 +118,7 @@ int main(string[] argv)
         := x;"; 
 
 /+
-//here we must return error but good one
+//here we must return error 
         results ~= "";
         sources[] = "//call function
         y := 23;
@@ -139,6 +126,20 @@ int main(string[] argv)
         x := foo + 5;
         := x;"; 
 +/
+
+        results ~= "test";
+        sources ~= `//testing change the var type
+            x := 10;
+            x := "test";
+            :=x;
+            `;
+
+        results ~= "test";
+        sources ~= `//testing change the var type
+            := 10;
+            x := 5;
+            `;
+
         results ~= "20";
         sources ~= "//call function
         foo:(z){ := z + 10; }; //this is a declaration 
@@ -194,7 +195,8 @@ i := i + 5.5;
             string source;
             int index;
 
-            if (argv.length > 1){
+            if (argv.length > 1)
+            {
                 source = readText(argv[1]);
                 loop = false;
             }
@@ -207,7 +209,15 @@ i := i + 5.5;
                     break;
                 }                    
                 index = to!int(answer);
-                source = sources[index];
+                if (index < sources.length)
+                    source = sources[index];
+                else
+                {
+                    foreground = Color.red;
+                    writeln("There is no source at this index");
+                    foreground = Color.initial;
+                    continue;
+                }
             }
             writeln();
             writeln("--- Compile ---");

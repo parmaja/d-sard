@@ -611,8 +611,8 @@ public:
                 if ((oldColumn == column) && (oldScanner == _scanner))
                     error("Feeder in loop with: " ~ _scanner.classinfo.nakename); //TODO: be careful here
             }
-            catch(Exception exc) {          
-                throw new SardParserException(exc.msg, aLine, column);
+            catch(Exception e) {          
+                throw new SardParserException(e.msg, aLine, column);
             }
         }
     }
@@ -779,12 +779,12 @@ class OpOperators: SardNamedObjects!OpOperator
 {
 public:
     OpOperator findByTitle(string title)
-{
-    foreach(o; items){
-        if (icmp(title, o.title) == 0) {
+    {
+        foreach(o; items)
+        {
+            if (icmp(title, o.title) == 0) 
             return o;
         }
+        return null;
     }
-    return null;
-}
 }

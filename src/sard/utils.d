@@ -10,7 +10,8 @@ import std.conv;
 import std.string;
 import std.array;
 
-@property string nakename(TypeInfo_Class classinfo){
+@property string nakename(TypeInfo_Class classinfo)
+{
     if (classinfo.name == "")
         return "";
     else {

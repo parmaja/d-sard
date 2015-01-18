@@ -339,9 +339,6 @@ public:
             SardStackItem aItem = currentItem;
             _currentItem = aItem.parent;
             _count--;
-
-            //    destroy(aItem);
-            //    destroy(aObject);
         }
 
     public:

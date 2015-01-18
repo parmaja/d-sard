@@ -109,16 +109,6 @@ class RunDeclare: SardObject
 
 class RunDeclares: SardNamedObjects!RunDeclare 
 {
-    final bool executeObject(SoObject object, RunStack stack, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
-    {
-        return false;
-/*        if (_object is null) {
-            error("Object of declaration is not set!");
-            return false;
-        }
-        else
-            return _object.execute(stack, operator, _object.defines, arguments, blocks);*/
-    }
 }
 
 /**
@@ -164,6 +154,11 @@ public:
         local.pop();
     }
 
+    final bool execute(SoObject object, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
+    {
+        return object.execute(this, operator, defines, arguments, blocks);
+    }
+    
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);

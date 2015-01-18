@@ -69,7 +69,7 @@ public:
     {
         if (_object is null)
             error("Object not set!");
-        return _object.execute(stack, _operator);
+        return stack.execute(_object, _operator);        
     }
 
     debug{
@@ -319,7 +319,7 @@ protected:
     abstract void doExecute(RunStack stack, OpOperator operator, ref bool done);    
 
 public:
-    final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
+    final bool execute(bool ignore, RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
     {
         bool done = false;
 
@@ -369,7 +369,7 @@ protected:
         //I dont know what if ther is an object there what we do???
         if (t.result.value !is null)
             t.result.value.execute(stack, operator);
-        t = null; //destroy it
+        //t = null; //destroy it
         done = true;
     }
 

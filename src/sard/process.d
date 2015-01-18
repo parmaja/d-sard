@@ -84,7 +84,7 @@ public:
     void run()
     {
         RunStack stack = new RunStack();
-        main.execute(stack, null); 
+        stack.execute(main, null); 
 
         if (stack.results.current.result.value !is null) 
         {

@@ -912,9 +912,9 @@ private
 protected:
     override void doExecute(RunStack stack, OpOperator operator, ref bool done)
     {            
-        RunDeclare p = stack.findDeclare(name);
-        if (p !is null) //maybe we must check Define.count, cuz it refere to it class
-            p.object.executeObject.execute(stack, operator, p.object.defines, arguments, null);
+        RunDeclare d = stack.findDeclare(name);
+        if (d !is null) //maybe we must check Define.count, cuz it refere to it class
+            d.execute(stack, operator, arguments, null);
         else 
         {
             RunVariable v = stack.local.current.variables.find(name);

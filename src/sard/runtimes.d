@@ -86,28 +86,39 @@ class RunResults: SardStack!RunResult
 {
 }
 
-/**
-    Stack tree
-*/
-
-class RunBranch: SardStack!RunBranch
-{
-public:
-}
-
-class RunRoot: RunBranch
-{
-    string name;
-}
-
 class RunDeclare: SardObject
 {
     string name;
     //SoObject executeObject;
-    SoDeclare object;
+    private SoDeclare _object;
+    
+    final bool execute(RunStack stack, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
+    {
+        if (_object is null) {
+            error("Object of declaration is not set!");
+            return false;
+        }
+        else
+            return _object.execute(stack, operator, _object.defines, arguments, blocks);
+    }
+
+    this(SoDeclare object){
+        _object = object;
+    }
 }
 
-class RunDeclares: SardNamedObjects!RunDeclare {
+class RunDeclares: SardNamedObjects!RunDeclare 
+{
+    final bool executeObject(SoObject object, RunStack stack, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
+    {
+        return false;
+/*        if (_object is null) {
+            error("Object of declaration is not set!");
+            return false;
+        }
+        else
+            return _object.execute(stack, operator, _object.defines, arguments, blocks);*/
+    }
 }
 
 /**
@@ -123,8 +134,7 @@ private:
     public @property RunDeclares declares() { return _declares; };
 
     RunLocal _local = new RunLocal();
-    RunResults _results = new RunResults();
-    RunRoot root = new RunRoot();
+    RunResults _results = new RunResults();    
 
 public:    
     @property RunLocal local() {return _local;};
@@ -132,9 +142,8 @@ public:
 
     int addDeclare(SoDeclare object)
     {
-        RunDeclare declare = new RunDeclare();
-        declare.name = object.name;        
-        declare.object = object;
+        RunDeclare declare = new RunDeclare(object);
+        declare.name = object.name; 
         return _declares.add(declare);
     }
 

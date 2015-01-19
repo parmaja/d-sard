@@ -21,4 +21,4 @@ curl --remote-name "https://raw.githubusercontent.com/parmaja/d-minilib/master/s
 curl --remote-name "https://raw.githubusercontent.com/parmaja/d-minilib/master/package.d" 
 cd ..
 
-# I dislike using submodule
+# I dislike using submodules

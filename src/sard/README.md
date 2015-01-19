@@ -110,7 +110,7 @@ Statement: haves Clauses
 Declare: is define how to call that object, it have Defines and link to the object to execute and call
     Declare is a object of Caluse that call external (or internal) object, until now this object freed by declare and it is wrong :(
 
-Stack: have data for run time execute, you cant share value between thread or multiple execute for the main object
+Env: have data for run time execute, you cant share value between thread or multiple execute for the main object
 So Stack have Local Variables, Shadow of object
 Shadow: it is mirror of object but have extra data about it that we can not save it in the original object,
 it is useful for multiexecute.

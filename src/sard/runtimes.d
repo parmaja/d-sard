@@ -20,7 +20,17 @@ import sard.objects;
 
 import minilib.sets;
 
-enum RunVarKind {Local, Param}; //there is more in the future
+/**
+*
+*   Variable
+*   Have object as value, used by env/scope
+*
+*/
+
+enum RunVarKind {
+    Local,  //Local env
+    Argument   //It is an argument when call function/object
+}; 
 
 alias RunVarKinds = Set!RunVarKind;
 
@@ -56,19 +66,13 @@ class RunVariables: SardNamedObjects!RunVariable
     }
 }
 
-class RunLocalItem: SardObject
-{
-public:
-    RunVariables variables;
-    this(){
-        super();
-        variables = new RunVariables();
-    }
-}
-
-class RunLocal: SardStack!RunLocalItem 
-{
-}
+/**
+*
+*   Result
+*   Need it when execute a statment and get a result from it even if we not have a result, it assigned to it, and killed when exit the env/scope
+*   But it can ref to parent result by parent assign :=, or ref to variable in the env
+*
+*/
 
 class RunResult: SardObject
 {
@@ -76,7 +80,8 @@ private:
 public:
     RunVariable result;
 
-    this(){        
+    this()
+    {
         result = new RunVariable();
         super();      
     }
@@ -86,20 +91,27 @@ class RunResults: SardStack!RunResult
 {
 }
 
+/**
+*
+*   Declare object to take it ref into variable
+*   I used by SoDeclare
+*
+*/
+
 class RunDeclare: SardObject
 {
     string name;
     //SoObject executeObject;
     private SoDeclare _object;
     
-    final bool execute(RunStack stack, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
+    final bool execute(RunEnv env, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
     {
         if (_object is null) {
             error("Object of declaration is not set!");
             return false;
         }
         else
-            return _object.execute(stack, operator, _object.defines, arguments, blocks);
+            return _object.execute(env, operator, _object.defines, arguments, blocks);
     }
 
     this(SoDeclare object){
@@ -112,22 +124,43 @@ class RunDeclares: SardNamedObjects!RunDeclare
 }
 
 /**
-    @class RunStack
+*
+*  Local is stack of flow control
+*  Not a scope
+*
 */
 
-class RunStack: SardObject 
+class RunStackItem: SardObject
+{
+public:
+    RunVariables variables;
+    this(){
+        super();
+        variables = new RunVariables();
+    }
+}
+
+class RunStack: SardStack!RunStackItem 
+{
+}
+
+/**
+    @class RunEnv
+*/
+
+class RunEnv: SardObject 
 {
 private:
-    //TODO: move _declares to the scope stack, it is bad here
+    //TODO: move _declares to the scope env, it is bad here
     RunDeclares _declares; 
 
     public @property RunDeclares declares() { return _declares; };
 
-    RunLocal _local = new RunLocal();
+    RunStack _stack = new RunStack();
     RunResults _results = new RunResults();    
 
 public:    
-    @property RunLocal local() {return _local;};
+    @property RunStack stack() {return _stack;};
     @property RunResults results() {return _results; };
 
     int addDeclare(SoDeclare object)
@@ -145,13 +178,13 @@ public:
     this(){
         _declares = new RunDeclares();
         super();
-        local.push();
+        stack.push();
         results.push();
     }
 
     ~this(){
         results.pop();
-        local.pop();
+        stack.pop();
     }
 
     final bool execute(SoObject object, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)

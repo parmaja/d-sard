@@ -621,7 +621,7 @@ private:
     bool _active;
     string _ver;
     string _charset;
-    SardLexical _lexical; //TODO: use stack to wrap the code inside <?sard ... ?>,
+    SardLexical _lexical; //TODO: use env to wrap the code inside <?sard ... ?>,
     //the current one must detect ?> to stop scanning and pop
     //but the other lexical will throw none code to output provider
 

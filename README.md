@@ -1,5 +1,5 @@
 Sard Script
-======
+===========
 
 It is an object script language not a programming language, but you can use it as programming language.
 
@@ -202,6 +202,7 @@ New object
   
 Required
 --------
+
 D Language http://dlang.org DMD2
 
 Library
@@ -210,10 +211,19 @@ Library
 https://github.com/parmaja/d-minilib
 
 https://github.com/robik/ConsoleD/tree/master/source
+
 or
+
 https://github.com/adamdruppe/arsd/blob/master/terminal.d
 
 
-###License###
+License
+=======
 
 The SARD script is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+
+###Articles###
+
+This articles i want to read
+
+http://blogs.msdn.com/b/abhinaba/archive/2009/01/25/back-to-basic-series-on-dynamic-memory-management.aspx

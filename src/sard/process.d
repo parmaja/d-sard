@@ -24,16 +24,16 @@ import sard.parsers;
 class SoVersion_Const: SoObject
 {
 protected:
-    override void doExecute(RunStack stack, OpOperator operator, ref bool done){
-        stack.results.current.result.value = new SoText(sSardVersion);
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done){
+        env.results.current.result.value = new SoText(sSardVersion);
     }
 }
 
 class SoTime_Const: SoObject
 {
 protected:
-    override void doExecute(RunStack stack, OpOperator operator, ref bool done){    
-        stack.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done){    
+        env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
 
@@ -83,15 +83,15 @@ public:
 
     void run()
     {
-        RunStack stack = new RunStack();
-        stack.execute(main, null); 
+        RunEnv env = new RunEnv();
+        env.execute(main, null); 
 
-        if (stack.results.current.result.value !is null) 
+        if (env.results.current.result.value !is null) 
         {
             debug {
                 writeln("We have value");
             }
-            result = stack.results.current.result.value.asText();
+            result = env.results.current.result.value.asText();
             debug {
                 writeln("The value is: " ~ result);
             }

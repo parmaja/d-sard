@@ -1,21 +1,17 @@
 module sard.objects;
 /**
-    This file is part of the "SARD"
-
-    @license   The MIT License (MIT) Included in this distribution
-    @author    Zaher Dirkey <zaher at yahoo dot com>
+*   This file is part of the "SARD"
+*
+*   @license   The MIT License (MIT) Included in this distribution
+*   @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 
 /**TODO:
-    SoArray:   Object have another objects, a list of objectd without execute it,
-    it is save the result of statement come from the parser  
-
-    Modifiers: It is like operator but with one side can be in the context before the identifier like + !x %x $x
-*/
-
-/**TODO:
-    result and reference are same, we need to remove reference
+*   SoArray:   Object have another objects, a list of objectd without execute it,
+*   it is save the result of statement come from the parser  
+*
+*   Modifiers: It is like operator but with one side can be in the context before the identifier like + !x %x $x
 */
 
 import std.stdio;
@@ -65,11 +61,11 @@ public:
         _object = aObject;
     }
 
-    bool execute(RunStack stack) 
+    bool execute(RunEnv env) 
     {
         if (_object is null)
             error("Object not set!");
-        return _object.execute(stack, _operator);        
+        return _object.execute(env, _operator);        
     }
 
     debug{
@@ -111,19 +107,19 @@ public:
         super.add(clause);    
     }
 
-    void execute(RunStack stack, bool pushIt)
+    void execute(RunEnv env, bool pushIt)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
         if (pushIt)
-            stack.results.push(); //Each statement have own result
+            env.results.push(); //Each statement have own result
 
         foreach(e; items) 
         {
-            e.execute(stack);
+            e.execute(env);
         }
 
         if (pushIt)
-            stack.results.pop();
+            env.results.pop();
     }
 
 
@@ -158,14 +154,14 @@ public:
         }
     }
 
-    bool execute(RunStack stack, bool pushIt)
+    bool execute(RunEnv env, bool pushIt)
     {
         if (count == 0)
             return false;
         else
         {            
             foreach(e; items) {
-                e.execute(stack, pushIt);
+                e.execute(env, pushIt);
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
             return true;
@@ -308,35 +304,35 @@ protected:
             return doOperate(object, operator);
     }
 
-    void beforeExecute(RunStack stack, OpOperator operator){
+    void beforeExecute(RunEnv env, OpOperator operator){
 
     }
 
-    void afterExecute(RunStack stack, OpOperator operator){
+    void afterExecute(RunEnv env, OpOperator operator){
 
     }
 
-    abstract void doExecute(RunStack stack, OpOperator operator, ref bool done);    
+    abstract void doExecute(RunEnv env, OpOperator operator, ref bool done);    
 
 public:
-    final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
+    final bool execute(RunEnv env, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
     {
         bool done = false;
 
-        beforeExecute(stack, operator);      
+        beforeExecute(env, operator);      
         if (defines !is null)
-            defines.execute(stack, arguments);
-        doExecute(stack, operator, done);
-        afterExecute(stack, operator);      
+            defines.execute(env, arguments);
+        doExecute(env, operator, done);
+        afterExecute(env, operator);      
 
         debug 
         {      
-            string s = "  " ~ stringRepeat(" ", stack.results.currentItem.level) ~ ">";
-            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(stack.results.currentItem.level);
+            string s = "  " ~ stringRepeat(" ", env.results.currentItem.level) ~ ">";
+            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.results.currentItem.level);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
-            if (stack.results.current.result.value !is null)
-                s = s ~ " result: " ~ stack.results.current.result.value.asText;
+            if (env.results.current.result.value !is null)
+                s = s ~ " result: " ~ env.results.current.result.value.asText;
             writeln(s);
         }  
         return done; 
@@ -361,14 +357,14 @@ protected:
     SrdStatements _statements;
     public @property SrdStatements statements() { return _statements; };
 
-    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {                
-        stack.results.push(); //<--here we can push a variable result or create temp result to drop it
-        statements.execute(stack, false);
-        auto t = stack.results.pull();
+        env.results.push(); //<--here we can push a variable result or create temp result to drop it
+        statements.execute(env, false);
+        auto t = env.results.pull();
         //I dont know what if ther is an object there what we do???
         if (t.result.value !is null)
-            t.result.value.execute(stack, operator);
+            t.result.value.execute(env, operator);
         //t = null; //destroy it
         done = true;
     }
@@ -396,7 +392,7 @@ public:
 /** SoBlock */
 /** 
     Used by { } 
-    It a block before execute push in stack, after execute will pop the stack, it have return value too in the stack
+    It a block before execute push in env, after execute will pop the env, it have return value too in the env
 */
 
 class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
@@ -404,16 +400,16 @@ class SoBlock: SoStatements  //Result was droped until using := assign in the fi
 private:
 
 protected:
-    override void beforeExecute(RunStack stack, OpOperator operator)
+    override void beforeExecute(RunEnv env, OpOperator operator)
     {
-        super.beforeExecute(stack, operator);
-        stack.local.push();
+        super.beforeExecute(env, operator);
+        env.stack.push();
     }
 
-    override void afterExecute(RunStack stack, OpOperator operator)
+    override void afterExecute(RunEnv env, OpOperator operator)
     {
-        super.afterExecute(stack, operator);
-        stack.local.pop();
+        super.afterExecute(env, operator);
+        env.stack.pop();
     }
 
 public:
@@ -435,23 +431,23 @@ protected:
     public @property SrdStatement statement() { return _statement; };
     public alias statement this;
 
-    override void beforeExecute(RunStack stack, OpOperator operator)
+    override void beforeExecute(RunEnv env, OpOperator operator)
     {
-        super.beforeExecute(stack, operator);
-        stack.results.push();
+        super.beforeExecute(env, operator);
+        env.results.push();
     }  
 
-    override void afterExecute(RunStack stack, OpOperator operator)
+    override void afterExecute(RunEnv env, OpOperator operator)
     {      
-        super.afterExecute(stack, operator);
-        RunResult T = stack.results.pull();
+        super.afterExecute(env, operator);
+        RunResult T = env.results.pull();
         if (T.result.value !is null)
-            T.result.value.execute(stack, operator);            
+            T.result.value.execute(env, operator);            
     }  
 
-    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
-        statement.execute(stack, false);
+        statement.execute(env, false);
         done = true;
     }
 
@@ -466,18 +462,18 @@ public:
 
 abstract class SoConstObject: SoObject
 {
-    override final void doExecute(RunStack stack, OpOperator operator, ref bool done)
+    override final void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
-        if ((stack.results.current.result.value is null) && (operator is null)) 
+        if ((env.results.current.result.value is null) && (operator is null)) 
         {
-            stack.results.current.result.value = clone();
+            env.results.current.result.value = clone();
             done = true;
         }
         else 
         {      
-            if (stack.results.current.result.value is null)
-                stack.results.current.result.value = clone(false);
-            done = stack.results.current.result.value.operate(this, operator);
+            if (env.results.current.result.value is null)
+                env.results.current.result.value = clone(false);
+            done = env.results.current.result.value.operate(this, operator);
         }
     }
 }
@@ -499,7 +495,7 @@ class SoNone: SoConstObject  //None it is not Null, it is an initial value we sa
 class SoComment: SoObject
 {
 protected:
-    override void doExecute(RunStack stack, OpOperator operator,ref bool done)
+    override void doExecute(RunEnv env, OpOperator operator,ref bool done)
     {
         //Guess what!, we will not to execute the comment ;)
         done = true;
@@ -519,7 +515,7 @@ public:
 class SoPreprocessor: SoObject
 {
 protected:
-    override void doExecute(RunStack stack, OpOperator operator,ref bool done){
+    override void doExecute(RunEnv env, OpOperator operator,ref bool done){
         //TODO execute external program and replace it with the result
         done = true;
     }
@@ -816,13 +812,11 @@ public:
     }
 }
 
-/* TODO: SoArray */
-
 /*--------------------------------------------*/
 
 /**
-x(i: integer) {...
----[ Defines  ]-------   
+*   x(i: integer) {...
+*   ---[ Defines  ]-------   
 */
 
 class SrdDefine: SardObject 
@@ -865,42 +859,38 @@ class SrdDefines: SardObject
         blocks = new SrdDefineItems();
     }
 
-    void execute(RunStack stack, SrdStatements arguments)
+    void execute(RunEnv env, SrdStatements arguments)
     {        
         if (arguments !is null) 
         { //TODO we need to check if it is a block?      
             int i = 0;
             while (i < parameters.count)
             { 
-                stack.results.push();
-                arguments[i].execute(stack, false);
+                env.results.push();
+                arguments[i].execute(env, false);
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
-                    RunVariable v = stack.local.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Param])); //TODO but must find it locally
-                    v.value = stack.results.current.result.value;
+                    RunVariable v = env.stack.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
+                    v.value = env.results.current.result.value;
                 }
-                stack.results.pop();
+                env.results.pop();
                 i++;
             }        
         }
     }
 }
 
-//Just a references not free inside objects, not sure how to do that in D
-
-/**  Variables objects */
-
 /**   SoInstance */
 
 /** 
-it is a variable value like x in this "10 + x + 5" 
-it will call the object if it is a object not a variable
+*   it is a variable value like x in this "10 + x + 5" 
+*   it will call the object if it is a object not a variable
 */
 
 /**
-x := 10  + Foo( 500,  600);
--------------Id [Statements]--------
+*   x := 10  + Foo( 500,  600);
+*   -------------Id [Statements]--------
 */
 
 class SoInstance: SoObject
@@ -910,21 +900,21 @@ private
     public @property SrdStatements arguments() { return _arguments; };
 
 protected:
-    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {            
-        RunDeclare d = stack.findDeclare(name);
+        RunDeclare d = env.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
-            d.execute(stack, operator, arguments, null);
+            d.execute(env, operator, arguments, null);
         else 
         {
-            RunVariable v = stack.local.current.variables.find(name);
+            RunVariable v = env.stack.current.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
             if (v.value is null)
                 error("Variable value is null: " ~ v.name);
             if (v.value is null)
                 error("Variable object is null: " ~ v.name);
-            done = v.value.execute(stack, operator);
+            done = v.value.execute(env, operator);
         }      
     }
 
@@ -947,19 +937,19 @@ class SoAssign: SoObject
 {
 protected:
 
-    override void doExecute(RunStack stack, OpOperator operator, ref bool done)
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            stack.results.current.result = stack.results.parent.result;
+            env.results.current.result = env.results.parent.result;
         else 
         {
             //Ok let is declare it locally
-            RunVariable v = stack.local.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
+            RunVariable v = env.stack.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
             if (v is null)
                 error("Variable not found!");
-            stack.results.current.result = v;
+            env.results.current.result = v;
         }
     }
 
@@ -1011,12 +1001,8 @@ public:
 
     string resultType;
 
-    override protected void doExecute(RunStack stack, OpOperator operator,ref bool done)
+    override protected void doExecute(RunEnv env, OpOperator operator,ref bool done)
     {
-        stack.addDeclare(this);
+        env.addDeclare(this);
     }
 }
-
-/*TODO
-class SoArray ....
-*/

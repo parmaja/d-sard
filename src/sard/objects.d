@@ -39,7 +39,7 @@ alias long integer;
 alias double number;
 alias string text;
 
-enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otObject, otClass, otVariable};
+enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otDeclare, otObject, otClass, otVariable};
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
 class SrdDebugInfo: SardObject 
@@ -69,7 +69,7 @@ public:
     {
         if (_object is null)
             error("Object not set!");
-        return stack.execute(_object, _operator);        
+        return _object.execute(stack, _operator);        
     }
 
     debug{
@@ -319,7 +319,7 @@ protected:
     abstract void doExecute(RunStack stack, OpOperator operator, ref bool done);    
 
 public:
-    final bool execute(bool ignore, RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
+    final bool execute(RunStack stack, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
     {
         bool done = false;
 
@@ -989,7 +989,7 @@ private:
 protected:
     override void created(){
         super.created();
-        _objectType = ObjectType.otClass;
+        _objectType = ObjectType.otDeclare;
     }
 
 public:

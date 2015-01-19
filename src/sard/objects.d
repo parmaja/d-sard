@@ -111,7 +111,7 @@ public:
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
         if (pushIt)
-            env.results.push(); //Each statement have own result
+            env.stack.results.push(); //Each statement have own result
 
         foreach(e; items) 
         {
@@ -119,7 +119,7 @@ public:
         }
 
         if (pushIt)
-            env.results.pop();
+            env.stack.results.pop();
     }
 
 
@@ -327,12 +327,12 @@ public:
 
         debug 
         {      
-            string s = "  " ~ stringRepeat(" ", env.results.currentItem.level) ~ ">";
-            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.results.currentItem.level);
+            string s = "  " ~ stringRepeat(" ", env.stack.results.currentItem.level) ~ ">";
+            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.stack.results.currentItem.level);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
-            if (env.results.current.result.value !is null)
-                s = s ~ " result: " ~ env.results.current.result.value.asText;
+            if (env.stack.results.current.result.value !is null)
+                s = s ~ " result: " ~ env.stack.results.current.result.value.asText;
             writeln(s);
         }  
         return done; 
@@ -359,9 +359,9 @@ protected:
 
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {                
-        env.results.push(); //<--here we can push a variable result or create temp result to drop it
+        env.stack.results.push(); //<--here we can push a variable result or create temp result to drop it
         statements.execute(env, false);
-        auto t = env.results.pull();
+        auto t = env.stack.results.pull();
         //I dont know what if ther is an object there what we do???
         if (t.result.value !is null)
             t.result.value.execute(env, operator);
@@ -434,13 +434,13 @@ protected:
     override void beforeExecute(RunEnv env, OpOperator operator)
     {
         super.beforeExecute(env, operator);
-        env.results.push();
+        env.stack.results.push();
     }  
 
     override void afterExecute(RunEnv env, OpOperator operator)
     {      
         super.afterExecute(env, operator);
-        RunResult T = env.results.pull();
+        RunResult T = env.stack.results.pull();
         if (T.result.value !is null)
             T.result.value.execute(env, operator);            
     }  
@@ -464,16 +464,16 @@ abstract class SoConstObject: SoObject
 {
     override final void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
-        if ((env.results.current.result.value is null) && (operator is null)) 
+        if ((env.stack.results.current.result.value is null) && (operator is null)) 
         {
-            env.results.current.result.value = clone();
+            env.stack.results.current.result.value = clone();
             done = true;
         }
         else 
         {      
-            if (env.results.current.result.value is null)
-                env.results.current.result.value = clone(false);
-            done = env.results.current.result.value.operate(this, operator);
+            if (env.stack.results.current.result.value is null)
+                env.stack.results.current.result.value = clone(false);
+            done = env.stack.results.current.result.value.operate(this, operator);
         }
     }
 }
@@ -866,15 +866,15 @@ class SrdDefines: SardObject
             int i = 0;
             while (i < parameters.count)
             { 
-                env.results.push();
+                env.stack.results.push();
                 arguments[i].execute(env, false);
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
                     RunVariable v = env.stack.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
-                    v.value = env.results.current.result.value;
+                    v.value = env.stack.results.current.result.value;
                 }
-                env.results.pop();
+                env.stack.results.pop();
                 i++;
             }        
         }
@@ -942,14 +942,14 @@ protected:
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            env.results.current.result = env.results.parent.result;
+            env.stack.results.current.result = env.stack.results.parent.result;
         else 
         {
             //Ok let is declare it locally
             RunVariable v = env.stack.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
             if (v is null)
                 error("Variable not found!");
-            env.results.current.result = v;
+            env.stack.results.current.result = v;
         }
     }
 

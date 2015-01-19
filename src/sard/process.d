@@ -25,7 +25,7 @@ class SoVersion_Const: SoObject
 {
 protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done){
-        env.results.current.result.value = new SoText(sSardVersion);
+        env.stack.results.current.result.value = new SoText(sSardVersion);
     }
 }
 
@@ -33,7 +33,7 @@ class SoTime_Const: SoObject
 {
 protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done){    
-        env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
+        env.stack.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
 
@@ -86,12 +86,12 @@ public:
         RunEnv env = new RunEnv();
         env.execute(main, null); 
 
-        if (env.results.current.result.value !is null) 
+        if (env.stack.results.current.result.value !is null) 
         {
             debug {
                 writeln("We have value");
             }
-            result = env.results.current.result.value.asText();
+            result = env.stack.results.current.result.value.asText();
             debug {
                 writeln("The value is: " ~ result);
             }

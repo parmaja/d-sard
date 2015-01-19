@@ -142,6 +142,20 @@ public:
 
 class RunStack: SardStack!RunStackItem 
 {
+private:
+    RunResults _results;
+    public @property RunResults results() {return _results; };
+
+public:
+    this(){
+        _results = new RunResults();    
+        super();
+        results.push();
+    }
+
+    ~this(){
+        results.pop();
+    }
 }
 
 /**
@@ -153,16 +167,12 @@ class RunEnv: SardObject
 private:
     //TODO: move _declares to the scope env, it is bad here
     RunDeclares _declares; 
-
     public @property RunDeclares declares() { return _declares; };
 
-    RunStack _stack = new RunStack();
-    RunResults _results = new RunResults();    
+    RunStack _stack ;
+    public @property RunStack stack() {return _stack;};
 
-public:    
-    @property RunStack stack() {return _stack;};
-    @property RunResults results() {return _results; };
-
+public:
     int addDeclare(SoDeclare object)
     {
         RunDeclare declare = new RunDeclare(object);
@@ -177,13 +187,12 @@ public:
 
     this(){
         _declares = new RunDeclares();
+        _stack = new RunStack();
         super();
         stack.push();
-        results.push();
     }
 
     ~this(){
-        results.pop();
         stack.pop();
     }
 

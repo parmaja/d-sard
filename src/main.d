@@ -35,16 +35,20 @@ int main(string[] argv)
     results ~= "";
     sources ~= "   "; //3 spaces
 
+    results ~= "";
+    sources ~= "10 + 10;"; //simple result
+
     results ~= "10";
-    sources ~= ":=10;"; //simple result
+    sources ~= ":= 10;"; //simple result
 
-    results ~= "11";
-    sources ~= "  :=10+1;"; //simple result started with spaces
+    results ~= "20";
+    sources ~= "  :=10 + 10;"; //simple result started with spaces
 
+//5
     results ~= "";
     sources ~= "x:=10;"; //simple assign, this must not return a value
 
-//5
+
     results ~= "";
     sources ~= "x:=10+1;";  
 
@@ -62,6 +66,7 @@ int main(string[] argv)
     //x := x + 5;
     := x;";
 
+//10:
     results ~= "10";
     sources ~= "  x := 10; 
     /*
@@ -70,7 +75,6 @@ int main(string[] argv)
         */
         := x;";
 
-//10:
     results ~= "15";
     sources ~= `//notice before 
          := 5 + (2 * 5);

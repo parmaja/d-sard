@@ -217,11 +217,9 @@ public:
     this(){
         _results = new RunResults();    
         super();
-        results.push();
     }
 
     ~this(){
-        results.pop();
     }
 }
 
@@ -247,11 +245,9 @@ public:
         _stack = new RunStack();
         _data = new RunRoot(null);
         super();
-        stack.push();
     }
 
     ~this(){
-        stack.pop();
     }
 
     debug{

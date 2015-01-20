@@ -324,7 +324,7 @@ public:
             s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.stack.count);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
-            if (env.stack.results.current.result.value !is null)
+            if (env.stack.results.current && env.stack.results.current.result.value)
                 s = s ~ " result: " ~ env.stack.results.current.result.value.asText;
             writeln(s);
             writeln(".asText: " ~ asText);
@@ -465,6 +465,8 @@ abstract class SoConstObject: SoObject
 {
     override final void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
+        if (!env.stack.results.current)
+            error("There is no stack results!");
         if ((env.stack.results.current.result.value is null) && (operator is null)) 
         {
             env.stack.results.current.result.value = clone();

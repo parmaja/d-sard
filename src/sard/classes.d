@@ -315,7 +315,13 @@ public:
             return o;
         }
 
-        T pull(){
+        T peek(){
+            if (currentItem is null)
+                error("Stack is empty"); //TODO maybe return null
+            return currentItem.object;
+        }
+
+        T pop(){
             if (currentItem is null)
                 error("Stack is empty");
             beforePop();
@@ -324,22 +330,6 @@ public:
             _currentItem = aItem.parent;
             _count--;
             return aObject;
-        }
-
-        T peek(){
-            if (currentItem is null)
-                error("Stack is empty"); //TODO maybe return null
-            return currentItem.object;
-        }
-
-        void pop() {
-            if (currentItem is null)
-                error("Stack is empty");
-            beforePop();
-            T aObject = currentItem.object;
-            SardStackItem aItem = currentItem;
-            _currentItem = aItem.parent;
-            _count--;
         }
 
     public:

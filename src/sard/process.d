@@ -84,7 +84,7 @@ public:
     void run()
     {
         RunEnv env = new RunEnv();
-        env.execute(main, null); 
+        main.execute(env, null); 
 
         if (env.stack.results.current.result.value !is null) 
         {

@@ -354,7 +354,7 @@ protected:
     {                
         env.stack.results.push(); //<--here we can push a variable result or create temp result to drop it
         statements.execute(env);
-        auto t = env.stack.results.pull();
+        auto t = env.stack.results.pop();
         //I dont know what if ther is an object there what we do???
         if (t.result.value !is null)
             t.result.value.execute(env, operator);
@@ -435,9 +435,9 @@ protected:
     override void afterExecute(RunEnv env, OpOperator operator)
     {      
         super.afterExecute(env, operator);
-        RunResult T = env.stack.results.pull();
-        if (T.result.value !is null)
-            T.result.value.execute(env, operator);            
+        RunResult t = env.stack.results.pop();
+        if (t.result.value !is null)
+            t.result.value.execute(env, operator);            
     }  
 
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)

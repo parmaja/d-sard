@@ -225,21 +225,24 @@ public:
 }
 
 /**
-    @class RunEnv
+*   @class RunEnv
+*
+*   Stack have results values to drop it, result can be reference to variable
+*   Data have variables and declares
 */
 
 class RunEnv: SardObject 
 {
 private:
-    //TODO: move _declares to the scope env, it is bad here
-
     RunStack _stack ;
     public @property RunStack stack() {return _stack;};
 
     RunRoot _data;
     public @property RunRoot data() {return _data;};
+
 public:
-    this(){
+    this()
+    {
         _stack = new RunStack();
         _data = new RunRoot(null);
         super();
@@ -250,11 +253,6 @@ public:
         stack.pop();
     }
 
-    final bool execute(SoObject object, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
-    {
-        return object.execute(this, operator, defines, arguments, blocks);
-    }
-    
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);

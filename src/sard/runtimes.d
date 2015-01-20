@@ -233,13 +233,15 @@ private:
     public @property RunRoot data() {return _data;};
 
 public:
-    void enter(SoObject object){
+    void enter(SoObject object)
+    {
         auto o = stack.current.data.register(object);
         stack.push();
         stack.current.data = o;
     }
 
-    void exit(SoObject){
+    void exit(SoObject)
+    {
         stack.pop();
         //stack.current.data = null;
     }
@@ -248,10 +250,13 @@ public:
     {
         _stack = new RunStack();
         _data = new RunRoot(null);
+        stack.push();
+        stack.current.data = _data;
         super();
     }
 
     ~this(){
+        stack.pop();
     }
 
     debug{

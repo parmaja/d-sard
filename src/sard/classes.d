@@ -325,11 +325,11 @@ public:
             if (currentItem is null)
                 error("Stack is empty");
             beforePop();
-            T aObject = currentItem.object;
+            T object = currentItem.object;
             SardStackItem aItem = currentItem;
             _currentItem = aItem.parent;
             _count--;
-            return aObject;
+            return object;
         }
 
     public:

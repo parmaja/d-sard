@@ -91,17 +91,17 @@ class RunResults: SardStack!RunResult
 {
 }
 
-/**
+/**     s
 *
 *   Declare object to take it ref into variable
-*   I used by SoDeclare
+*   used by SoDeclare
 *
 */
 
 class RunDeclare: SardObject
 {
     string name;
-    //SoObject executeObject;
+    RunData data;
     private SoDeclare _object;
     
     final bool execute(RunEnv env, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
@@ -140,8 +140,8 @@ public:
 class RunData: SardObjects!RunData
 {
 public:
-    RunDeclares _declares; 
     SoObject object;
+    RunDeclares declares; 
     RunVariables variables;
     RunData parent;
 
@@ -149,12 +149,13 @@ public:
     {
         RunDeclare declare = new RunDeclare(object);
         declare.name = object.name; 
-        return _declares.add(declare);
+        declare.data = this;
+        return declares.add(declare);
     }
 
     RunDeclare findDeclare(string vName)
     {
-        return _declares.find(vName);         
+        return declares.find(vName);         
     }
 
     RunData findObject(SoObject object)
@@ -181,7 +182,7 @@ public:
     {
         parent = aParent;
         variables = new RunVariables();
-        _declares = new RunDeclares();
+        declares = new RunDeclares();
         super();
     }
 }
@@ -189,7 +190,7 @@ public:
 class RunRoot: RunData
 {
 public:
-    RunData current;//TODO make it property
+    RunData current;//TODO make it property move it to stack
 
     void enter(SoObject object){
         current = register(object);

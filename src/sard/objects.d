@@ -153,8 +153,12 @@ public:
             return false;
         else
         {            
-            foreach(e; items) {
+            foreach(e; items) 
+            {
+                //each statment have a result
+                env.stack.results.push();
                 e.execute(env);
+                env.stack.results.pop();
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
             return true;
@@ -192,12 +196,9 @@ public:
     { 
         this();      
         _name = aName;
-        parent = aParent;//to trigger doSetParent
+        parent = aParent;
     }
 
-
-    protected void doSetParent(SoObject aParent){
-    }
 
     @property SoObject parent() {return _parent; };
     @property SoObject parent(SoObject value) 
@@ -205,7 +206,6 @@ public:
         if (_parent !is null) 
             error("Already have a parent");
         _parent = value;
-        doSetParent(_parent);
         return _parent; 
     };
 
@@ -327,6 +327,7 @@ public:
             if (env.stack.results.current.result.value !is null)
                 s = s ~ " result: " ~ env.stack.results.current.result.value.asText;
             writeln(s);
+            writeln(".asText: " ~ asText);
         }  
         return done; 
     }
@@ -355,10 +356,15 @@ protected:
         env.stack.results.push(); //<--here we can push a variable result or create temp result to drop it
         statements.execute(env);
         auto t = env.stack.results.pop();
-        //I dont know what if ther is an object there what we do???
-        if (t.result.value !is null)
-            t.result.value.execute(env, operator);
-        //t = null; //destroy it
+        //I dont know what if there is an object there what we do???
+        /*
+        * := 5 + { := 10 + 10 }
+        * it return 25
+        * here 20.execute with +
+        */
+        if (t.result.value !is null) {
+            t.result.value.execute(env, operator); 
+        }
         done = true;
     }
 
@@ -396,15 +402,15 @@ protected:
     override void beforeExecute(RunEnv env, OpOperator operator)
     {
         super.beforeExecute(env, operator);
-        env.data.enter(this);
         env.stack.push();
+        env.data.enter(this);
     }
 
     override void afterExecute(RunEnv env, OpOperator operator)
     {
         super.afterExecute(env, operator);
-        env.stack.pop();
         env.data.exit(this);
+        env.stack.pop();
     }
 
 public:
@@ -936,8 +942,10 @@ protected:
     {
         /** if not name it assign to parent result */
         done = true;
-        if (name == "")
+        if (name == "") {
             env.stack.results.current.result = env.stack.results.parent.result;        
+            writeln("set to parent");
+        }
         else 
         {
             //Ok let is declare it locally

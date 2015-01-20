@@ -98,7 +98,8 @@ public:
 }
 
 //class SardObjects(T): SardObject if(is(T: SomeObject)) {
-class SardObjects(T: SardObject): SardObject 
+//class SardObjects(T: SardObject): SardObject 
+class SardObjects(T): SardObject 
 {
 private:
     T[] _items;//TODO hash string list for namedobjects    

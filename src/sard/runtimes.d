@@ -140,22 +140,68 @@ public:
 class RunData: SardObjects!RunData
 {
 public:
+    RunDeclares _declares; 
     SoObject object;
-    RunStackItem stack;
     RunVariables variables;
     RunData parent;
 
-    alias last current;
+    int addDeclare(SoDeclare object)
+    {
+        RunDeclare declare = new RunDeclare(object);
+        declare.name = object.name; 
+        return _declares.add(declare);
+    }
+
+    RunDeclare findDeclare(string vName)
+    {
+        return _declares.find(vName);         
+    }
+
+    RunData findObject(SoObject object)
+    {
+        foreach(e; items) {
+            if (e.object is object) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    RunData register(SoObject object)
+    {
+        RunData o = findObject(object);
+        if (o is null) {
+            o = new RunData(this);
+            o.object = object;
+        }
+        return o;
+    }
 
     this(RunData aParent)
     {
         parent = aParent;
         variables = new RunVariables();
+        _declares = new RunDeclares();
         super();
     }
+}
 
-    int x;
-    
+class RunRoot: RunData
+{
+public:
+    RunData current;//TODO make it property
+
+    void enter(SoObject object){
+        current = register(object);
+    }
+
+    void exit(SoObject){
+        current = null;
+    }
+
+    this(RunData aParent){
+        super(aParent);
+    }
 }
 
 /** Stack */
@@ -186,31 +232,16 @@ class RunEnv: SardObject
 {
 private:
     //TODO: move _declares to the scope env, it is bad here
-    RunDeclares _declares; 
-    public @property RunDeclares declares() { return _declares; };
 
     RunStack _stack ;
     public @property RunStack stack() {return _stack;};
 
-    RunData _data;
-    public @property RunData data() {return _data;};
+    RunRoot _data;
+    public @property RunRoot data() {return _data;};
 public:
-    int addDeclare(SoDeclare object)
-    {
-        RunDeclare declare = new RunDeclare(object);
-        declare.name = object.name; 
-        return _declares.add(declare);
-    }
-
-    RunDeclare findDeclare(string vName)
-    {
-        return _declares.find(vName);         
-    }
-
     this(){
-        _declares = new RunDeclares();
         _stack = new RunStack();
-        _data = new RunData(null);        
+        _data = new RunRoot(null);
         super();
         stack.push();
     }
@@ -227,7 +258,7 @@ public:
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);
-            _declares.debugWrite(level + 1);
+            _data.debugWrite(level + 1);
         }
     }
 } 

@@ -341,10 +341,10 @@ public:
 }
 
 /*
-*   SoStatements is a base class for list of objects (statements) like SoBlock
+*   SoEnclose is a base class for list of objects (statements) like SoBlock
 */
 
-abstract class SoStatements: SoObject
+abstract class SoEnclose: SoObject
 {
 protected:
     SrdStatements _statements;
@@ -388,7 +388,7 @@ public:
     It a block before execute push in env, after execute will pop the env, it have return value too in the env
 */
 
-class SoBlock: SoStatements  //Result was droped until using := assign in the first of statement
+class SoBlock: SoEnclose  //Result was droped until using := assign in the first of statement
 { 
 private:
 
@@ -396,6 +396,7 @@ protected:
     override void beforeExecute(RunEnv env, OpOperator operator)
     {
         super.beforeExecute(env, operator);
+        env.data.enter(this);
         env.stack.push();
     }
 
@@ -403,6 +404,7 @@ protected:
     {
         super.afterExecute(env, operator);
         env.stack.pop();
+        env.data.exit(this);
     }
 
 public:
@@ -895,12 +897,12 @@ private
 protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {            
-        RunDeclare d = env.findDeclare(name);
+        RunDeclare d = env.data.current.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
             d.execute(env, operator, arguments, null);
         else 
         {
-            RunVariable v = env.stack.current.variables.find(name);
+            RunVariable v = env.data.current.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
             if (v.value is null)
@@ -939,7 +941,7 @@ protected:
         else 
         {
             //Ok let is declare it locally
-            RunVariable v = env.stack.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
+            RunVariable v = env.data.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
             if (v is null)
                 error("Variable not found!");
             env.stack.results.current.result = v;
@@ -996,6 +998,6 @@ public:
 
     override protected void doExecute(RunEnv env, OpOperator operator,ref bool done)
     {
-        env.addDeclare(this);
+        env.data.current.addDeclare(this);
     }
 }

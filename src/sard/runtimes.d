@@ -123,18 +123,6 @@ class RunDeclares: SardNamedObjects!RunDeclare
 {
 }
 
-/**
-*
-*  Local is stack of flow control
-*  Not a scope
-*
-*/
-
-class RunStackItem: SardObject
-{
-public:
-}
-
 //Is that a Scope!!!, idk!
 
 class RunData: SardObjects!RunData
@@ -190,19 +178,24 @@ public:
 class RunRoot: RunData
 {
 public:
-    RunData current;//TODO make it property move it to stack
-
-    void enter(SoObject object){
-        current = register(object);
-    }
-
-    void exit(SoObject){
-        current = null;
-    }
-
     this(RunData aParent){
         super(aParent);
     }
+}
+
+/**
+*
+*  Local is stack of flow control
+*  Not a scope
+*
+*/
+
+/** StackItem */
+
+class RunStackItem: SardObject
+{
+public:
+    RunData data; //TODO make it property move it to stack
 }
 
 /** Stack */
@@ -240,6 +233,17 @@ private:
     public @property RunRoot data() {return _data;};
 
 public:
+    void enter(SoObject object){
+        auto o = stack.current.data.register(object);
+        stack.push();
+        stack.current.data = o;
+    }
+
+    void exit(SoObject){
+        stack.pop();
+        //stack.current.data = null;
+    }
+
     this()
     {
         _stack = new RunStack();

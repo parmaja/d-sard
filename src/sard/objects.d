@@ -402,15 +402,15 @@ protected:
     override void beforeExecute(RunEnv env, OpOperator operator)
     {
         super.beforeExecute(env, operator);
-        env.stack.push();
-        env.data.enter(this);
+        //env.stack.push();
+        env.enter(this);
     }
 
     override void afterExecute(RunEnv env, OpOperator operator)
     {
         super.afterExecute(env, operator);
-        env.data.exit(this);
-        env.stack.pop();
+        env.exit(this);
+        //env.stack.pop();
     }
 
 public:
@@ -874,7 +874,7 @@ class SrdDefines: SardObject
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
-                    RunVariable v = env.data.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
+                    RunVariable v = env.stack.current.data.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
                     v.value = env.stack.results.current.result.value;
                 }
                 env.stack.results.pop();
@@ -905,12 +905,12 @@ private
 protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {            
-        RunDeclare d = env.data.current.findDeclare(name);
+        RunDeclare d = env.stack.current.data.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
             d.execute(env, operator, arguments, null);
         else 
         {
-            RunVariable v = env.data.current.variables.find(name);
+            RunVariable v = env.stack.current.data.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
             if (v.value is null)
@@ -951,7 +951,7 @@ protected:
         else 
         {
             //Ok let is declare it locally
-            RunVariable v = env.data.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
+            RunVariable v = env.stack.current.data.variables.register(name, RunVarKinds([RunVarKind.Local]));
             if (v is null)
                 error("Variable not found!");
             env.stack.results.current.result = v;
@@ -1008,6 +1008,6 @@ public:
 
     override protected void doExecute(RunEnv env, OpOperator operator,ref bool done)
     {
-        env.data.current.addDeclare(this);
+        env.stack.current.data.addDeclare(this);
     }
 }

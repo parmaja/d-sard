@@ -84,13 +84,14 @@ public:
     void run()
     {
         RunEnv env = new RunEnv();
-        env.stack.results.push();//hmmm
+        //env.stack.results.push();//hmmm
+        env.enter(main);
         main.execute(env, null); 
 
         if (env.stack.results.current && env.stack.results.current.result.value) 
         {
             result = env.stack.results.current.result.value.asText();
         }  
-        env.stack.results.pop();
+        env.exit(main);
     };
 }

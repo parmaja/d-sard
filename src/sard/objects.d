@@ -864,7 +864,7 @@ class SrdDefines: SardObject
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
-                    RunVariable v = env.stack.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
+                    RunVariable v = env.data.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
                     v.value = env.stack.results.current.result.value;
                 }
                 env.stack.results.pop();
@@ -935,11 +935,11 @@ protected:
         /** if not name it assign to parent result */
         done = true;
         if (name == "")
-            env.stack.results.current.result = env.stack.results.parent.result;
+            env.stack.results.current.result = env.stack.results.parent.result;        
         else 
         {
             //Ok let is declare it locally
-            RunVariable v = env.stack.current.variables.register(name, RunVarKinds([RunVarKind.Local]));//parent becuase we are in the statement
+            RunVariable v = env.stack.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
             if (v is null)
                 error("Variable not found!");
             env.stack.results.current.result = v;

@@ -133,30 +133,24 @@ class RunDeclares: SardNamedObjects!RunDeclare
 class RunStackItem: SardObject
 {
 public:
-    RunVariables variables;
-    this(){
-        super();
-        variables = new RunVariables();
-    }
-}
-
-class RunObject: SardObject{
-    SoObject object;
-    RunStackItem stack;
 }
 
 //Is that a Scope!!!, idk!
 
-class RunData: SardObjects!RunObject 
+class RunData: SardObjects!RunData
 {
-    public:
-        RunData parent;
+public:
+    SoObject object;
+    RunStackItem stack;
+    RunVariables variables;
+    RunData parent;
 
     alias last current;
 
     this(RunData aParent)
     {
         parent = aParent;
+        variables = new RunVariables();
         super();
     }
 

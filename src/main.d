@@ -36,13 +36,13 @@ int main(string[] argv)
     sources ~= "   "; //3 spaces
 
     results ~= "";
-    sources ~= "10 + 10;"; //simple result
+    sources ~= "10 + 10;"; //no result
 
     results ~= "10";
     sources ~= ":= 10;"; //simple result
 
     results ~= "20";
-    sources ~= "  :=10 + 10;"; //simple result started with spaces
+    sources ~= "  :=10 + 10;"; //simple result 
 
 //5
     results ~= "";

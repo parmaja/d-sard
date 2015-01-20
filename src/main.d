@@ -71,6 +71,11 @@ int main(string[] argv)
         := x;";
 
 //10:
+    results ~= "15";
+    sources ~= `//notice before 
+         := 5 + (2 * 5);
+        `;
+
     //statment using semicolon closed by block closer
     results ~= "5";
     sources ~= `//notice before }

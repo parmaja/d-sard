@@ -107,21 +107,14 @@ public:
         super.add(clause);    
     }
 
-    void execute(RunEnv env, bool pushIt)
+    void execute(RunEnv env)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
-        if (pushIt)
-            env.stack.results.push(); //Each statement have own result
-
         foreach(e; items) 
         {
             e.execute(env);
         }
-
-        if (pushIt)
-            env.stack.results.pop();
     }
-
 
     public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
@@ -154,14 +147,14 @@ public:
         }
     }
 
-    bool execute(RunEnv env, bool pushIt)
+    bool execute(RunEnv env)
     {
         if (count == 0)
             return false;
         else
         {            
             foreach(e; items) {
-                e.execute(env, pushIt);
+                e.execute(env);
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
             return true;
@@ -327,8 +320,8 @@ public:
 
         debug 
         {      
-            string s = "  " ~ stringRepeat(" ", env.stack.results.currentItem.level) ~ ">";
-            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.stack.results.currentItem.level);
+            string s = "  " ~ stringRepeat(" ", env.stack.count) ~ ">";
+            s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.stack.count);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
             if (env.stack.results.current.result.value !is null)
@@ -360,7 +353,7 @@ protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {                
         env.stack.results.push(); //<--here we can push a variable result or create temp result to drop it
-        statements.execute(env, false);
+        statements.execute(env);
         auto t = env.stack.results.pull();
         //I dont know what if ther is an object there what we do???
         if (t.result.value !is null)
@@ -447,7 +440,7 @@ protected:
 
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
-        statement.execute(env, false);
+        statement.execute(env);
         done = true;
     }
 
@@ -867,7 +860,7 @@ class SrdDefines: SardObject
             while (i < parameters.count)
             { 
                 env.stack.results.push();
-                arguments[i].execute(env, false);
+                arguments[i].execute(env);
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];

@@ -1,9 +1,9 @@
 module sard.runtimes;
 /**
-    This file is part of the "SARD"
-
-    @license   The MIT License (MIT) Included in this distribution
-    @author    Zaher Dirkey <zaher at yahoo dot com>
+*    This file is part of the "SARD"
+* 
+*    @license   The MIT License (MIT) Included in this distribution
+*    @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 import std.stdio;
@@ -140,6 +140,32 @@ public:
     }
 }
 
+class RunObject: SardObject{
+    SoObject object;
+    RunStackItem stack;
+}
+
+//Is that a Scope!!!, idk!
+
+class RunData: SardObjects!RunObject 
+{
+    public:
+        RunData parent;
+
+    alias last current;
+
+    this(RunData aParent)
+    {
+        parent = aParent;
+        super();
+    }
+
+    int x;
+    
+}
+
+/** Stack */
+
 class RunStack: SardStack!RunStackItem 
 {
 private:
@@ -172,6 +198,8 @@ private:
     RunStack _stack ;
     public @property RunStack stack() {return _stack;};
 
+    RunData _data;
+    public @property RunData data() {return _data;};
 public:
     int addDeclare(SoDeclare object)
     {
@@ -188,6 +216,7 @@ public:
     this(){
         _declares = new RunDeclares();
         _stack = new RunStack();
+        _data = new RunData(null);        
         super();
         stack.push();
     }

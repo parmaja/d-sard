@@ -1,9 +1,9 @@
 module sard.process;
 /**
-    This file is part of the "SARD"
-
-    @license   The MIT License (MIT) Included in this distribution
-    @author    Zaher Dirkey <zaher at yahoo dot com>
+*    This file is part of the "SARD"
+* 
+*    @license   The MIT License (MIT) Included in this distribution
+*    @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 import std.stdio;
@@ -88,13 +88,7 @@ public:
 
         if (env.stack.results.current.result.value !is null) 
         {
-            debug {
-                writeln("We have value");
-            }
             result = env.stack.results.current.result.value.asText();
-            debug {
-                writeln("The value is: " ~ result);
-            }
         }  
     };
 }

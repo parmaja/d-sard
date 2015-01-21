@@ -176,21 +176,21 @@ public:
     }
 
     ~this(){
-        clear();
+        if (_owned)
+        {
+            clear();
+        }
     }
 
     void clear()
     {
-        if (_owned)
-        {
-            int i = 0;
-            while (i < _items.length){
-                destroy(_items[i]);
-                _items[i] = null;
-                i++;
-            }
-            _items = null;
-        }                    
+        int i = 0;
+        while (i < _items.length){
+            destroy(_items[i]);
+            _items[i] = null;
+            i++;
+        }
+        _items = null;
     }
 
     debug{
@@ -484,6 +484,18 @@ public:
 class SardLexical: SardObject
 {
 private:
+    bool _active;
+    string _ver;
+    string _charset;
+
+    public @property bool active() { return _active; }
+    public @property string ver() { return _ver; }
+    public @property string charset() { return _charset; }
+
+    //TODO: use env to wrap the code inside <?sard ... ?>,
+    //the current one must detect ?> to stop scanning and pop
+    //but the other lexical will throw none code to output provider
+
     int _line;    
 
     public @property int line() { return _line; };
@@ -509,6 +521,14 @@ protected:
     //You can proceess as to setControl or setOperator
     bool doIdentifier(string identifier){
         return false;
+    }
+
+    void doStart() {
+        setControl(SardControl.Start);
+    }
+
+    void doStop() {
+        setControl(SardControl.Stop);
     }
 
 public:
@@ -616,9 +636,11 @@ public:
         switchScanner(aScanner);
     }
 
-    void scanLine(const string text, const int aLine) 
+    void scanLine(const string text, const int line) 
     {
-        int _line = aLine;
+        if (!active)
+            error("Feeder not started");
+        int _line = line;
         int column = 0; 
         int len = text.length;
         bool resume = false;
@@ -642,53 +664,9 @@ public:
                     error("Feeder in loop with: " ~ _scanner.classinfo.nakename); //TODO: be careful here
             }
             catch(Exception e) {          
-                throw new SardParserException(e.msg, aLine, column);
+                throw new SardParserException(e.msg, line, column);
             }
         }
-    }
-};
-
-class SardFeeder: SardObject 
-{
-private:
-    bool _active;
-    string _ver;
-    string _charset;
-    SardLexical _lexical; //TODO: use env to wrap the code inside <?sard ... ?>,
-    //the current one must detect ?> to stop scanning and pop
-    //but the other lexical will throw none code to output provider
-
-public:
-
-    @property bool active() { return _active; }
-    @property string ver() { return _ver; }
-    @property string charset() { return _charset; }
-
-    @property SardLexical lexical() { 
-        return _lexical; 
-    }
-
-protected:
-
-    void doStart() {
-        lexical.setControl(SardControl.Start);
-    }
-
-    void doStop() {
-        lexical.setControl(SardControl.Stop);
-    }
-
-public:
-    this(SardLexical lexical) {
-        super();
-        _lexical = lexical;
-    }
-
-    void scanLine(const string text, const int line) 
-    {
-        if (!active)
-            error("Feeder not started");
-        lexical.scanLine(text, line);
     }
 
     void scan(const string[] lines)
@@ -723,14 +701,14 @@ public:
             error("File already opened");
         _active = true;
         doStart();
-        lexical.parser.start();
+        parser.start();
     }
 
     void stop()
     {
         if (!_active)
             error("File already closed");
-        lexical.parser.stop();
+        parser.stop();
         doStop();
         _active = false;
     }
@@ -789,6 +767,9 @@ public:
     int level;//TODO it is bad idea, we need more intelligent way to define the power level of operators
     string description;
     //SardControl control;// Fall back to control if is initial, only used for for = to fall back as := //TODO remove it :(
+
+    ~this(){
+    }
 
 protected: 
 

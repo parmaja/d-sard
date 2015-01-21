@@ -37,17 +37,10 @@ alias Set!Action Actions;
 *    @class Instruction
 */
 
-class SrdInstruction: SardObject
+struct SrdInstruction
 {
-    public this()
-    {
-        super();
-        debug writeln("new instruction");
-    }
+public:
 
-    public ~this(){        
-        debug writeln("kill instruction");
-    }
 protected:
     void internalSetObject(SoObject aObject)
     {
@@ -249,6 +242,7 @@ public:
     }
 
     ~this(){
+        destroy(controller);
         debug writeln("kill collecter");
     }
 
@@ -262,8 +256,10 @@ public:
         parser.nextCollector = aNextCollector;
     }
 
-    void reset(){              
-        instruction = new SrdInstruction();
+    void reset(){                      
+        //destroy(instruction);
+        instruction = SrdInstruction.init;
+        //instruction= new SrdInstruction;
     }
 
     void prepare(){            

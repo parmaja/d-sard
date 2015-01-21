@@ -55,11 +55,15 @@ public:
     @property OpOperator operator() { return _operator; }
     @property SoObject object() { return _object; }
 
-    this(OpOperator operator, SoObject aObject) 
+    this(OpOperator operator, SoObject object) 
     {
         super();
         _operator = operator;
-        _object = aObject;
+        _object = object;
+    }
+
+    ~this(){
+        destroy(_object);
     }
 
     bool execute(RunEnv env) 

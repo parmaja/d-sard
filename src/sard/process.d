@@ -43,10 +43,16 @@ protected:
 
 public:
     SoBlock main;
+    SrdLexical lexical;
     string result;
 
     this(){
         super();
+    }
+
+    ~this(){
+        destroy(main);
+        destroy(lexical);
     }
 
     void compile(string text)
@@ -60,14 +66,17 @@ public:
 
         writeln("----Createing lex objects-----");
         writeln();
+
+        lexical = new SrdLexical();
+
         SrdParser parser = new SrdParser(main.statements);
-        SrdLexical lexical = new SrdLexical();
 
         lexical.parser = parser;      
-        SardFeeder feeder = new SardFeeder(lexical);
-
+        
         writeln("--------Scanning--------");
-        feeder.scan(text);
+        lexical.scan(text);
+
+        destroy(parser);
 
         debug
         {

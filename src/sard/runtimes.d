@@ -91,7 +91,7 @@ class RunResults: SardStack!RunResult
 {
 }
 
-/**     s
+/**
 *
 *   Declare object to take it ref into variable
 *   used by SoDeclare
@@ -268,8 +268,10 @@ public:
     ~this(){
     }
 
-    debug{
-        override void debugWrite(int level){
+    debug
+    {
+        override void debugWrite(int level)
+        {
             super.debugWrite(level);
             _data.debugWrite(level + 1);
         }

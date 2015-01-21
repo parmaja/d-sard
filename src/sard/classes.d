@@ -255,6 +255,7 @@ public:
 
 class SardStack(T): SardObject 
 {    
+protected:
     static class SardStackItem: SardObject {
         protected {
             T object; 
@@ -272,111 +273,109 @@ private:
     SardStackItem _currentItem; 
 
 public:
-    @property {
-        int count() {
-            return _count;
-        }
+    @property int count() { return _count; }
+    @property SardStackItem currentItem() { return _currentItem; }     
 
-        SardStackItem currentItem() {
-            return _currentItem;
-        }
-    } 
-
-    protected {
-        T getParent() {
-            if (_currentItem is null)
-                return null;
-            else if (_currentItem.parent is null)
-                return null;
-            else
-                return _currentItem.parent.object;
-        }
-
-        T getCurrent() 
-        {
-            if (currentItem is null)
-                return null;
-            else
-                return currentItem.object;
-        }
-
-        void afterPush() {
-            debug{
-                writeln("push: " ~ T.classinfo.nakename);
-            }
-        };
-
-        void beforePop() {
-            debug{
-                writeln("pop: " ~ T.classinfo.nakename);
-            }
-        };
+protected:
+    T getParent() {
+        if (_currentItem is null)
+            return null;
+        else if (_currentItem.parent is null)
+            return null;
+        else
+            return _currentItem.parent.object;
     }
 
-    public {
+    T getCurrent() 
+    {
+        if (currentItem is null)
+            return null;
+        else
+            return currentItem.object;
+    }
 
-        bool isEmpty() {
-            return currentItem is null;
+    public @property T current() { return getCurrent(); }
+    public @property T parent() { return getParent(); }
+
+    void afterPush() {
+        debug{
+            writeln("push: " ~ T.classinfo.nakename);
         }
+    };
 
-        void push(T aObject) {
-            SardStackItem aItem;
-
-            if (aObject is null)
-                error("Can't push null");
-
-            aItem = new SardStackItem();
-            aItem.object = aObject;
-            aItem.parent = _currentItem;
-            aItem.owner = this;
-            if (_currentItem is null)
-                aItem.level = 0;
-            else
-                aItem.level = _currentItem.level + 1;
-            _currentItem = aItem;
-            _count++;
-            afterPush();
+    void beforePop() {
+        debug{
+            writeln("pop: " ~ T.classinfo.nakename);
         }
+    };
 
-        T push(){
-            T o = new T();
-            push(o);
-            return o;
-        }
+public:
+    bool isEmpty() {
+        return currentItem is null;
+    }
 
-        T peek(){
-            if (currentItem is null)
-                return null;
-            else
-                return currentItem.object;
-        }
+    void push(T aObject) 
+    {
+        SardStackItem aItem;
 
-        T pull(){
-            if (currentItem is null)
-                error("Stack is empty");
-            beforePop();
-            T object = currentItem.object;
-            SardStackItem aItem = currentItem;
-            _currentItem = aItem.parent;
-            _count--;
-            destroy(aItem);
-            return object;
-        }
+        if (aObject is null)
+            error("Can't push null");
 
-        void pop(){
-            T object = pull();
-            destroy(object);            
-        }
+        aItem = new SardStackItem();
+        aItem.object = aObject;
+        aItem.parent = _currentItem;
+        aItem.owner = this;
+        if (_currentItem is null)
+            aItem.level = 0;
+        else
+            aItem.level = _currentItem.level + 1;
+        _currentItem = aItem;
+        _count++;
+        afterPush();
+    }
 
-    public:
-        @property {
-            T current() {
-                return getCurrent();
-            }
-            T parent() {
-                return getParent();
-            }
-        }
+    T push(){
+        T o = new T();
+        push(o);
+        return o;
+    }
+
+    T peek(){
+        if (currentItem is null)
+            return null;
+        else
+            return currentItem.object;
+    }
+
+    T pull(){
+        if (currentItem is null)
+            error("Stack is empty");
+        beforePop();
+        T object = currentItem.object;
+        SardStackItem aItem = currentItem;
+        _currentItem = aItem.parent;
+        _count--;
+        destroy(aItem);
+        return object;
+    }
+
+    void pop()
+    {
+        T object = pull();
+        destroy(object);            
+    }
+
+    void clear(){
+        while (current is null)        
+            pop();
+    }
+    
+    this(){
+        super();
+    }
+
+    ~this(){
+        //clear();
     }
 }
 

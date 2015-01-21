@@ -196,6 +196,7 @@ i := i + 5.5;
         bool loop = true;
         while (loop) 
         {
+            Sard sard;
             foreground = Color.lightYellow;
             writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
             writeln();
@@ -231,7 +232,7 @@ i := i + 5.5;
             writeln();
             writeln("--- Compile ---");
             writeln();
-            Sard sard = new Sard();  
+            sard = new Sard();  
             //source = sources[sources.length-1];
             //source = sources[$-1];        
             //source = sources.back;
@@ -255,6 +256,7 @@ i := i + 5.5;
             if (s != results[index])
                 error("Not expcepted result: " ~ results[index]);
             writeln();
+            destroy(sard);
         }
         writeln("---------------");
     }

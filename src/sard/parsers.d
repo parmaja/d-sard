@@ -238,7 +238,7 @@ public:
         this();
         parser = aParser;
         controller = createControllerClass();
-        reset();        
+        reset();
     }
 
     ~this(){
@@ -559,7 +559,6 @@ protected:
     SrdCollector collector;
 
 public:
-
     this(SrdCollector aCollector){
         super();
         collector = aCollector;
@@ -775,7 +774,7 @@ protected:
 
 public:
     Actions actions;
-    SrdCollector nextCollector;    
+    SrdCollector nextCollector;
 
     this(SrdStatements aStatements)
     {
@@ -787,6 +786,9 @@ public:
         push(new SrdCollectorBlock(this, aStatements));
     }
 
+    ~this(){
+        pop();//pop the first push
+    }
     override void start(){      
     }
 

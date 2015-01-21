@@ -103,7 +103,7 @@ class SardObjects(T): SardObject
 {
 private:
     T[] _items;//TODO hash string list for namedobjects    
-
+    bool _owned;
 public:
     alias items = this;
 
@@ -170,6 +170,29 @@ public:
             return _items[_items.length - 1];
     }
 
+    this(bool owned = true){
+        _owned = owned;
+        super();
+    }
+
+    ~this(){
+        clear();
+    }
+
+    void clear()
+    {
+        if (_owned)
+        {
+            int i = 0;
+            while (i < _items.length){
+                destroy(_items[i]);
+                _items[i] = null;
+                i++;
+            }
+            _items = null;
+        }                    
+    }
+
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);
@@ -224,8 +247,14 @@ public:
     }
 }
 
+/**
+*
+*  Stack
+*
+*/
+
 class SardStack(T): SardObject 
-{
+{    
     static class SardStackItem: SardObject {
         protected {
             T object; 
@@ -317,11 +346,12 @@ public:
 
         T peek(){
             if (currentItem is null)
-                error("Stack is empty"); //TODO maybe return null
-            return currentItem.object;
+                return null;
+            else
+                return currentItem.object;
         }
 
-        T pop(){
+        T pull(){
             if (currentItem is null)
                 error("Stack is empty");
             beforePop();
@@ -329,7 +359,13 @@ public:
             SardStackItem aItem = currentItem;
             _currentItem = aItem.parent;
             _count--;
+            destroy(aItem);
             return object;
+        }
+
+        void pop(){
+            T object = pull();
+            destroy(object);            
         }
 
     public:
@@ -500,6 +536,12 @@ public:
         _operators = new OpOperators();
         _controls = new CtlControls();
         super();
+    }
+
+    ~this(){
+        destroy(_scanners);
+        destroy(_operators);
+        destroy(_controls);
     }
 
     abstract bool isEOL(char vChar);

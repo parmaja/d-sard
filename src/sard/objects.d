@@ -27,6 +27,7 @@ import sard.operators;
 
 import minilib.sets;
 
+import std.typecons;
 
 const string sSardVersion = "0.01";
 const int iSardVersion = 1;
@@ -168,7 +169,7 @@ public:
 
 /* SoObject */
 
-abstract class SoObject: SardObject 
+abstract class SoObject: SardObject
 {
 private:
     int _id;
@@ -298,7 +299,8 @@ protected:
     }
 
     void beforeExecute(RunEnv env, OpOperator operator){
-
+        if (env.stack.current.data is null)
+            error("Enter stack data is needed!");
     }
 
     void afterExecute(RunEnv env, OpOperator operator){
@@ -355,7 +357,7 @@ protected:
     {                
         env.stack.results.push(); //<--here we can push a variable result or create temp result to drop it
         statements.execute(env);
-        auto t = env.stack.results.pop();
+        auto t = env.stack.results.pull();
         //I dont know what if there is an object there what we do???
         /*
         * := 5 + { := 10 + 10 }
@@ -385,6 +387,10 @@ public:
         super();
         _statements = new SrdStatements(this);      
     }
+
+    ~this(){
+        destroy(_statements);
+    }
 }
 
 
@@ -403,13 +409,13 @@ protected:
     {
         super.beforeExecute(env, operator);
         //env.stack.push();
-        env.enter(this);
+        //env.enter(this);
     }
 
     override void afterExecute(RunEnv env, OpOperator operator)
     {
         super.afterExecute(env, operator);
-        env.exit(this);
+//        env.exit(this);
         //env.stack.pop();
     }
 
@@ -441,7 +447,7 @@ protected:
     override void afterExecute(RunEnv env, OpOperator operator)
     {      
         super.afterExecute(env, operator);
-        RunResult t = env.stack.results.pop();
+        RunResult t = env.stack.results.pull();
         if (t.result.value !is null)
             t.result.value.execute(env, operator);            
     }  
@@ -457,6 +463,10 @@ public:
         super();
         _statement = new SrdStatement(parent);
     }
+
+    this(){
+        destroy(_statement);
+    }    
 }
 
 /*--------------------------------------------*/
@@ -862,6 +872,11 @@ class SrdDefines: SardObject
         blocks = new SrdDefineItems();
     }
 
+    ~this(){
+        destroy(parameters);
+        destroy(blocks);
+    }
+
     void execute(RunEnv env, SrdStatements arguments)
     {        
         if (arguments !is null) 
@@ -932,6 +947,10 @@ public:
         super();
         _arguments = new SrdStatements(this);      
     }
+
+    ~this(){
+        destroy(_arguments);
+    }
 }
 
 /** It is assign a variable value, x := 10 + y */
@@ -992,6 +1011,10 @@ public:
         super();
         _defines = new SrdDefines();
     }    
+
+    ~this(){
+        destroy(_defines);
+    }
 
     debug{
         override void debugWrite(int level){

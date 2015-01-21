@@ -85,8 +85,9 @@ public:
     {
         RunEnv env = new RunEnv();
         env.stack.results.push();//hmmm
-        env.enter(main);
-        main.execute(env, null); 
+
+        env.enter(env.data, main);
+        main.execute(env, null);         
 
         if (env.stack.results.current && env.stack.results.current.result.value) 
         {

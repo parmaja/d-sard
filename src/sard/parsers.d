@@ -237,6 +237,7 @@ public:
 
     this(){
         super();
+        debug writeln("new collecter");
     }
 
     this(SrdParser aParser)
@@ -247,9 +248,8 @@ public:
         reset();        
     }
 
-    //Push to the Parser immediately
-    void push(SrdCollector aItem){
-        parser.push(aItem);
+    ~this(){
+        debug writeln("kill collecter");
     }
 
     //No pop, but when finish Parser will pop it
@@ -262,7 +262,7 @@ public:
         parser.nextCollector = aNextCollector;
     }
 
-    void reset(){      
+    void reset(){              
         instruction = new SrdInstruction();
     }
 
@@ -605,7 +605,7 @@ public:
                     {
                         SoDeclare aDeclare = instruction.setDeclare();
                         post();
-                        push(new SrdCollectorDefine(parser, aDeclare));
+                        parser.push(new SrdCollectorDefine(parser, aDeclare));
                     } 
                     else 
                         error("You can not use a declare here!");
@@ -614,7 +614,7 @@ public:
                 case SardControl.OpenBlock:
                     SoBlock aBlock = new SoBlock();
                     instruction.setObject(aBlock);
-                    push(new SrdCollectorBlock(parser, aBlock.statements));
+                    parser.push(new SrdCollectorBlock(parser, aBlock.statements));
                     break;
 
                 case SardControl.CloseBlock:
@@ -629,11 +629,11 @@ public:
                     if (instruction.checkIdentifier())
                     {
                         with (instruction.setInstance())
-                            push(new SrdCollectorBlock(parser, arguments));
+                            parser.push(new SrdCollectorBlock(parser, arguments));
                     }
                     else //No it is just sub statment like: 10+(5*5)
                         with (instruction.setSub())
-                            push(new SrdCollectorStatement(parser, statement));
+                            parser.push(new SrdCollectorStatement(parser, statement));
                     break;
 
                 case SardControl.CloseParams:
@@ -765,7 +765,8 @@ protected:
 
     void doQueue()
     {
-        if (Action.PopCollector in actions){      
+        if (Action.PopCollector in actions)
+        {      
             actions = actions - Action.PopCollector;
             pop();
         }

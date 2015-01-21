@@ -4,8 +4,12 @@
 	"authors": ["Zaher Dirkey"],
 	"license": "MIT",
 	"homepage": "https://github.com/parmaja/sard",
+    "libs": [
+        "consoled",
+        "sard"
+    ]
 	"dependencies": {
-        "minilib": ">=0.0.1"
+        "minilib": {">=0.0.1": "~master", "path": "../../minilib"}
 	}
 }
 

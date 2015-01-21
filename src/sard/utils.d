@@ -10,6 +10,12 @@ import std.conv;
 import std.string;
 import std.array;
 
+void dispose(ref Object object)
+{
+    destroy(object);
+    object = null;
+}
+
 @property string nakename(TypeInfo_Class classinfo)
 {
     if (classinfo.name == "")
@@ -36,7 +42,8 @@ bool scanCompare(string s, const string text, int index){
 /**
 return true if s is founded in text at index
 */
-bool scanText(string s, const string text, ref int index) {
+bool scanText(string s, const string text, ref int index) 
+{
     bool r = (text.length - index) >= s.length;
     if (r) {
         string w = text[index..index + s.length];

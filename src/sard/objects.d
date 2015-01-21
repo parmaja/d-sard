@@ -464,7 +464,7 @@ public:
         _statement = new SrdStatement(parent);
     }
 
-    this(){
+    ~this(){
         destroy(_statement);
     }    
 }

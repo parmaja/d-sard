@@ -347,6 +347,50 @@ public:
     }
 }
 
+
+/**
+x := 10  + ( 500 + 600);
+-------------[  Sub    ]-------
+*/
+
+class SoSub: SoObject
+{
+protected:
+    SrdStatement _statement;    
+    public @property SrdStatement statement() { return _statement; };
+    public alias statement this;
+
+    override void beforeExecute(RunEnv env, OpOperator operator)
+    {
+        super.beforeExecute(env, operator);
+        env.stack.results.push();
+    }  
+
+    override void afterExecute(RunEnv env, OpOperator operator)
+    {      
+        super.afterExecute(env, operator);
+        RunResult t = env.stack.results.pull();
+        if (t.result.value !is null)
+            t.result.value.execute(env, operator);            
+    }  
+
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
+    {
+        statement.execute(env);
+        done = true;
+    }
+
+public:
+    this(){
+        super();
+        _statement = new SrdStatement(parent);
+    }
+
+    ~this(){
+        destroy(_statement);
+    }    
+}
+
 /*
 *   SoEnclose is a base class for list of objects (statements) like SoBlock
 */
@@ -422,60 +466,11 @@ protected:
 //        env.exit(this);
         //env.stack.pop();
     }
-
-public:
-
-    this(){
-        super();
-    }
-}
-
-/**
-x := 10  + ( 500 + 600);
--------------[  Sub    ]-------
-*/
-
-class SoSub: SoObject
-{
-protected:
-    SrdStatement _statement;    
-    public @property SrdStatement statement() { return _statement; };
-    public alias statement this;
-
-    override void beforeExecute(RunEnv env, OpOperator operator)
-    {
-        super.beforeExecute(env, operator);
-        env.stack.results.push();
-    }  
-
-    override void afterExecute(RunEnv env, OpOperator operator)
-    {      
-        super.afterExecute(env, operator);
-        RunResult t = env.stack.results.pull();
-        if (t.result.value !is null)
-            t.result.value.execute(env, operator);            
-    }  
-
-    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
-    {
-        statement.execute(env);
-        done = true;
-    }
-
-public:
-    this(){
-        super();
-        _statement = new SrdStatement(parent);
-    }
-
-    ~this(){
-        destroy(_statement);
-    }    
 }
 
 /*--------------------------------------------*/
 
-abstract class SoConstObject: SoObject
+abstract class SoConst: SoObject
 {
     override final void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
@@ -501,7 +496,7 @@ abstract class SoConstObject: SoObject
 
 /* SoNone */
 
-class SoNone: SoConstObject  //None it is not Null, it is an initial value we sart it
+class SoNone: SoConst  //None it is not Null, it is an initial value we sart it
 { 
     //Do operator
     //Convert to 0 or ''
@@ -547,7 +542,7 @@ public:
 }
 */
 
-abstract class SoBaseNumber: SoConstObject //base class for Number and Integer
+abstract class SoBaseNumber: SoConst //base class for Number and Integer
 { 
 }
 
@@ -753,7 +748,7 @@ public:
 
 /* SoText */
 
-class SoText: SoConstObject 
+class SoText: SoConst 
 {
 protected:
     override void created(){
@@ -926,7 +921,9 @@ protected:
     {            
         RunDeclare d = env.stack.current.data.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
-            d.execute(env, operator, arguments, null);
+        {
+            done = d.execute(env, operator, arguments, null);
+        }
         else 
         {
             RunVariable v = env.stack.current.data.variables.find(name);

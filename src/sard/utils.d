@@ -10,12 +10,16 @@ import std.conv;
 import std.string;
 import std.array;
 
-void dispose(ref Object object)
+//Destroy and null the object
+void dispose(Object)(ref Object object) 
 {
     destroy(object);
     object = null;
 }
 
+/**
+* Find the tail name of the class
+*/
 @property string nakename(TypeInfo_Class classinfo)
 {
     if (classinfo.name == "")
@@ -40,7 +44,7 @@ bool scanCompare(string s, const string text, int index){
 }
 
 /**
-return true if s is founded in text at index
+* return true if s is founded in text at index
 */
 bool scanText(string s, const string text, ref int index) 
 {

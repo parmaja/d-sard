@@ -93,8 +93,9 @@ public:
     void run()
     {
         RunEnv env = new RunEnv();
-        env.stack.results.push();//hmmm
 
+        env.stack.push();
+        env.stack.results.push();//hmmm
         env.enter(env.data, main);
         main.execute(env, null);         
 
@@ -103,6 +104,7 @@ public:
             result = env.stack.results.current.result.value.asText();
         }  
         env.exit(main);
+        env.stack.pop();
         env.stack.results.pop();
     };
 }

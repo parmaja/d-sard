@@ -111,7 +111,10 @@ class RunDeclare: SardObject
             return false;
         }
         else
-            return _object.execute(env, operator, _object.defines, arguments, blocks);
+        {
+            bool done = _object.execute(env, operator, _object.defines, arguments, blocks);
+            return done;
+        }
     }
 
     this(SoDeclare object){
@@ -133,20 +136,7 @@ public:
     RunVariables variables;
     RunData parent;
 
-    int addDeclare(SoDeclare object)
-    {
-        RunDeclare declare = new RunDeclare(object);
-        declare.name = object.name; 
-        declare.data = this;
-        return declares.add(declare);
-    }
-
-    RunDeclare findDeclare(string vName)
-    {
-        return declares.find(vName);         
-    }
-
-    RunData findObject(SoObject object)
+    RunData find(SoObject object)
     {
         foreach(e; items) {
             if (e.object is object) {
@@ -158,12 +148,28 @@ public:
 
     RunData register(SoObject object)
     {
-        RunData o = findObject(object);
+        RunData o = find(object);
         if (o is null) {
             o = new RunData(this);
             o.object = object;
         }
         return o;
+    }
+
+    int addDeclare(SoDeclare object)
+    {
+        RunDeclare declare = new RunDeclare(object);
+        declare.name = object.name; 
+        declare.data = this;
+        return declares.add(declare);
+    }
+
+    RunDeclare findDeclare(string vName)
+    {
+        RunDeclare declare = declares.find(vName);         
+        if (parent && (declare is null))
+            declare = parent.findDeclare(vName);         
+        return declare;
     }
 
     this(RunData aParent)
@@ -172,6 +178,12 @@ public:
         variables = new RunVariables();
         declares = new RunDeclares();
         super();
+    }
+
+    ~this()
+    {
+        destroy(declares);
+        destroy(variables);
     }
 }
 
@@ -241,8 +253,8 @@ private:
 public:
     void enter(RunData into, SoObject object)
     {
-        auto o = into.register(object);
-        stack.push();
+        RunData o = into.register(object);
+        //stack.push();
         stack.current.data = o;
     }
 
@@ -254,7 +266,7 @@ public:
             error("Entered data object is null!");
         if (stack.current.data.object !is object)
             error("Entered data have wrong object!");
-        stack.pop();
+        //stack.pop();
         //stack.current.data = null;
     }
 

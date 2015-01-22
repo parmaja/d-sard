@@ -112,7 +112,11 @@ class RunDeclare: SardObject
         }
         else
         {
-            bool done = _object.execute(env, operator, _object.defines, arguments, blocks);
+            if (_object.executeObject is null) {
+                error("executeObject of declaration is not set!");
+                return false;
+            }
+            bool done = _object.executeObject.execute(env, operator, _object.defines, arguments, blocks);
             return done;
         }
     }

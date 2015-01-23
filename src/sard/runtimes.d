@@ -139,6 +139,7 @@ class RunData: SardObjects!RunData
 {
 public:
     SoObject object;
+    RunStackItem stackItem;
     RunDeclares declares; 
     RunVariables variables;
     RunData parent;
@@ -165,7 +166,7 @@ public:
 
     int addDeclare(SoDeclare object)
     {
-        RunDeclare declare = new RunDeclare(object);
+        RunDeclare declare = new RunDeclare(object);        
         declare.name = object.name; 
         declare.data = this;
         return declares.add(declare);
@@ -264,6 +265,7 @@ public:
         RunData o = into.register(object);
         stack.push();
         stack.current.data = o;
+        o.stackItem = stack.current;
     }
 
     void exit(SoObject object)
@@ -274,7 +276,6 @@ public:
             error("Entered data object is null!");
         if (stack.current.data.object !is object)
             error("Entered data have wrong object!");
-        stack.current.data = null;
         stack.pop();
     }
 

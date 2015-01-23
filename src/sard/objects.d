@@ -464,6 +464,17 @@ protected:
     {
         super.afterExecute(env, operator);
     }
+
+public:
+    /*    deprecated("testing") */
+    void declareObject(SoObject object)
+    {
+        SrdStatement statement =  statements.add();
+        SoDeclare declare = new SoDeclare();
+        declare.name = object.name;
+        declare.executeObject = object;
+        statement.add(null, declare);
+    }
 }
 
 /*--------------------------------------------*/

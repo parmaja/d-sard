@@ -29,6 +29,14 @@ protected:
     }
 }
 
+class SoPI_Const: SoObject
+{
+protected:
+    override void doExecute(RunEnv env, OpOperator operator, ref bool done){
+        env.results.current.result.value = new SoNumber(PI);
+    }
+}
+
 class SoTime_Const: SoObject
 {
 protected:
@@ -61,6 +69,14 @@ public:
 
         main = new SoBlock(); //destory the old compile and create new
         main.name = "main";
+
+        auto version_const = new SoVersion_Const();        
+        version_const.name = "version";
+        main.declareObject(version_const);
+
+        auto PI_const = new SoPI_Const();        
+        PI_const.name = "PI";
+        main.declareObject(PI_const);
 
         /* Compile */
 

@@ -140,6 +140,17 @@ Foo:{ := Bar + 50 }
 
     := Foo;`;
 
+    results ~= sSardVersion;
+    sources ~= `
+    := version;`;
+
+    results ~= "986.96";
+    sources ~= `
+    R := 10;
+    x := PI * R;
+    := x * x;
+    `;
+
 /+
 //here we must return error 
         results ~= "";

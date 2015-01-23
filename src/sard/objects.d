@@ -575,7 +575,8 @@ public:
 
     override bool doOperate(SoObject object, OpOperator operator)
     {
-        switch(operator.name){
+        switch(operator.name)
+        {
             case "+": 
                 value = value + object.asInteger;
                 return true;
@@ -586,7 +587,7 @@ public:
                 value = value * object.asInteger;
                 return true;
             case "/": 
-                value = value % object.asInteger;
+                value = value / object.asInteger;
                 return true;
             default:
                 return false;

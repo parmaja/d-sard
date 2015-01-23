@@ -43,7 +43,7 @@ protected:
 
 public:
     SoBlock main;
-    SrdLexical lexical;
+    SrdLexer lexer;
     string result;
 
     this(){
@@ -52,7 +52,7 @@ public:
 
     ~this(){
         destroy(main);
-        destroy(lexical);
+        destroy(lexer);
     }
 
     void compile(string text)
@@ -67,14 +67,14 @@ public:
         writeln("----Createing lex objects-----");
         writeln();
 
-        lexical = new SrdLexical();
+        lexer = new SrdLexer();
 
         SrdParser parser = new SrdParser(main.statements);
 
-        lexical.parser = parser;      
+        lexer.parser = parser;      
         
         writeln("--------Scanning--------");
-        lexical.scan(text);
+        lexer.scan(text);
 
         destroy(parser);
 

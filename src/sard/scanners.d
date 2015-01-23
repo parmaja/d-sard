@@ -10,7 +10,7 @@ module sard.scanners;
     @module: 
         Scanners: Scan the source code and generate runtime objects
 
-    SrdLexical: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
+    SrdLexer: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
     SrdScanner: Take this part of source code and convert it to control, operator or token/indentifier
 */
 
@@ -44,13 +44,13 @@ class SrdWhitespace_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
-        while ((column < text.length) && (lexical.isWhiteSpace(text[column])))
+        while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
             column++;
         resume = false;
     }
 
     override bool accept(const string text, int column){
-        return lexical.isWhiteSpace(text[column]);
+        return lexer.isWhiteSpace(text[column]);
     }
 }
 
@@ -60,15 +60,15 @@ protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;
-        while ((column < text.length) && (lexical.isIdentifier(text[column], false)))
+        while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexical.setToken(text[pos..column], SardType.Identifier);
+        lexer.setToken(text[pos..column], SardType.Identifier);
         resume = false;
     }
 
     override bool accept(const string text, int column){
-        return lexical.isIdentifier(text[column], true);   
+        return lexer.isIdentifier(text[column], true);   
     }
 }
 
@@ -78,15 +78,15 @@ protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;      
-        while ((column < text.length) && (lexical.isNumber(text[column], false)))
+        while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexical.setToken(text[pos..column], SardType.Number);
+        lexer.setToken(text[pos..column], SardType.Number);
         resume = false;
     }
 
     override bool accept(const string text, int column){
-        return lexical.isNumber(text[column], true);   
+        return lexer.isNumber(text[column], true);   
     }
 }
 
@@ -95,19 +95,19 @@ class SrdControl_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume) 
     {
-        CtlControl control = lexical.controls.scan(text, column);
+        CtlControl control = lexer.controls.scan(text, column);
         if (control !is null)
             column = column + control.name.length;
         else
             error("Unkown control started with " ~ text[column]);
 
-        lexical.setControl(control.code);
+        lexer.setControl(control.code);
         resume = false;
     }
 
     override bool accept(const string text, int column)
     {
-        return lexical.isControl(text[column]);   
+        return lexer.isControl(text[column]);   
     }
 }
 
@@ -116,18 +116,18 @@ class SrdOperator_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
-        OpOperator operator = lexical.operators.scan(text, column);
+        OpOperator operator = lexer.operators.scan(text, column);
         if (operator !is null)
             column = column + operator.name.length;
         else
             error("Unkown operator started with " ~ text[column]);
 
-        lexical.setOperator(operator);
+        lexer.setOperator(operator);
         resume = false;
     }
 
     override bool accept(const string text, int column){
-        return lexical.isOperator(text[column]);   
+        return lexer.isOperator(text[column]);   
     }
 }
 
@@ -138,7 +138,7 @@ class SrdLineComment_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {                                   
-        while ((column < text.length) && (!lexical.isEOL(text[column])))
+        while ((column < text.length) && (!lexer.isEOL(text[column])))
             column++;
         column++;//Eat the EOF char
         resume = false;
@@ -231,7 +231,7 @@ class SrdComment_Scanner: SrdMultiLine_Scanner
 
     override void setToken(string token)
     {
-        lexical.setToken(token, SardType.Comment);
+        lexer.setToken(token, SardType.Comment);
     }
 }
 
@@ -240,7 +240,7 @@ abstract class SrdString_Scanner: SrdMultiLine_Scanner
 protected:
     override void setToken(string token)
     {
-        lexical.setToken(token, SardType.String);
+        lexer.setToken(token, SardType.String);
     }
 
 }
@@ -272,10 +272,10 @@ public:
 }
 
 /*-----------------------*/
-/*      SrdLexical       */
+/*      SrdLexer       */
 /*-----------------------*/
 
-class SrdLexical: SardLexical
+class SrdLexer: SardLexer
 {
 private:
 

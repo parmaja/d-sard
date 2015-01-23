@@ -434,10 +434,10 @@ public:
 class SardScanner: SardObject 
 {
 private:
-    SardLexical _lexical;
+    SardLexer _lexer;
 
-    public @property SardLexical lexical() { 
-        return _lexical; 
+    public @property SardLexer lexer() { 
+        return _lexer; 
     } ;
 
 protected:
@@ -455,39 +455,39 @@ protected:
 
 public:
 
-    void set(SardLexical lexical) { //todo maybe rename to opCall
-        _lexical = lexical;
+    void set(SardLexer lexer) { //todo maybe rename to opCall
+        _lexer = lexer;
     }
 
     this(){
         super();
     }
 
-    this(SardLexical lexical){ 
+    this(SardLexer lexer){ 
         this();
-        set(lexical);
+        set(lexer);
     }
 }
 
 class SardScanners: SardObjects!SardScanner{  
 
 private:
-    SardLexical _lexical;
+    SardLexer _lexer;
 
 public:
     override void beforeAdd(SardScanner scanner)
     {
         super.beforeAdd(scanner);
-        scanner._lexical = _lexical;      
+        scanner._lexer = _lexer;      
     }
 
-    this(SardLexical aLexical){
-        _lexical = aLexical;
+    this(SardLexer aLexer){
+        _lexer = aLexer;
         super();
     }
 }
 
-class SardLexical: SardObject
+class SardLexer: SardObject
 {
 private:
     bool _active;
@@ -500,7 +500,7 @@ private:
 
     //TODO: use env to wrap the code inside <?sard ... ?>,
     //the current one must detect ?> to stop scanning and pop
-    //but the other lexical will throw none code to output provider
+    //but the other lexer will throw none code to output provider
 
     int _line;    
 

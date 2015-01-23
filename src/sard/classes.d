@@ -427,6 +427,7 @@ public:
     abstract void setToken(string aToken, SardType aType);
     abstract void setControl(SardControl aControl);
     abstract void setOperator(OpOperator operator);
+    abstract void setWhiteSpaces(string whitespaces);
 
 public:
 };
@@ -554,6 +555,11 @@ public:
     final void setOperator(OpOperator operator){
         parser.setOperator(operator);
     }
+    
+    final void setWhiteSpaces(string whitespaces){
+        parser.setWhiteSpaces(whitespaces);
+    }
+
 
 public:
     this()

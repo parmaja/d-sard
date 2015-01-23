@@ -44,8 +44,11 @@ class SrdWhitespace_Scanner: SardScanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
+        int pos = column;
         while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
             column++;
+
+        lexer.setWhiteSpaces(text[pos..column]);
         resume = false;
     }
 

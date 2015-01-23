@@ -743,6 +743,10 @@ protected:
         lastControl = aControl;
     }
 
+    override void setWhiteSpaces(string whitespaces){
+        //nothing todo
+    }
+
     override void afterPush()
     {
         super.afterPush();

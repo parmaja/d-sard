@@ -70,6 +70,12 @@ SardObject is the base class for all object in this project
 class SardObject: Object 
 {
 protected:
+    void initialize(){
+    }
+
+    void finalize(){
+    }
+
     void created() {
     };
 
@@ -500,15 +506,15 @@ private:
 
     public @property int line() { return _line; };
 
-    SardScanners _scanners;
-    public @property SardScanners scanners() { return _scanners; } ;  
-
-    SardScanner _scanner; //current scanner
-    public @property SardScanner scanner() { return _scanner; } ;      
-
     ISardParser _parser;    
     public @property ISardParser  parser() { return _parser; };
     public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
+
+    SardScanner _current; //current scanner
+    public @property SardScanner current() { return _current; } ;      
+
+    SardScanners _scanners;
+    public @property SardScanners scanners() { return _scanners; } ;  
 
     OpOperators _operators;
     @property public OpOperators operators () { return _operators; }
@@ -607,11 +613,11 @@ public:
 
     void switchScanner(SardScanner nextScanner) 
     {
-        if (_scanner != nextScanner) 
+        if (_current != nextScanner) 
         {
-            _scanner = nextScanner;
-            if (_scanner !is null)
-                _scanner.switched();
+            _current = nextScanner;
+            if (_current !is null)
+                _current.switched();
         }
     }
 
@@ -647,21 +653,21 @@ public:
         while (column < len)
         {
             int oldColumn = column;
-            SardScanner oldScanner = _scanner;
+            SardScanner oldScanner = _current;
             try 
             {
-                if (scanner is null) //resume the line to current/last scanner
+                if (current is null) //resume the line to current/last scanner
                     detectScanner(text, column);
                 else
                     resume = true;
 
-                scanner.scan(text, column, resume);
+                current.scan(text, column, resume);
                 
                 if (!resume)
                     switchScanner(null);
 
-                if ((oldColumn == column) && (oldScanner == _scanner))
-                    error("Feeder in loop with: " ~ _scanner.classinfo.nakename); //TODO: be careful here
+                if ((oldColumn == column) && (oldScanner == _current))
+                    error("Feeder in loop with: " ~ _current.classinfo.nakename); //TODO: be careful here
             }
             catch(Exception e) {          
                 throw new SardParserException(e.msg, line, column);
@@ -766,10 +772,6 @@ public:
     string title;
     int level;//TODO it is bad idea, we need more intelligent way to define the power level of operators
     string description;
-    //SardControl control;// Fall back to control if is initial, only used for for = to fall back as := //TODO remove it :(
-
-    ~this(){
-    }
 
 protected: 
 

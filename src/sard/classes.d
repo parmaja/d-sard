@@ -771,12 +771,15 @@ class CtlControls: SardNamedObjects!CtlControl
 /*        Operators          */
 /*---------------------------*/
 
+enum Associative {Left, Right};
+
 class OpOperator: SardObject
 {
 public:
-    string name;
+    string name; //Sign like + or -
     string title;
-    int level;//TODO it is bad idea, we need more intelligent way to define the power level of operators
+    int precedence;//TODO it is bad idea, we need more intelligent way to define the power level of operators
+    Associative associative;
     string description;
 
 protected: 
@@ -786,7 +789,7 @@ public:
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);
-            writeln(stringRepeat(" ", level * 2) ~ "operator: " ~ name);        
+            writeln(stringRepeat(" ", precedence * 2) ~ "operator: " ~ name);        
         }
     }
 

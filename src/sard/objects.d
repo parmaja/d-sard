@@ -458,15 +458,11 @@ protected:
     override void beforeExecute(RunEnv env, OpOperator operator)
     {
         super.beforeExecute(env, operator);
-        //env.stack.push();
-        //env.enter(this);
     }
 
     override void afterExecute(RunEnv env, OpOperator operator)
     {
         super.afterExecute(env, operator);
-//        env.exit(this);
-        //env.stack.pop();
     }
 }
 

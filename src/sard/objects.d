@@ -161,9 +161,9 @@ public:
             foreach(e; items) 
             {
                 //each statment have a result
-                env.stack.results.push();
+                env.results.push();
                 e.execute(env);
-                env.stack.results.pop();
+                env.results.pop();
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
             return true;
@@ -330,8 +330,8 @@ public:
             s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.stack.count);
             if (operator !is null)
                 s = s ~ "{" ~ operator.name ~ "}";
-            if (env.stack.results.current && env.stack.results.current.result.value)
-                s = s ~ " result: " ~ env.stack.results.current.result.value.asText;
+            if (env.results.current && env.results.current.result.value)
+                s = s ~ " result: " ~ env.results.current.result.value.asText;
             writeln(s);
             writeln(".asText: " ~ asText);
         }  
@@ -363,13 +363,13 @@ protected:
     override void beforeExecute(RunEnv env, OpOperator operator)
     {
         super.beforeExecute(env, operator);
-        env.stack.results.push();
+        env.results.push();
     }  
 
     override void afterExecute(RunEnv env, OpOperator operator)
     {      
         super.afterExecute(env, operator);
-        RunResult t = env.stack.results.pull();
+        RunResult t = env.results.pull();
         if (t.result.value !is null)
             t.result.value.execute(env, operator);            
     }  
@@ -403,9 +403,11 @@ protected:
 
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {                
-        env.stack.results.push(); //<--here we can push a variable result or create temp result to drop it
+        if (env.stack.current.data.object !is this)
+            error("Can not execute block directly, data.object must set to this encloser");
+        env.results.push(); //<--here we can push a variable result or create temp result to drop it
         statements.execute(env);
-        auto t = env.stack.results.pull();
+        RunResult t = env.results.pull();
         //I dont know what if there is an object there what we do???
         /*
         * := 5 + { := 10 + 10 }
@@ -474,18 +476,18 @@ abstract class SoConst: SoObject
 {
     override final void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
-        if (!env.stack.results.current)
+        if (!env.results.current)
             error("There is no stack results!");
-        if ((env.stack.results.current.result.value is null) && (operator is null)) 
+        if ((env.results.current.result.value is null) && (operator is null)) 
         {
-            env.stack.results.current.result.value = clone();
+            env.results.current.result.value = clone();
             done = true;
         }
         else 
         {      
-            if (env.stack.results.current.result.value is null)
-                env.stack.results.current.result.value = clone(false);
-            done = env.stack.results.current.result.value.operate(this, operator);
+            if (env.results.current.result.value is null)
+                env.results.current.result.value = clone(false);
+            done = env.results.current.result.value.operate(this, operator);
         }
     }
 }
@@ -883,15 +885,15 @@ class SrdDefines: SardObject
             int i = 0;
             while (i < parameters.count)
             { 
-                env.stack.results.push();
+                env.results.push();
                 arguments[i].execute(env);
                 if (i < arguments.count)
                 {      
                     SrdDefine p = parameters[i];
                     RunVariable v = env.stack.current.data.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
-                    v.value = env.stack.results.current.result.value;
+                    v.value = env.results.current.result.value;
                 }
-                env.stack.results.pop();
+                env.results.pop();
                 i++;
             }        
         }
@@ -965,7 +967,7 @@ protected:
         /** if not name it assign to parent result */
         done = true;
         if (name == "") {
-            env.stack.results.current.result = env.stack.results.parent.result;        
+            env.results.current.result = env.results.parent.result;        
             writeln("set to parent");
         }
         else 
@@ -974,7 +976,7 @@ protected:
             RunVariable v = env.stack.current.data.variables.register(name, RunVarKinds([RunVarKind.Local]));
             if (v is null)
                 error("Variable not found!");
-            env.stack.results.current.result = v;
+            env.results.current.result = v;
         }
     }
 

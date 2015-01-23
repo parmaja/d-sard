@@ -115,8 +115,11 @@ class RunDeclare: SardObject
             if (_object.executeObject is null) {
                 error("executeObject of declaration is not set!");
                 return false;
-            }
+            }           
+
+            env.enter(env.stack.current.data, _object.executeObject);
             bool done = _object.executeObject.execute(env, operator, _object.defines, arguments, blocks);
+            env.exit(_object.executeObject);
             return done;
         }
     }
@@ -168,11 +171,12 @@ public:
         return declares.add(declare);
     }
 
-    RunDeclare findDeclare(string vName)
+    RunDeclare findDeclare(string name)
     {
-        RunDeclare declare = declares.find(vName);         
+        debug writeln("Finding " ~ name);
+        RunDeclare declare = declares.find(name);         
         if (parent && (declare is null))
-            declare = parent.findDeclare(vName);         
+            declare = parent.findDeclare(name);         
         return declare;
     }
 
@@ -219,8 +223,6 @@ public:
 class RunStack: SardStack!RunStackItem 
 {
 private:
-    RunResults _results;
-    public @property RunResults results() {return _results; };
 
 protected:
     override void beforePop() {
@@ -230,7 +232,6 @@ protected:
     };
 public:
     this(){
-        _results = new RunResults();    
         super();
     }
 
@@ -248,17 +249,20 @@ public:
 class RunEnv: SardObject 
 {
 private:
+    RunResults _results;
+    public @property RunResults results() {return _results; };
+
     RunStack _stack ;
     public @property RunStack stack() {return _stack;};
 
-    RunRoot _data;
-    public @property RunRoot data() {return _data;};
+    RunRoot _root;
+    public @property RunRoot root() {return _root;};
 
 public:
     void enter(RunData into, SoObject object)
     {
         RunData o = into.register(object);
-        //stack.push();
+        stack.push();
         stack.current.data = o;
     }
 
@@ -270,18 +274,22 @@ public:
             error("Entered data object is null!");
         if (stack.current.data.object !is object)
             error("Entered data have wrong object!");
-        //stack.pop();
-        //stack.current.data = null;
+        stack.current.data = null;
+        stack.pop();
     }
 
     this()
     {
         _stack = new RunStack();
-        _data = new RunRoot(null);
+        _root = new RunRoot(null);
+        _results = new RunResults();    
         super();
     }
 
     ~this(){
+        destroy(_stack);
+        destroy(_root);
+        destroy(_results);    
     }
 
     debug
@@ -289,7 +297,7 @@ public:
         override void debugWrite(int level)
         {
             super.debugWrite(level);
-            _data.debugWrite(level + 1);
+            //_root.debugWrite(level + 1);
         }
     }
 } 

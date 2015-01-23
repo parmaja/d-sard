@@ -63,7 +63,6 @@ int main(string[] argv)
 
     results ~= "10";
     sources ~= "  x := 10; 
-    //x := x + 5;
     := x;";
 
 //10:
@@ -78,6 +77,11 @@ int main(string[] argv)
     results ~= "15";
     sources ~= `//notice before 
          := 5 + (2 * 5);
+        `;
+
+    results ~= "150";
+    sources ~= `//test divide
+        := 100 + (100 / 2);
         `;
 
     //statment using semicolon closed by block closer
@@ -120,11 +124,21 @@ int main(string[] argv)
         x := foo + 5;
         := x;";
 
-        results ~= "20";
-        sources ~= "//call function
-        foo:(z){ := z + 10; }; //this is a declaration 
-        x := foo(5) + 5;
-        := x;"; 
+    results ~= "20";
+    sources ~= "//call function
+    foo:(z){ := z + 10; }; //this is a declaration 
+    x := foo(5) + 5;
+    := x;"; 
+
+    results ~= "150";
+    sources ~= `
+Bar:{
+    := 100;
+}
+
+Foo:{ := Bar + 50 }
+
+    := Foo;`;
 
 /+
 //here we must return error 

@@ -280,7 +280,7 @@ i := i + 5.5;
             string s = script.result;
             writeln(s);  
             foreground = Color.initial;
-            if (s != results[index])
+            if ((index >=0) && (s != results[index]))
                 error("Not expcepted result: " ~ results[index]);
             writeln();
             destroy(script);

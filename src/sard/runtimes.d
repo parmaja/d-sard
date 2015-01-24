@@ -140,6 +140,7 @@ class RunDeclares: NamedObjects!RunDeclare
 class RunData: Objects!RunData
 {
 public:
+    //string name;
     SoObject object;
     //RunStackItem stackItem;
 
@@ -175,6 +176,7 @@ public:
         declare.data = this;
         
         RunData o = register(object);
+        //o.name = object.name;
         //o.stackItem = stack.current;
         return declares.add(declare);
     }

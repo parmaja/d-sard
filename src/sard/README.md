@@ -9,7 +9,7 @@ Modules
     Some of usefull functions
     
     classes.d
-    Base classes for every thing, every thing dervied from SardObject
+    Base classes for every thing, every thing dervied from BaseObject
     
     objects.d
     Run time objects that can execute.
@@ -105,7 +105,7 @@ Object have Execute and Operate
 Some objects (like Block), and some have one Statement
 Block have Statements
 Statement: haves Clauses
-    Clause: Operator,Modifier,Object
+    Clause: Attributes, Operator, Modifier, Object //not yet now we have only Operator and Object
 
 Declare: is define how to call that object, it have Defines and link to the object to execute and call
     Declare is a object of Caluse that call external (or internal) object, until now this object freed by declare and it is wrong :(
@@ -117,8 +117,9 @@ it is useful for multiexecute.
 
 Prefix
 ======
-Sard: Base class prefix, but i like to change it to somthing else
-Srd: global classes inherited from sard
+
 Run: Runtime classes
 So: Sard objects, that created when compile the source
 Op: Operators objects
+Script: script that can run
+Syntax: for syntax highlighter

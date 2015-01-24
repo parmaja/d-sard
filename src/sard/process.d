@@ -14,18 +14,13 @@ import std.array;
 import std.range;
 import std.datetime;
 
-import sard.classes;
-import sard.runtimes;
-import sard.operators;
-import sard.objects;
-import sard.scanners;
-import sard.parsers;
+import sard;
 
 class SoVersion_Const: SoObject
 {
 protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done){
-        env.results.current.result.value = new SoText(sSardVersion);
+        env.results.current.result.value = new SoText(sVersion);
     }
 }
 
@@ -45,13 +40,13 @@ protected:
     }
 }
 
-class Sard: SardObject
+class Script: BaseObject
 {
 protected:
 
 public:
     SoBlock main;
-    SrdLexer lexer;
+    Lexer lexer;
     string result;
 
     this(){
@@ -83,9 +78,9 @@ public:
         writeln("----Createing lex objects-----");
         writeln();
 
-        lexer = new SrdLexer();
+        lexer = new ScriptLexer();
 
-        SrdParser parser = new SrdParser(main.statements);
+        ScriptParser parser = new ScriptParser(main.statements);
 
         lexer.parser = parser;      
         

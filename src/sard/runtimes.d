@@ -34,7 +34,7 @@ enum RunVarKind {
 
 alias RunVarKinds = Set!RunVarKind;
 
-class RunVariable: SardObject
+class RunVariable: BaseObject
 {
 public:
     string name;
@@ -50,7 +50,7 @@ public:
     }
 }
 
-class RunVariables: SardNamedObjects!RunVariable
+class RunVariables: NamedObjects!RunVariable
 {
     RunVariable register(string name, RunVarKinds kind)//TODO bad idea
     {
@@ -74,7 +74,7 @@ class RunVariables: SardNamedObjects!RunVariable
 *
 */
 
-class RunResult: SardObject
+class RunResult: BaseObject
 {
 private:
 public:
@@ -87,7 +87,7 @@ public:
     }
 }
 
-class RunResults: SardStack!RunResult
+class RunResults: Stack!RunResult
 {
 }
 
@@ -98,13 +98,13 @@ class RunResults: SardStack!RunResult
 *
 */
 
-class RunDeclare: SardObject
+class RunDeclare: BaseObject
 {
     string name;
     RunData data;
     private SoDeclare _object;
     
-    final bool execute(RunEnv env, OpOperator operator, SrdStatements arguments = null, SrdStatements blocks = null)
+    final bool execute(RunEnv env, OpOperator operator, Statements arguments = null, Statements blocks = null)
     {
         if (_object is null) {
             error("Object of declaration is not set!");
@@ -129,13 +129,13 @@ class RunDeclare: SardObject
     }
 }
 
-class RunDeclares: SardNamedObjects!RunDeclare 
+class RunDeclares: NamedObjects!RunDeclare 
 {
 }
 
 //Is that a Scope!!!, idk!
 
-class RunData: SardObjects!RunData
+class RunData: Objects!RunData
 {
 public:
     SoObject object;
@@ -213,7 +213,7 @@ public:
 
 /** StackItem */
 
-class RunStackItem: SardObject
+class RunStackItem: BaseObject
 {
 public:
     RunData data; //TODO make it property move it to stack
@@ -221,7 +221,7 @@ public:
 
 /** Stack */
 
-class RunStack: SardStack!RunStackItem 
+class RunStack: Stack!RunStackItem 
 {
 private:
 
@@ -247,7 +247,7 @@ public:
 *   Data have variables and declares
 */
 
-class RunEnv: SardObject 
+class RunEnv: BaseObject 
 {
 private:
     RunResults _results;

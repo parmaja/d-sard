@@ -12,10 +12,8 @@ import std.conv;
 import std.array;
 import std.range;
 import std.file;
-import sard.runtimes;
-import sard.classes;
-import sard.objects;
-import sard.process;
+
+import sard;
 import sard.utils;
 import consoled;
                                              
@@ -140,7 +138,7 @@ Foo:{ := Bar + 50 }
 
     := Foo;`;
 
-    results ~= sSardVersion;
+    results ~= sVersion;
     sources ~= `
     := version;`;
 
@@ -221,9 +219,9 @@ i := i + 5.5;
         bool loop = true;
         while (loop) 
         {
-            Sard sard;
+            Script script;
             foreground = Color.lightYellow;
-            writeln("--------- SARD (" ~ sSardVersion ~ ")----------");
+            writeln("--------- SARD (" ~ sVersion ~ ")----------");
             writeln();
             foreground = Color.initial;
 
@@ -257,7 +255,7 @@ i := i + 5.5;
             writeln();
             writeln("--- Compile ---");
             writeln();
-            sard = new Sard();  
+            script = new Script();  
             //source = sources[sources.length-1];
             //source = sources[$-1];        
             //source = sources.back;
@@ -265,27 +263,27 @@ i := i + 5.5;
             writeln(source);
             foreground = Color.initial;
             writeln("---------------");
-            sard.compile(source);
+            script.compile(source);
             writeln();
 //            writeln("Press enter to run");
             //getch();
             //readln();
             writeln("----- Run -----");
-            sard.run();
+            script.run();
             writeln();
             writeln("----- Result -----");
             foreground = Color.lightCyan;
-            string s = sard.result;
+            string s = script.result;
             writeln(s);  
             foreground = Color.initial;
             if (s != results[index])
                 error("Not expcepted result: " ~ results[index]);
             writeln();
-            destroy(sard);
+            destroy(script);
         }
         writeln("---------------");
     }
-    catch(SardParserException e)
+    catch(ParserException e)
     {
         foreground = Color.red;
         writeln("*******************************");

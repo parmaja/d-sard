@@ -10,8 +10,8 @@ module sard.scanners;
     @module: 
         Scanners: Scan the source code and generate runtime objects
 
-    SrdLexer: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
-    SrdScanner: Take this part of source code and convert it to control, operator or token/indentifier
+    Lexer: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
+    Scanner: Take this part of source code and convert it to control, operator or token/indentifier
 */
 
 import std.stdio;
@@ -39,7 +39,7 @@ static immutable char[] sIdentifierSeparator = ".";
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
-class SrdWhitespace_Scanner: SardScanner
+class Whitespace_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -57,7 +57,7 @@ protected:
     }
 }
 
-class SrdIdentifier_Scanner: SardScanner
+class Identifier_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -66,7 +66,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexer.setToken(text[pos..column], SardType.Identifier);
+        lexer.setToken(text[pos..column], Type.Identifier);
         resume = false;
     }
 
@@ -75,7 +75,7 @@ protected:
     }
 }
 
-class SrdNumber_Scanner: SardScanner
+class Number_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -84,7 +84,7 @@ protected:
         while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexer.setToken(text[pos..column], SardType.Number);
+        lexer.setToken(text[pos..column], Type.Number);
         resume = false;
     }
 
@@ -93,7 +93,7 @@ protected:
     }
 }
 
-class SrdControl_Scanner: SardScanner
+class Control_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume) 
@@ -114,7 +114,7 @@ protected:
     }
 }
 
-class SrdOperator_Scanner: SardScanner
+class Operator_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -136,7 +136,7 @@ protected:
 
 // Single line comment 
 
-class SrdLineComment_Scanner: SardScanner
+class LineComment_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -152,7 +152,7 @@ protected:
     }
 }
 
-class SrdBlockComment_Scanner: SardScanner
+class BlockComment_Scanner: Scanner
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -175,7 +175,7 @@ protected:
     }
 }
 
-abstract class SrdMultiLine_Scanner: SardScanner
+abstract class MultiLine_Scanner: Scanner
 {
 private:
     string buffer;
@@ -223,7 +223,7 @@ protected:
 }
 
 //Comment object {* *}
-class SrdComment_Scanner: SrdMultiLine_Scanner
+class Comment_Scanner: MultiLine_Scanner
 {
     override void created()
     {
@@ -234,23 +234,23 @@ class SrdComment_Scanner: SrdMultiLine_Scanner
 
     override void setToken(string token)
     {
-        lexer.setToken(token, SardType.Comment);
+        lexer.setToken(token, Type.Comment);
     }
 }
 
-abstract class SrdString_Scanner: SrdMultiLine_Scanner
+abstract class String_Scanner: MultiLine_Scanner
 {
 protected:
     override void setToken(string token)
     {
-        lexer.setToken(token, SardType.String);
+        lexer.setToken(token, Type.String);
     }
 
 }
 
 /* Single Quote String */
 
-class SrdSQString_Scanner: SrdString_Scanner
+class SQString_Scanner: String_Scanner
 {
 protected:
     override void created(){
@@ -262,7 +262,7 @@ protected:
 
 /* Double Quote String */
 
-class SrdDQString_Scanner: SrdString_Scanner
+class DQString_Scanner: String_Scanner
 {
 protected:
     override void created()
@@ -275,10 +275,10 @@ public:
 }
 
 /*-----------------------*/
-/*      SrdLexer       */
+/*      Lexer       */
 /*-----------------------*/
 
-class SrdLexer: SardLexer
+class ScriptLexer: Lexer
 {
 private:
 
@@ -288,16 +288,16 @@ protected:
     {     
         with(controls)
         {
-            add("(", SardControl.OpenParams);
-            add("[", SardControl.OpenArray);
-            add("{", SardControl.OpenBlock);
-            add(")", SardControl.CloseParams);
-            add("]", SardControl.CloseArray);
-            add("}", SardControl.CloseBlock);
-            add(";", SardControl.End);
-            add(",", SardControl.Next);
-            add(":", SardControl.Declare);
-            add(":=", SardControl.Assign);
+            add("(", Control.OpenParams);
+            add("[", Control.OpenArray);
+            add("{", Control.OpenBlock);
+            add(")", Control.CloseParams);
+            add("]", Control.CloseArray);
+            add("}", Control.CloseBlock);
+            add(";", Control.End);
+            add(",", Control.Next);
+            add(":", Control.Declare);
+            add(":=", Control.Assign);
         }
 
         with (operators)
@@ -321,16 +321,16 @@ protected:
 
         with (scanners)
         {
-            add(new SrdWhitespace_Scanner());
-            add(new SrdBlockComment_Scanner());
-            add(new SrdComment_Scanner());
-            add(new SrdLineComment_Scanner());
-            add(new SrdNumber_Scanner());
-            add(new SrdSQString_Scanner());
-            add(new SrdDQString_Scanner());
-            add(new SrdControl_Scanner());
-            add(new SrdOperator_Scanner()); //Register it after comment because comment take /*
-            add(new SrdIdentifier_Scanner());//Sould be last one      
+            add(new Whitespace_Scanner());
+            add(new BlockComment_Scanner());
+            add(new Comment_Scanner());
+            add(new LineComment_Scanner());
+            add(new Number_Scanner());
+            add(new SQString_Scanner());
+            add(new DQString_Scanner());
+            add(new Control_Scanner());
+            add(new Operator_Scanner()); //Register it after comment because comment take /*
+            add(new Identifier_Scanner());//Sould be last one      
         }
     }
 
@@ -380,12 +380,12 @@ public:
         /*
         if (identifier == "begin")
         {
-            setControl(SardControl.OpenBlock);
+            setControl(Control.OpenBlock);
             return true;
         } 
         if (identifier == "end")
         {
-            setControl(SardControl.CloseBlock);
+            setControl(Control.CloseBlock);
             return true;
         }   
         else  */    

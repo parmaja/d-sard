@@ -7,7 +7,9 @@ module sard.objects;
 */
 
 
-/**TODO:
+/**
+*   TODO:
+*
 *   SoArray:   Object have another objects, a list of objectd without execute it,
 *   it is save the result of statement come from the parser  
 *
@@ -29,8 +31,8 @@ import minilib.sets;
 
 import std.typecons;
 
-const string sSardVersion = "0.01";
-const int iSardVersion = 1;
+const string sVersion = "0.01";
+const int iVersion = 1;
 
 alias long integer;
 alias double number;
@@ -39,13 +41,13 @@ alias string text;
 enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otDeclare, otObject, otClass, otVariable};
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
-class SrdDebugInfo: SardObject 
+class DebugInfo: BaseObject 
 {
 }
 
-/** SrdClause */
+/** Clause */
 
-class SrdClause: SardObject
+class Clause: BaseObject
 {
 private:
     OpOperator _operator;
@@ -85,9 +87,9 @@ public:
     }
 }
 
-/* SrdStatement */
+/* Statement */
 
-class SrdStatement: SardObjects!SrdClause 
+class Statement: Objects!Clause 
 {
 private:
     SoObject _parent;
@@ -108,7 +110,7 @@ public:
         if (aObject.parent !is null)
             error("You can not add object to another parent!");
         aObject.parent = parent;
-        SrdClause clause = new SrdClause(operator, aObject);
+        Clause clause = new Clause(operator, aObject);
         super.add(clause);    
     }
 
@@ -121,10 +123,10 @@ public:
         }
     }
 
-    public SrdDebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
+    public DebugInfo debuginfo; //<-- Null until we compiled it with Debug Info
 }
 
-class SrdStatements: SardObjects!SrdStatement
+class Statements: Objects!Statement
 {
 private:
     SoObject _parent;
@@ -138,9 +140,9 @@ public:
         _parent = aParent;    
     }   
 
-    SrdStatement add()
+    Statement add()
     {
-        SrdStatement statement = new SrdStatement(parent);
+        Statement statement = new Statement(parent);
         super.add(statement);
         return statement;
     }
@@ -173,7 +175,7 @@ public:
 
 /* SoObject */
 
-abstract class SoObject: SardObject
+abstract class SoObject: BaseObject
 {
 private:
     int _id;
@@ -314,7 +316,7 @@ protected:
     abstract void doExecute(RunEnv env, OpOperator operator, ref bool done);    
 
 public:
-    final bool execute(RunEnv env, OpOperator operator, SrdDefines defines = null, SrdStatements arguments = null, SrdStatements blocks = null)
+    final bool execute(RunEnv env, OpOperator operator, Defines defines = null, Statements arguments = null, Statements blocks = null)
     {
         bool done = false;
 
@@ -356,8 +358,8 @@ x := 10  + ( 500 + 600);
 class SoSub: SoObject
 {
 protected:
-    SrdStatement _statement;    
-    public @property SrdStatement statement() { return _statement; };
+    Statement _statement;    
+    public @property Statement statement() { return _statement; };
     public alias statement this;
 
     override void beforeExecute(RunEnv env, OpOperator operator)
@@ -383,7 +385,7 @@ protected:
 public:
     this(){
         super();
-        _statement = new SrdStatement(parent);
+        _statement = new Statement(parent);
     }
 
     ~this(){
@@ -398,8 +400,8 @@ public:
 abstract class SoEnclose: SoObject
 {
 protected:
-    SrdStatements _statements;
-    public @property SrdStatements statements() { return _statements; };
+    Statements _statements;
+    public @property Statements statements() { return _statements; };
 
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {                
@@ -435,7 +437,7 @@ public:
 
     this(){
         super();
-        _statements = new SrdStatements(this);      
+        _statements = new Statements(this);      
     }
 
     ~this(){
@@ -469,7 +471,7 @@ public:
     /*    deprecated("testing") */
     void declareObject(SoObject object)
     {
-        SrdStatement statement =  statements.add();
+        Statement statement =  statements.add();
         SoDeclare declare = new SoDeclare();
         declare.name = object.name;
         declare.executeObject = object;
@@ -841,7 +843,7 @@ public:
 *   ---[ Defines  ]-------   
 */
 
-class SrdDefine: SardObject 
+class Define: BaseObject 
 {
 public:
     string name;
@@ -863,22 +865,22 @@ public:
     }
 }
 
-class SrdDefineItems: SardObjects!SrdDefine 
+class DefineItems: Objects!Define 
 {
     void add(string name, string type) {
-        super.add(new SrdDefine(name, type));
+        super.add(new Define(name, type));
     }
 }
 
-class SrdDefines: SardObject
+class Defines: BaseObject
 {
-    SrdDefineItems parameters;
-    SrdDefineItems blocks;
+    DefineItems parameters;
+    DefineItems blocks;
 
     this(){
         super();
-        parameters = new SrdDefineItems();
-        blocks = new SrdDefineItems();
+        parameters = new DefineItems();
+        blocks = new DefineItems();
     }
 
     ~this(){
@@ -886,7 +888,7 @@ class SrdDefines: SardObject
         destroy(blocks);
     }
 
-    void execute(RunEnv env, SrdStatements arguments)
+    void execute(RunEnv env, Statements arguments)
     {        
         if (arguments !is null) 
         { //TODO we need to check if it is a block?      
@@ -897,7 +899,7 @@ class SrdDefines: SardObject
                 arguments[i].execute(env);
                 if (i < arguments.count)
                 {      
-                    SrdDefine p = parameters[i];
+                    Define p = parameters[i];
                     RunVariable v = env.stack.current.data.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
                     v.value = env.results.current.result.value;
                 }
@@ -923,8 +925,8 @@ class SrdDefines: SardObject
 class SoInstance: SoObject
 {
 private
-    SrdStatements _arguments;
-    public @property SrdStatements arguments() { return _arguments; };
+    Statements _arguments;
+    public @property Statements arguments() { return _arguments; };
 
 protected:
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
@@ -956,7 +958,7 @@ public:
 
     this(){
         super();
-        _arguments = new SrdStatements(this);      
+        _arguments = new Statements(this);      
     }
 
     ~this(){
@@ -972,7 +974,7 @@ protected:
 
     override void doExecute(RunEnv env, OpOperator operator, ref bool done)
     {
-        /** if not name it assign to parent result */
+        /** if not have a name, assign it to parent result */
         done = true;
         if (name == "") {
             env.results.current.result = env.results.parent.result;        
@@ -1008,8 +1010,8 @@ public:
 class SoDeclare: SoObject
 {
 private:
-    SrdDefines _defines;
-    public @property SrdDefines defines(){ return _defines; }
+    Defines _defines;
+    public @property Defines defines(){ return _defines; }
 
 protected:
     override void created(){
@@ -1020,7 +1022,7 @@ protected:
 public:
     this(){
         super();
-        _defines = new SrdDefines();
+        _defines = new Defines();
     }    
 
     ~this(){

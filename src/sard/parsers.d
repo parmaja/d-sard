@@ -37,7 +37,7 @@ alias Set!Action Actions;
 *    @class Instruction
 */
 
-struct SrdInstruction
+struct Instruction
 {
 public:
 
@@ -209,21 +209,21 @@ public:
 *    list if controller
 */
 
-class SrdCollector: SardObject
+class Collector: BaseObject
 {
 private:
 
 protected:
-    SrdInstruction instruction;
-    SrdController controller;
+    Instruction instruction;
+    Controller controller;
 
-    SrdParser parser;
+    ScriptParser parser;
 
     void internalPost(){  
     }
 
-    SrdController createControllerClass() {
-        return new SrdControllerNormal(this);
+    Controller createControllerClass() {
+        return new ControllerNormal(this);
     }
 
 public:
@@ -233,7 +233,7 @@ public:
         debug writeln("new collecter");
     }
 
-    this(SrdParser aParser)
+    this(ScriptParser aParser)
     {
         this();
         parser = aParser;
@@ -246,8 +246,8 @@ public:
         debug writeln("kill collecter");
     }
 
-    //No pop, but when finish Parser will pop it
-    void setAction(Actions aActions = [], SrdCollector aNextCollector = null)
+    //No pop, but when finish ScriptParser will pop it
+    void setAction(Actions aActions = [], Collector aNextCollector = null)
     {
         debug{
             writeln(aActions);
@@ -258,8 +258,8 @@ public:
 
     void reset(){                      
         //destroy(instruction);
-        instruction = SrdInstruction.init;
-        //instruction= new SrdInstruction;
+        instruction = Instruction.init;
+        //instruction= new Instruction;
     }
 
     void prepare(){            
@@ -284,16 +284,16 @@ public:
     void next(){
     }
 
-    void addToken(string aToken, SardType aType)
+    void addToken(string aToken, Type aType)
     {
         switch (aType) {
-            case SardType.Number: 
+            case Type.Number: 
                 instruction.setNumber(aToken);
                 break;
-            case SardType.String: 
+            case Type.String: 
                 instruction.setText(aToken);
                 break;
-            case SardType.Comment: 
+            case Type.Comment: 
                 instruction.setComment(aToken);
                 break;
             default:
@@ -313,15 +313,15 @@ public:
         return false;
     }
 
-    void control(SardControl aControl){
+    void control(Control aControl){
         controller.control(aControl);
     }
 }
 
-class SrdCollectorStatement: SrdCollector
+class CollectorStatement: Collector
 {
 protected:
-    SrdStatement statement;
+    Statement statement;
 
     override void internalPost()
     {
@@ -331,11 +331,11 @@ protected:
 
 public:
 
-    this(SrdParser aParser){
+    this(ScriptParser aParser){
         super(aParser);
     }
 
-    this(SrdParser aParser, SrdStatement aStatement)
+    this(ScriptParser aParser, Statement aStatement)
     {
         this(aParser);
         statement = aStatement;
@@ -363,14 +363,14 @@ public:
     }    
 }
 
-class SrdCollectorBlock: SrdCollectorStatement
+class CollectorBlock: CollectorStatement
 {
 protected:
-    SrdStatements statements;
+    Statements statements;
 
 public:
 
-    this(SrdParser aParser, SrdStatements aStatements)
+    this(ScriptParser aParser, Statements aStatements)
     {
         super(aParser);
         statements = aStatements;
@@ -388,19 +388,19 @@ public:
     }
 }
 
-class SrdCollectorDeclare: SrdCollectorStatement
+class CollectorDeclare: CollectorStatement
 {
 protected:
 
 public:
 
-    this(SrdParser aParser){
+    this(ScriptParser aParser){
         super(aParser);    
     }
 
-    override void control(SardControl aControl){
+    override void control(Control aControl){
         switch (aControl){
-            case SardControl.End, SardControl.Next:          
+            case Control.End, Control.Next:          
                 post();
                 setAction(Actions([Action.PopCollector, Action.Bypass]));
                 break;
@@ -415,7 +415,7 @@ public:
     
     //parameters are in the declaration, arguments are the things actually passed to it. so void f(x), f(0), x is the parameter, 0 is the argument
 */
-class SrdCollectorDefine: SrdCollector
+class CollectorDefine: Collector
 {
 private:
     enum State {Name, Type};
@@ -424,11 +424,11 @@ protected:
     bool param;
     SoDeclare declare;
 
-    this(SrdParser aParser){ 
+    this(ScriptParser aParser){ 
         super(aParser);    
     }
 
-    this(SrdParser aParser, SoDeclare aDeclare){
+    this(ScriptParser aParser, SoDeclare aDeclare){
         this(aParser);
         declare = aDeclare;
     }
@@ -452,12 +452,12 @@ protected:
             declare.resultType = instruction.identifier;            
     }
 
-    override SrdController createControllerClass(){
-        return new SrdControllerDefines(this);
+    override Controller createControllerClass(){
+        return new ControllerDefines(this);
     }
 
 public:
-    override void control(SardControl aControl)
+    override void control(Control aControl)
     {
         /*
         x:int  (p1: int; p2: string);
@@ -469,16 +469,16 @@ public:
         {
             switch(aControl)
             {
-                case SardControl.OpenBlock:
+                case Control.OpenBlock:
                     post();
                     SoBlock aBlock = new SoBlock();
                     aBlock.parent(declare);
                     declare.executeObject = aBlock;
                     //We will pass the control to the next Collector
-                    setAction(Actions([Action.PopCollector]), new SrdCollectorBlock(parser, aBlock.statements));
+                    setAction(Actions([Action.PopCollector]), new CollectorBlock(parser, aBlock.statements));
                     break;
 
-                case SardControl.Declare:
+                case Control.Declare:
                     if (param){
                         post();
                         state = State.Type;
@@ -489,13 +489,13 @@ public:
                     }
                     break;
 
-                case SardControl.Assign:
+                case Control.Assign:
                     post();
                     declare.executeObject = new SoAssign(declare, declare.name);            
                     setAction(Actions([Action.PopCollector])); //Finish it, mean there is no body/statment for the declare
                     break;
 
-                case SardControl.End:
+                case Control.End:
                     if (param){
                         post();
                         state = State.Name;
@@ -506,23 +506,23 @@ public:
                     }
                     break;
 
-                case SardControl.Next:
+                case Control.Next:
                     post();
                     state = State.Name;
                     break;
 
-                case SardControl.OpenParams:
+                case Control.OpenParams:
                     post();
                     if (declare.defines.parameters.count > 0)
                         error("You already define params! we expected open block.");
                     param = true;
                     break;
 
-                case SardControl.CloseParams:
+                case Control.CloseParams:
                     post();
                     //pop(); //Finish it
                     param = false;
-                    //action(Actions([paPopCollector]), new SrdCollectorBlock(parser, declare.block)); //return to the statment
+                    //action(Actions([paPopCollector]), new CollectorBlock(parser, declare.block)); //return to the statment
                     break;
 
                 default: 
@@ -553,38 +553,38 @@ public:
 *    @class Controller
 */
 
-abstract class SrdController: SardObject
+abstract class Controller: BaseObject
 {
 protected:
-    SrdCollector collector;
+    Collector collector;
 
 public:
-    this(SrdCollector aCollector){
+    this(Collector aCollector){
         super();
         collector = aCollector;
     }
 
-    abstract void control(SardControl aControl);
+    abstract void control(Control aControl);
 }
 
 /**
-*    SrdControllerNormal
+*    ControllerNormal
 */
 
-class SrdControllerNormal: SrdController
+class ControllerNormal: Controller
 {    
 public:    
-    this(SrdCollector aCollector){
+    this(Collector aCollector){
         super(aCollector);
     }
 
-    override void control(SardControl aControl)
+    override void control(Control aControl)
     {
         with(collector)
         {
             switch(aControl)
             {
-                case SardControl.Assign:
+                case Control.Assign:
                     if (isInitial)
                     {
                         instruction.setAssign();
@@ -595,59 +595,59 @@ public:
 
                     break;
 
-                case SardControl.Declare:
+                case Control.Declare:
                     if (isInitial)
                     {
                         SoDeclare aDeclare = instruction.setDeclare();
                         post();
-                        parser.push(new SrdCollectorDefine(parser, aDeclare));
+                        parser.push(new CollectorDefine(parser, aDeclare));
                     } 
                     else 
                         error("You can not use a declare here!");
                     break;
 
-                case SardControl.OpenBlock:
+                case Control.OpenBlock:
                     SoBlock aBlock = new SoBlock();
                     instruction.setObject(aBlock);
-                    parser.push(new SrdCollectorBlock(parser, aBlock.statements));
+                    parser.push(new CollectorBlock(parser, aBlock.statements));
                     break;
 
-                case SardControl.CloseBlock:
+                case Control.CloseBlock:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Curly");
                     setAction(Actions([Action.PopCollector]));
                     break;
 
-                case SardControl.OpenParams:
+                case Control.OpenParams:
                     //params of function/object like: Sin(10)
                     if (instruction.checkIdentifier())
                     {
                         with (instruction.setInstance())
-                            parser.push(new SrdCollectorBlock(parser, arguments));
+                            parser.push(new CollectorBlock(parser, arguments));
                     }
                     else //No it is just sub statment like: 10+(5*5)
                         with (instruction.setSub())
-                            parser.push(new SrdCollectorStatement(parser, statement));
+                            parser.push(new CollectorStatement(parser, statement));
                     break;
 
-                case SardControl.CloseParams:
+                case Control.CloseParams:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Bracket");
                     setAction(Actions([Action.PopCollector]));
                     break;
 
-                case SardControl.Start:            
+                case Control.Start:            
                     break;
-                case SardControl.Stop:            
+                case Control.Stop:            
                     post();
                     break;
-                case SardControl.End:            
+                case Control.End:            
                     post();
                     next();
                     break;
-                case SardControl.Next:            
+                case Control.Next:            
                     post();
                     next();
                     break;
@@ -659,17 +659,17 @@ public:
 }
 
 /**
-*    SrdControllerDefines
+*    ControllerDefines
 */
 
-class SrdControllerDefines: SrdControllerNormal  //TODO should i inherited it from SrdController?
+class ControllerDefines: ControllerNormal  //TODO should i inherited it from Controller?
 {
 public:
-    this(SrdCollector aCollector){
+    this(Collector aCollector){
         super(aCollector);
     }
 
-    override void control(SardControl aControl)
+    override void control(Control aControl)
     {
         //nothing O.o
         //TODO change the inheretance 
@@ -681,12 +681,12 @@ public:
 *
 */
 
-class SrdParser: SardStack!SrdCollector, ISardParser 
+class ScriptParser: Stack!Collector, IParser 
 {
 protected:
-    SardControl lastControl;
+    Control lastControl;
 
-    override void setToken(string aToken, SardType aType)
+    override void setToken(string aToken, Type aType)
     {
         debug{        
             writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
@@ -698,15 +698,15 @@ protected:
                     } <---------here not need to add ;
                 y := 10;    
         */
-        if (lastControl == SardControl.CloseBlock) 
+        if (lastControl == Control.CloseBlock) 
         {
-            lastControl = SardControl.None;//prevent from loop
-            setControl(SardControl.End);
+            lastControl = Control.None;//prevent from loop
+            setControl(Control.End);
         }
         current.addToken(aToken, aType);
         doQueue();
         actions = [];
-        lastControl = SardControl.Object;
+        lastControl = Control.Object;
     }
 
     override void setOperator(OpOperator operator)
@@ -720,19 +720,19 @@ protected:
         current.addOperator(o);
         doQueue();
         actions = [];
-        lastControl = SardControl.Operator;
+        lastControl = Control.Operator;
     }
 
-    override void setControl(SardControl aControl)
+    override void setControl(Control aControl)
     {
         debug{        
             writeln("SetControl: " ~ to!string(aControl));
         }
 
-        if (lastControl == SardControl.CloseBlock) //see setToken
+        if (lastControl == Control.CloseBlock) //see setToken
         {
-            lastControl = SardControl.None;//prevent from loop
-            setControl(SardControl.End);
+            lastControl = Control.None;//prevent from loop
+            setControl(Control.End);
         }
 
         current.control(aControl);
@@ -778,16 +778,16 @@ protected:
 
 public:
     Actions actions;
-    SrdCollector nextCollector;
+    Collector nextCollector;
 
-    this(SrdStatements aStatements)
+    this(Statements aStatements)
     {
         super();      
 
         if (aStatements is null)
             error("You must set a block");      
 
-        push(new SrdCollectorBlock(this, aStatements));
+        push(new CollectorBlock(this, aStatements));
     }
 
     ~this(){

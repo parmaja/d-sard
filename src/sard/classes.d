@@ -14,18 +14,19 @@ import std.array;
 import std.range;
 import sard.utils;
 
-class SardException: Exception 
+class CodeException: Exception 
 {
     private uint _code;
     @property uint code() { return _code; }
 
 public:
-    this(string msg) {
+    this(string msg, int code = -1) {
+        _code = code;
         super(msg);
     }
 }
 
-class SardParserException: Exception 
+class ParserException: Exception 
 {
     private int _line;
     private int _column;
@@ -47,27 +48,12 @@ class SardParserException: Exception
     }
 }
 
-void error(string err) 
+void error(string err, int code = -1) 
 {
-    throw new SardException(err);
+    throw new CodeException(err, code);
 }
 
-/+
-class SardPrint: SardObject {
-public:
-    void text(string s){
-        writeln(s);
-    }
-}
-
-SardPrint print = new SardPrint(); 
-+/
-
-/**
-SardObject is the base class for all object in this project
-*/
-
-class SardObject: Object 
+class BaseObject: Object 
 {
 protected:
     void initialize(){
@@ -103,9 +89,9 @@ public:
 
 }
 
-//class SardObjects(T): SardObject if(is(T: SomeObject)) {
-//class SardObjects(T: SardObject): SardObject 
-class SardObjects(T): SardObject 
+//class Objects(T): BaseObject if(is(T: SomeObject)) {
+//class Objects(T: BaseObject): BaseObject 
+class Objects(T): BaseObject 
 {
 private:
     T[] _items;//TODO hash string list for namedobjects    
@@ -211,7 +197,7 @@ public:
     }
 }
 
-class SardNamedObjects(T: SardObject): SardObjects!T
+class NamedObjects(T: BaseObject): Objects!T
 {
 public:
     T find(const string name) 
@@ -260,28 +246,28 @@ public:
 *
 */
 
-class SardStack(T): SardObject 
+class Stack(T): BaseObject 
 {    
 protected:
-    static class SardStackItem: SardObject {
+    static class StackItem: BaseObject {
         protected {
             T object; 
-            SardStackItem parent;
+            StackItem parent;
         }
 
         public {
-            SardStack owner;
+            Stack owner;
             int level;
         }
     }
 
 private:
     int _count;
-    SardStackItem _currentItem; 
+    StackItem _currentItem; 
 
 public:
     @property int count() { return _count; }
-    @property SardStackItem currentItem() { return _currentItem; }     
+    @property StackItem currentItem() { return _currentItem; }     
 
 protected:
     T getParent() {
@@ -323,12 +309,12 @@ public:
 
     void push(T aObject) 
     {
-        SardStackItem aItem;
+        StackItem aItem;
 
         if (aObject is null)
             error("Can't push null");
 
-        aItem = new SardStackItem();
+        aItem = new StackItem();
         aItem.object = aObject;
         aItem.parent = _currentItem;
         aItem.owner = this;
@@ -359,7 +345,7 @@ public:
             error("Stack is empty");
         beforePop();
         T object = currentItem.object;
-        SardStackItem aItem = currentItem;
+        StackItem aItem = currentItem;
         _currentItem = aItem.parent;
         _count--;
         destroy(aItem);
@@ -387,7 +373,7 @@ public:
 }
 
 //TokenType
-enum SardType 
+enum Type 
 {
     None, 
     Identifier, 
@@ -397,7 +383,7 @@ enum SardType
     Comment 
 }
 
-enum SardControl
+enum Control
 {
     None,
     Object,//Token like Identifier or Number, not used in fact    
@@ -417,27 +403,27 @@ enum SardControl
     CloseArray // ]
 }
 
-interface ISardParser 
+interface IParser 
 {
 protected:
     abstract void start();
     abstract void stop();    
 
 public:
-    abstract void setToken(string aToken, SardType aType);
-    abstract void setControl(SardControl aControl);
+    abstract void setToken(string aToken, Type aType);
+    abstract void setControl(Control aControl);
     abstract void setOperator(OpOperator operator);
     abstract void setWhiteSpaces(string whitespaces);
 
 public:
 };
 
-class SardScanner: SardObject 
+class Scanner: BaseObject 
 {
 private:
-    SardLexer _lexer;
+    Lexer _lexer;
 
-    public @property SardLexer lexer() { 
+    public @property Lexer lexer() { 
         return _lexer; 
     } ;
 
@@ -456,7 +442,7 @@ protected:
 
 public:
 
-    void set(SardLexer lexer) { //todo maybe rename to opCall
+    void set(Lexer lexer) { //todo maybe rename to opCall
         _lexer = lexer;
     }
 
@@ -464,31 +450,31 @@ public:
         super();
     }
 
-    this(SardLexer lexer){ 
+    this(Lexer lexer){ 
         this();
         set(lexer);
     }
 }
 
-class SardScanners: SardObjects!SardScanner{  
+class Scanners: Objects!Scanner{  
 
 private:
-    SardLexer _lexer;
+    Lexer _lexer;
 
 public:
-    override void beforeAdd(SardScanner scanner)
+    override void beforeAdd(Scanner scanner)
     {
         super.beforeAdd(scanner);
         scanner._lexer = _lexer;      
     }
 
-    this(SardLexer aLexer){
+    this(Lexer aLexer){
         _lexer = aLexer;
         super();
     }
 }
 
-class SardLexer: SardObject
+class Lexer: BaseObject
 {
 private:
     bool _active;
@@ -507,15 +493,15 @@ private:
 
     public @property int line() { return _line; };
 
-    ISardParser _parser;    
-    public @property ISardParser  parser() { return _parser; };
-    public @property ISardParser  parser(ISardParser  value) { return _parser = value; }    
+    IParser _parser;    
+    public @property IParser  parser() { return _parser; };
+    public @property IParser  parser(IParser  value) { return _parser = value; }    
 
-    SardScanner _current; //current scanner
-    public @property SardScanner current() { return _current; } ;      
+    Scanner _current; //current scanner
+    public @property Scanner current() { return _current; } ;      
 
-    SardScanners _scanners;
-    public @property SardScanners scanners() { return _scanners; } ;  
+    Scanners _scanners;
+    public @property Scanners scanners() { return _scanners; } ;  
 
     OpOperators _operators;
     @property public OpOperators operators () { return _operators; }
@@ -531,24 +517,24 @@ protected:
     }
 
     void doStart() {
-        setControl(SardControl.Start);
+        setControl(Control.Start);
     }
 
     void doStop() {
-        setControl(SardControl.Stop);
+        setControl(Control.Stop);
     }
 
 public:
 
-    final void setToken(string aToken, SardType aType)
+    final void setToken(string aToken, Type aType)
     {
         //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
         //by default it is id
-        if ((aType != SardType.Identifier) || (!doIdentifier(aToken)))
+        if ((aType != Type.Identifier) || (!doIdentifier(aToken)))
             parser.setToken(aToken, aType);
     }
 
-    final void setControl(SardControl aControl){
+    final void setControl(Control aControl){
         parser.setControl(aControl);
     }
 
@@ -564,7 +550,7 @@ public:
 public:
     this()
     {
-        _scanners = new SardScanners(this);
+        _scanners = new Scanners(this);
         _operators = new OpOperators();
         _controls = new CtlControls();
         super();
@@ -592,9 +578,9 @@ public:
 
 public:
 
-    SardScanner detectScanner(const string text, int column) 
+    Scanner detectScanner(const string text, int column) 
     {
-        SardScanner result = null;
+        Scanner result = null;
         if (column >= text.length)
         //do i need to switchScanner?
         //return null; //no scanner for empty line or EOL
@@ -617,7 +603,7 @@ public:
         return result;
     }
 
-    void switchScanner(SardScanner nextScanner) 
+    void switchScanner(Scanner nextScanner) 
     {
         if (_current != nextScanner) 
         {
@@ -627,7 +613,7 @@ public:
         }
     }
 
-    SardScanner findClass(const ClassInfo scannerClass) 
+    Scanner findClass(const ClassInfo scannerClass) 
     {
         int i = 0;
         foreach(scanner; scanners) {
@@ -642,7 +628,7 @@ public:
     //This find the class and switch to it
     void SelectScanner(ClassInfo scannerClass) 
     {
-        SardScanner aScanner = findClass(scannerClass);
+        Scanner aScanner = findClass(scannerClass);
         if (aScanner is null)
             error("Scanner not found");
         switchScanner(aScanner);
@@ -659,7 +645,7 @@ public:
         while (column < len)
         {
             int oldColumn = column;
-            SardScanner oldScanner = _current;
+            Scanner oldScanner = _current;
             try 
             {
                 if (current is null) //resume the line to current/last scanner
@@ -676,7 +662,7 @@ public:
                     error("Feeder in loop with: " ~ _current.classinfo.nakename); //TODO: be careful here
             }
             catch(Exception e) {          
-                throw new SardParserException(e.msg, line, column);
+                throw new ParserException(e.msg, line, column);
             }
         }
     }
@@ -736,10 +722,10 @@ This will used in the scanner
 
 //TODO maybe struct not a class
 
-class CtlControl: SardObject
+class CtlControl: BaseObject
 {
     string name;
-    SardControl code;
+    Control code;
     int level;
     string description;
 
@@ -747,7 +733,7 @@ class CtlControl: SardObject
         super();
     }
 
-    this(string aName, SardControl aCode)
+    this(string aName, Control aCode)
     {
         this();
         name = aName;
@@ -757,9 +743,9 @@ class CtlControl: SardObject
 
 /* Controls */
 
-class CtlControls: SardNamedObjects!CtlControl
+class CtlControls: NamedObjects!CtlControl
 {
-    CtlControl add(string name, SardControl code)
+    CtlControl add(string name, Control code)
     {
         CtlControl c = new CtlControl(name, code);    
         super.add(c);
@@ -773,7 +759,7 @@ class CtlControls: SardNamedObjects!CtlControl
 
 enum Associative {Left, Right};
 
-class OpOperator: SardObject
+class OpOperator: BaseObject
 {
 public:
     string name; //Sign like + or -
@@ -797,7 +783,7 @@ public:
 
 /* Operators */
 
-class OpOperators: SardNamedObjects!OpOperator
+class OpOperators: NamedObjects!OpOperator
 {
 public:
     OpOperator findByTitle(string title)

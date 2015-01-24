@@ -20,7 +20,7 @@ Modules
     scanners.d
     Have lexer and scanners, scan the text source code and pass it to the parser
     
-    process.d
+    script.d
         Main object to run script    
             
 

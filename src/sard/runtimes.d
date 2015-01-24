@@ -13,6 +13,7 @@ import std.string;
 import std.stdio;
 import std.uni;
 import std.datetime;
+import std.typecons;
 
 import sard.utils;
 import sard.classes;
@@ -34,14 +35,15 @@ enum RunVarKind {
 
 alias RunVarKinds = Set!RunVarKind;
 
-class RunVariable: BaseObject
+class RunValue: BaseObject
 {
 public:
     string name;
     RunVarKinds kind;
     SoObject value;
-
+    
     this(){
+        //value = RefObject(null);
         super();
     }
 
@@ -50,14 +52,14 @@ public:
     }
 }
 
-class RunVariables: NamedObjects!RunVariable
+class RunVariables: NamedObjects!RunValue
 {
-    RunVariable register(string name, RunVarKinds kind)//TODO bad idea
+    RunValue register(string name, RunVarKinds kind)//TODO bad idea
     {
-        RunVariable result = find(name);
+        RunValue result = find(name);
         if (result is null)
         {
-            result = new RunVariable();
+            result = new RunValue();
             result.name = name;
             result.kind = kind;
             add(result);
@@ -78,11 +80,11 @@ class RunResult: BaseObject
 {
 private:
 public:
-    RunVariable result;
+    RunValue result;
 
     this()
     {
-        result = new RunVariable();
+        result = new RunValue();
         super();      
     }
 }
@@ -140,8 +142,8 @@ class RunData: Objects!RunData
 public:
     SoObject object;
     RunStackItem stackItem;
+
     RunDeclares declares; 
-    RunVariables variables;
     RunData parent;
 
     RunData find(SoObject object)
@@ -184,7 +186,6 @@ public:
     this(RunData aParent)
     {
         parent = aParent;
-        variables = new RunVariables();
         declares = new RunDeclares();
         super();
     }
@@ -192,7 +193,6 @@ public:
     ~this()
     {
         destroy(declares);
-        destroy(variables);
     }
 }
 
@@ -216,7 +216,20 @@ public:
 class RunStackItem: BaseObject
 {
 public:
+    RunVariables variables;
+public:
     RunData data; //TODO make it property move it to stack
+
+    this()
+    {
+        variables = new RunVariables();
+        super();
+    }
+
+    ~this()
+    {
+        destroy(variables);
+    }
 }
 
 /** Stack */
@@ -260,6 +273,20 @@ private:
     public @property RunRoot root() {return _root;};
 
 public:
+    this()
+    {
+        _stack = new RunStack();
+        _root = new RunRoot(null);
+        _results = new RunResults();    
+        super();
+    }
+
+    ~this(){
+        destroy(_stack);
+        destroy(_root);
+        destroy(_results);    
+    }
+
     void enter(RunData into, SoObject object)
     {
         RunData o = into.register(object);
@@ -277,20 +304,6 @@ public:
         if (stack.current.data.object !is object)
             error("Entered data have wrong object!");
         stack.pop();
-    }
-
-    this()
-    {
-        _stack = new RunStack();
-        _root = new RunRoot(null);
-        _results = new RunResults();    
-        super();
-    }
-
-    ~this(){
-        destroy(_stack);
-        destroy(_root);
-        destroy(_results);    
     }
 
     debug

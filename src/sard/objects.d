@@ -188,6 +188,7 @@ private:
     public @property string name(string value){ return _name = value; }
 
 protected:
+    int refCount;
     ObjectType _objectType;
 
     public @property ObjectType objectType() {  return _objectType; }
@@ -349,6 +350,66 @@ public:
     }
 }
 
+/**
+*
+*   RefObject, refcounted of SoObject
+*   This just trying to make it, not sure about the results
+*   maybe move it to runtimes.d
+*
+*/
+
+
+struct RefObject
+{    
+    private SoObject _object;
+    public @property SoObject object(){ return _object; };    
+
+    alias _object this;
+
+    @disable this();
+
+    this(SoObject o){
+        _object = o;
+        if (_object !is null)
+            ++_object.refCount;
+    }
+
+    ~this(){
+        if (_object !is null) {
+            --_object.refCount;
+            if (_object.refCount == 0)
+                destroy(_object);
+        }
+    }
+
+
+/*    void opAssign(typeof(this) rhs)
+    {
+
+    }
+*/
+
+    void opAssign(SoObject rhs)
+    {
+        if (_object !is null)
+            --_object.refCount;
+        _object = rhs;
+        if (_object !is null)
+            ++_object.refCount;
+    }
+
+    @property bool isNull(){
+        return _object is null;
+    }
+
+    bool opCast(){
+        return isNull;
+    }    
+/*
+    bool opCast(T: bool)(){
+        return isNull;
+    }     */
+}
 
 /**
 x := 10  + ( 500 + 600);
@@ -900,7 +961,7 @@ class Defines: BaseObject
                 if (i < arguments.count)
                 {      
                     Define p = parameters[i];
-                    RunVariable v = env.stack.current.data.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
+                    RunValue v = env.stack.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
                     v.value = env.results.current.result.value;
                 }
                 env.results.pop();
@@ -938,7 +999,7 @@ protected:
         }
         else 
         {
-            RunVariable v = env.stack.current.data.variables.find(name);
+            RunValue v = env.stack.current.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
             if (v.value is null)
@@ -983,7 +1044,7 @@ protected:
         else 
         {
             //Ok let is declare it locally
-            RunVariable v = env.stack.current.data.variables.register(name, RunVarKinds([RunVarKind.Local]));
+            RunValue v = env.stack.current.variables.register(name, RunVarKinds([RunVarKind.Local]));
             if (v is null)
                 error("Variable not found!");
             env.results.current.result = v;

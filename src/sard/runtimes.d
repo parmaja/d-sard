@@ -43,7 +43,7 @@ public:
     SoObject value;
     
     this(){
-        //value = RefObject(null);
+        value = RefObject(null);
         super();
     }
 
@@ -106,7 +106,7 @@ class RunDeclare: BaseObject
     RunData data;
     private SoDeclare _object;
     
-    final bool execute(RunEnv env, OpOperator operator, Statements arguments = null, Statements blocks = null)
+    final bool execute(RunData data, RunEnv env, OpOperator operator, Statements arguments = null, Statements blocks = null)
     {
         if (_object is null) {
             error("Object of declaration is not set!");
@@ -119,9 +119,9 @@ class RunDeclare: BaseObject
                 return false;
             }           
 
-            env.enter(env.stack.current.data, _object.executeObject);
-            bool done = _object.executeObject.execute(env, operator, _object.defines, arguments, blocks);
-            env.exit(_object.executeObject);
+            //env.enter(env.stack.current.data, _object.executeObject);///big mistake ERROR
+            bool done = _object.executeObject.execute(data, env, operator, _object.defines, arguments, blocks);
+            //env.exit(_object.executeObject);
             return done;
         }
     }
@@ -141,7 +141,7 @@ class RunData: Objects!RunData
 {
 public:
     SoObject object;
-    RunStackItem stackItem;
+    //RunStackItem stackItem;
 
     RunDeclares declares; 
     RunData parent;
@@ -158,6 +158,8 @@ public:
 
     RunData register(SoObject object)
     {
+        if (object is null)
+            error("Can not register null in data");
         RunData o = find(object);
         if (o is null) {
             o = new RunData(this);
@@ -171,12 +173,15 @@ public:
         RunDeclare declare = new RunDeclare(object);        
         declare.name = object.name; 
         declare.data = this;
+        
+        RunData o = register(object);
+        //o.stackItem = stack.current;
         return declares.add(declare);
     }
 
     RunDeclare findDeclare(string name)
     {
-        debug writeln("Finding " ~ name);
+//        debug writeln("Finding " ~ object.name ~ "."~name);
         RunDeclare declare = declares.find(name);         
         if (parent && (declare is null))
             declare = parent.findDeclare(name);         
@@ -218,7 +223,7 @@ class RunStackItem: BaseObject
 public:
     RunVariables variables;
 public:
-    RunData data; //TODO make it property move it to stack
+//    RunData data; //TODO make it property move it to stack
 
     this()
     {
@@ -289,21 +294,21 @@ public:
 
     void enter(RunData into, SoObject object)
     {
-        RunData o = into.register(object);
+        /*RunData o = into.register(object);
         stack.push();
         stack.current.data = o;
-        o.stackItem = stack.current;
+        o.stackItem = stack.current;*/
     }
 
     void exit(SoObject object)
     {
-        if (stack.current.data is null)
+/*        if (stack.current.data is null)
             error("Enter stack data is needed!");
         if (stack.current.data.object !is object)
             error("Entered data object is null!");
         if (stack.current.data.object !is object)
-            error("Entered data have wrong object!");
-        stack.pop();
+            error("Entered data have wrong object!");*/
+//        stack.pop();
     }
 
     debug

@@ -68,11 +68,11 @@ public:
         destroy(_object);
     }
 
-    bool execute(RunEnv env) 
+    bool execute(RunData data, RunEnv env) 
     {
         if (_object is null)
             error("Object not set!");
-        return _object.execute(env, _operator);        
+        return _object.execute(data, env, _operator);        
     }
 
     debug{
@@ -114,12 +114,12 @@ public:
         super.add(clause);    
     }
 
-    void execute(RunEnv env)
+    void execute(RunData data, RunEnv env)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
         foreach(e; items) 
         {
-            e.execute(env);
+            e.execute(data, env);
         }
     }
 
@@ -154,7 +154,7 @@ public:
         }
     }
 
-    bool execute(RunEnv env)
+    bool execute(RunData data, RunEnv env)
     {
         if (count == 0)
             return false;
@@ -164,7 +164,7 @@ public:
             {
                 //each statment have a result
                 env.results.push();
-                e.execute(env);
+                e.execute(data, env);
                 env.results.pop();
                 //if the current statement assigned to parent or variable result "Reference" here have this object, or we will throw the result
             }
@@ -305,27 +305,27 @@ protected:
             return doOperate(object, operator);
     }
 
-    void beforeExecute(RunEnv env, OpOperator operator){
-        if (env.stack.current.data is null)
-            error("Enter stack data is needed!");
+    void beforeExecute(RunData data, RunEnv env, OpOperator operator){
+        if (data is null)
+            error("Data is needed!");
     }
 
-    void afterExecute(RunEnv env, OpOperator operator){
+    void afterExecute(RunData data, RunEnv env, OpOperator operator){
 
     }
 
-    abstract void doExecute(RunEnv env, OpOperator operator, ref bool done);    
+    abstract void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done);    
 
 public:
-    final bool execute(RunEnv env, OpOperator operator, Defines defines = null, Statements arguments = null, Statements blocks = null)
+    final bool execute(RunData data, RunEnv env, OpOperator operator, Defines defines = null, Statements arguments = null, Statements blocks = null)
     {
         bool done = false;
 
-        beforeExecute(env, operator);      
+        beforeExecute(data, env, operator);      
         if (defines !is null)
-            defines.execute(env, arguments);
-        doExecute(env, operator, done);
-        afterExecute(env, operator);      
+            defines.execute(data, env, arguments);
+        doExecute(data, env, operator, done);
+        afterExecute(data, env, operator);      
 
         debug 
         {      
@@ -361,7 +361,7 @@ public:
 
 struct RefObject
 {    
-    private SoObject _object;
+    public SoObject _object;
     public @property SoObject object(){ return _object; };    
 
     alias _object this;
@@ -423,23 +423,23 @@ protected:
     public @property Statement statement() { return _statement; };
     public alias statement this;
 
-    override void beforeExecute(RunEnv env, OpOperator operator)
+    override void beforeExecute(RunData data, RunEnv env, OpOperator operator)
     {
-        super.beforeExecute(env, operator);
+        super.beforeExecute(data, env, operator);
         env.results.push();
     }  
 
-    override void afterExecute(RunEnv env, OpOperator operator)
+    override void afterExecute(RunData data, RunEnv env, OpOperator operator)
     {      
-        super.afterExecute(env, operator);
+        super.afterExecute(data, env, operator);
         RunResult t = env.results.pull();
         if (t.result.value !is null)
-            t.result.value.execute(env, operator);            
+            t.result.value.execute(data, env, operator);            
     }  
 
-    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
     {
-        statement.execute(env);
+        statement.execute(data, env);
         done = true;
     }
 
@@ -464,12 +464,13 @@ protected:
     Statements _statements;
     public @property Statements statements() { return _statements; };
 
-    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
     {                
-        if (env.stack.current.data.object !is this)
-            error("Can not execute block directly, data.object must set to this encloser");
+        /*if (env.stack.current.data.object !is this)
+            error("Can not execute block directly, data.object must set to this encloser");*/
         env.results.push(); //<--here we can push a variable result or create temp result to drop it
-        statements.execute(env);
+        
+        statements.execute(data, env);
         RunResult t = env.results.pull();
         //I dont know what if there is an object there what we do???
         /*
@@ -478,7 +479,7 @@ protected:
         * here 20.execute with +
         */
         if (t.result.value !is null) {
-            t.result.value.execute(env, operator); 
+            t.result.value.execute(data, env, operator); 
         }
         done = true;
     }
@@ -518,14 +519,16 @@ class SoBlock: SoEnclose  //Result was droped until using := assign in the first
 private:
 
 protected:
-    override void beforeExecute(RunEnv env, OpOperator operator)
+    override void beforeExecute(RunData data, RunEnv env, OpOperator operator)
     {
-        super.beforeExecute(env, operator);
+        env.stack.push();
+        super.beforeExecute(data, env, operator);
     }
 
-    override void afterExecute(RunEnv env, OpOperator operator)
+    override void afterExecute(RunData data, RunEnv env, OpOperator operator)
     {
-        super.afterExecute(env, operator);
+        super.afterExecute(data, env, operator);
+        env.stack.pop();
     }
 
 public:
@@ -544,7 +547,7 @@ public:
 
 abstract class SoConst: SoObject
 {
-    override final void doExecute(RunEnv env, OpOperator operator, ref bool done)
+    override final void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
     {
         if (!env.results.current)
             error("There is no stack results!");
@@ -579,7 +582,7 @@ class SoNone: SoConst  //None it is not Null, it is an initial value we sart it
 class SoComment: SoObject
 {
 protected:
-    override void doExecute(RunEnv env, OpOperator operator,ref bool done)
+    override void doExecute(RunData data, RunEnv env, OpOperator operator,ref bool done)
     {
         //Guess what!, we will not to execute the comment ;)
         done = true;
@@ -949,7 +952,7 @@ class Defines: BaseObject
         destroy(blocks);
     }
 
-    void execute(RunEnv env, Statements arguments)
+    void execute(RunData data, RunEnv env, Statements arguments)
     {        
         if (arguments !is null) 
         { //TODO we need to check if it is a block?      
@@ -957,7 +960,7 @@ class Defines: BaseObject
             while (i < parameters.count)
             { 
                 env.results.push();
-                arguments[i].execute(env);
+                arguments[i].execute(data, env);
                 if (i < arguments.count)
                 {      
                     Define p = parameters[i];
@@ -990,12 +993,12 @@ private
     public @property Statements arguments() { return _arguments; };
 
 protected:
-    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
     {            
-        RunDeclare d = env.stack.current.data.findDeclare(name);
+        RunDeclare d = data.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
         {
-            done = d.execute(env, operator, arguments, null);
+            done = d.execute(data, env, operator, arguments, null);
         }
         else 
         {
@@ -1006,7 +1009,7 @@ protected:
                 error("Variable value is null: " ~ v.name);
             if (v.value is null)
                 error("Variable object is null: " ~ v.name);
-            done = v.value.execute(env, operator);
+            done = v.value.execute(data, env, operator);
         }      
     }
 
@@ -1033,7 +1036,7 @@ class SoAssign: SoObject
 {
 protected:
 
-    override void doExecute(RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
     {
         /** if not have a name, assign it to parent result */
         done = true;
@@ -1103,8 +1106,8 @@ public:
 
     string resultType;
 
-    override protected void doExecute(RunEnv env, OpOperator operator,ref bool done)
+    override protected void doExecute(RunData data, RunEnv env, OpOperator operator,ref bool done)
     {
-        env.stack.current.data.addDeclare(this);
+        data.addDeclare(this);
     }
 }

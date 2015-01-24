@@ -208,10 +208,10 @@
    <File path="..\..\src\sard\operators.d" />
    <File path="..\..\src\sard\package.d" />
    <File path="..\..\src\sard\parsers.d" />
-   <File path="..\..\src\sard\scripts.d" />
    <File path="..\..\src\sard\README.md" />
    <File path="..\..\src\sard\runtimes.d" />
    <File path="..\..\src\sard\scanners.d" />
+   <File path="..\..\src\sard\scripts.d" />
    <File path="..\..\src\sard\utils.d" />
   </Folder>
   <File path="..\..\src\consoled\consoled.d" />

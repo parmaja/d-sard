@@ -12,6 +12,7 @@ import std.conv;
 import std.array;
 import std.range;
 import std.file;
+import std.path;
 
 import sard;
 import sard.utils;
@@ -244,6 +245,9 @@ i := i + 5.5;
                 index = to!int(answer);
                 if (index < sources.length)
                     source = sources[index];
+                else if (index==-1){
+                    source = readText(dirName(argv[0])~dirSeparator~"test.sard");
+                }
                 else
                 {
                     foreground = Color.red;

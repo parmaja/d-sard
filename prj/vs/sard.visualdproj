@@ -208,7 +208,7 @@
    <File path="..\..\src\sard\operators.d" />
    <File path="..\..\src\sard\package.d" />
    <File path="..\..\src\sard\parsers.d" />
-   <File path="..\..\src\sard\process.d" />
+   <File path="..\..\src\sard\scripts.d" />
    <File path="..\..\src\sard\README.md" />
    <File path="..\..\src\sard\runtimes.d" />
    <File path="..\..\src\sard\scanners.d" />

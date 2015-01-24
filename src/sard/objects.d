@@ -995,10 +995,10 @@ private
 protected:
     override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
     {            
-        RunDeclare d = data.findDeclare(name);
+        RunData d = data.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
         {
-            done = d.execute(data, env, operator, arguments, null);
+            done = d.execute(env, operator, arguments, null);
         }
         else 
         {

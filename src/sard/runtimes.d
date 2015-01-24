@@ -100,54 +100,29 @@ class RunResults: Stack!RunResult
 *
 */
 
-class RunDeclare: BaseObject
-{
-    string name;
-    RunData data;
-    private SoDeclare _object;
-    
-    final bool execute(RunData data, RunEnv env, OpOperator operator, Statements arguments = null, Statements blocks = null)
-    {
-        if (_object is null) {
-            error("Object of declaration is not set!");
-            return false;
-        }
-        else
-        {
-            if (_object.executeObject is null) {
-                error("executeObject of declaration is not set!");
-                return false;
-            }           
-
-            //env.enter(env.stack.current.data, _object.executeObject);///big mistake ERROR
-            bool done = _object.executeObject.execute(data, env, operator, _object.defines, arguments, blocks);
-            //env.exit(_object.executeObject);
-            return done;
-        }
-    }
-
-    this(SoDeclare object){
-        _object = object;
-    }
-}
-
-class RunDeclares: NamedObjects!RunDeclare 
-{
-}
-
 //Is that a Scope!!!, idk!
 
 class RunData: Objects!RunData
 {
 public:
-    //string name;
-    SoObject object;
-    //RunStackItem stackItem;
+    string name;
+    SoDeclare object;
 
-    RunDeclares declares; 
     RunData parent;
 
-    RunData find(SoObject object)
+    RunData find(const string name) 
+    {            
+        RunData result = null;            
+        foreach(e; items) {
+            if (icmp(name, e.name) == 0) {
+                result = e;
+                break;
+            }
+        }
+        return result;
+    }
+
+    RunData findObject(SoObject object)
     {
         foreach(e; items) {
             if (e.object is object) {
@@ -157,12 +132,13 @@ public:
         return null;
     }
 
-    RunData register(SoObject object)
+    RunData register(SoDeclare object)
     {
         if (object is null)
             error("Can not register null in data");
-        RunData o = find(object);
-        if (o is null) {
+        RunData o = findObject(object);
+        if (o is null) 
+        {
             o = new RunData(this);
             o.object = object;
         }
@@ -171,20 +147,17 @@ public:
 
     int addDeclare(SoDeclare object)
     {
-        RunDeclare declare = new RunDeclare(object);        
-        declare.name = object.name; 
-        declare.data = this;
         
         RunData o = register(object);
-        //o.name = object.name;
-        //o.stackItem = stack.current;
-        return declares.add(declare);
+        o.name = object.name;        
+        o.object = object;
+        return add(o);
     }
 
-    RunDeclare findDeclare(string name)
+    RunData findDeclare(string name)
     {
 //        debug writeln("Finding " ~ object.name ~ "."~name);
-        RunDeclare declare = declares.find(name);         
+        RunData declare = find(name);         
         if (parent && (declare is null))
             declare = parent.findDeclare(name);         
         return declare;
@@ -193,13 +166,29 @@ public:
     this(RunData aParent)
     {
         parent = aParent;
-        declares = new RunDeclares();
         super();
     }
 
     ~this()
     {
-        destroy(declares);
+    }
+
+    final bool execute(RunEnv env, OpOperator operator, Statements arguments = null, Statements blocks = null)
+    {
+        if (object is null) {
+            error("Object of declaration is not set!");
+            return false;
+        }
+        else
+        {
+            if (object.executeObject is null) {
+                error("executeObject of declaration is not set!");
+                return false;
+            }           
+
+            bool done = object.executeObject.execute(this, env, operator, object.defines, arguments, blocks);
+            return done;
+        }
     }
 }
 

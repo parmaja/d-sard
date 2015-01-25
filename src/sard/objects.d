@@ -533,13 +533,16 @@ protected:
 
 public:
     /*    deprecated("testing") */
-    void declareObject(SoObject object)
+    private Statement declareStatement;
+    SoDeclare declareObject(SoObject object)
     {
-        Statement statement =  statements.add();
+        if (declareStatement is null)
+            declareStatement =  statements.add();
         SoDeclare declare = new SoDeclare();
         declare.name = object.name;
         declare.executeObject = object;
-        statement.add(null, declare);
+        declareStatement.add(null, declare);
+        return declare;
     }
 }
 
@@ -1108,6 +1111,6 @@ public:
 
     override protected void doExecute(RunData data, RunEnv env, OpOperator operator,ref bool done)
     {
-        data.addDeclare(this);
+        data.declare(this);
     }
 }

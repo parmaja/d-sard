@@ -132,7 +132,7 @@ public:
         return null;
     }
 
-    RunData register(SoDeclare object)
+    RunData declare(SoDeclare object)
     {
         if (object is null)
             error("Can not register null in data");
@@ -141,17 +141,10 @@ public:
         {
             o = new RunData(this);
             o.object = object;
+            o.name = object.name;        
         }
-        return o;
-    }
-
-    int addDeclare(SoDeclare object)
-    {
-        
-        RunData o = register(object);
-        o.name = object.name;        
-        o.object = object;
-        return add(o);
+        add(o);
+        return o;        
     }
 
     RunData findDeclare(string name)
@@ -189,14 +182,6 @@ public:
             bool done = object.executeObject.execute(this, env, operator, object.defines, arguments, blocks);
             return done;
         }
-    }
-}
-
-class RunRoot: RunData
-{
-public:
-    this(RunData aParent){
-        super(aParent);
     }
 }
 
@@ -265,14 +250,14 @@ private:
     RunStack _stack ;
     public @property RunStack stack() {return _stack;};
 
-    RunRoot _root;
-    public @property RunRoot root() {return _root;};
+    RunData _root;
+    public @property RunData root() {return _root;};
 
 public:
     this()
     {
         _stack = new RunStack();
-        _root = new RunRoot(null);
+        _root = new RunData(null);
         _results = new RunResults();    
         super();
     }
@@ -281,25 +266,6 @@ public:
         destroy(_stack);
         destroy(_root);
         destroy(_results);    
-    }
-
-    void enter(RunData into, SoObject object)
-    {
-        /*RunData o = into.register(object);
-        stack.push();
-        stack.current.data = o;
-        o.stackItem = stack.current;*/
-    }
-
-    void exit(SoObject object)
-    {
-/*        if (stack.current.data is null)
-            error("Enter stack data is needed!");
-        if (stack.current.data.object !is object)
-            error("Entered data object is null!");
-        if (stack.current.data.object !is object)
-            error("Entered data have wrong object!");*/
-//        stack.pop();
     }
 
     debug

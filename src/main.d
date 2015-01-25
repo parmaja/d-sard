@@ -65,6 +65,9 @@ int main(string[] argv)
     := x;";
 
 //10:
+    results ~= "Result is 20";
+    sources ~= `:= "Result is " + 10 + 10;`;
+
     results ~= "10";
     sources ~= "  x := 10; 
     /*

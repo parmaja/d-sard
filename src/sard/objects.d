@@ -117,6 +117,7 @@ public:
     void execute(RunData data, RunEnv env)
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
+        //:= "Result is " + 10 + 10 ;
         foreach(e; items) 
         {
             e.execute(data, env);

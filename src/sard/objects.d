@@ -105,7 +105,7 @@ public:
     void add(OpOperator operator, SoObject aObject)
     {
         debug{            
-            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
+//            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
         }
         if (aObject.parent !is null)
             error("You can not add object to another parent!");
@@ -280,7 +280,7 @@ public:
     SoObject clone(bool withValues = true)
     { 
         debug {
-            writeln("Cloneing " ~ this.classinfo.nakename);
+            //writeln("Cloneing " ~ this.classinfo.nakename);
         }
         //TODO, here we want to check if subclass have a default ctor 
         SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
@@ -326,7 +326,7 @@ public:
             defines.execute(data, env, arguments);
         doExecute(data, env, operator, done);
         afterExecute(data, env, operator);      
-
+/*
         debug 
         {      
             string s = "  " ~ stringRepeat(" ", env.stack.count) ~ ">";
@@ -337,7 +337,7 @@ public:
                 s = s ~ " result: " ~ env.results.current.result.value.asText;
             writeln(s);
             writeln(".asText: " ~ asText);
-        }  
+        }            */
         return done; 
     }
 
@@ -1045,7 +1045,6 @@ protected:
         done = true;
         if (name == "") {
             env.results.current.result = env.results.parent.result;        
-            writeln("set to parent");
         }
         else 
         {

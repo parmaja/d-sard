@@ -217,21 +217,6 @@ public:
 
 class RunStack: Stack!RunStackItem 
 {
-private:
-
-protected:
-    override void beforePop() {
-        debug{
-            writeln("stack.pop" );
-        }
-    };
-public:
-    this(){
-        super();
-    }
-
-    ~this(){
-    }
 }
 
 /**

@@ -292,13 +292,13 @@ protected:
 
     void afterPush() {
         debug{
-            writeln("push: " ~ T.classinfo.nakename);
+//            writeln("push: " ~ T.classinfo.nakename);
         }
     };
 
     void beforePop() {
         debug{
-            writeln("pop: " ~ T.classinfo.nakename);
+            //writeln("pop: " ~ T.classinfo.nakename);
         }
     };
 

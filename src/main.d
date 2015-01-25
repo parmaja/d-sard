@@ -273,6 +273,7 @@ i := i + 5.5;
             //getch();
             //readln();
             writeln("----- Run -----");
+            writeln();
             script.run();
             writeln();
             writeln("----- Result -----");

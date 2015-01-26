@@ -303,13 +303,17 @@ public:
                 instruction.setText(aToken);
                 break;
             case Type.Escape: {
-                //aToken = to!string//need function doing escapes
+                //TODO aToken = //need function doing escapes
                 if (aToken == "\\n")
                     aToken = "\n";
                 else if (aToken == "\\r")
                     aToken = "\n";
                 else if (aToken == "\\n")
                     aToken = "\r";
+                else if (aToken == "\\\"")
+                    aToken = "\"";
+                else if (aToken == "\\\'")
+                    aToken = "\'";
                 instruction.setText(aToken);
                 break;
             }
@@ -771,14 +775,14 @@ protected:
     {
         super.afterPush();
         debug{
-            writeln("push: " ~ current.classinfo.nakename);
+            //writeln("push: " ~ current.classinfo.nakename);
         }
     }
 
     override void beforePop(){
         super.beforePop();
         debug{
-            writeln("pop: " ~ current.classinfo.nakename);
+            //writeln("pop: " ~ current.classinfo.nakename);
         }      
     }
 

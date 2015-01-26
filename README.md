@@ -104,7 +104,7 @@ x := #0; // Boolean values, true and false words are just global variables.
 x := #1;
 x := #fc0f1c; //Color const and operator mix the colors not just add it
 x := 0xffec;  //hex integer number like but the style of print it as hex we need to override ToString
-x := "foo"\13"bar"; //escape char outside the string
+x := "foo"\n\r"bar"; //escape char outside the string
 x := "I said:"\""As he said";
 ```
 

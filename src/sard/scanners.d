@@ -46,6 +46,7 @@ protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;
+        column++;
         while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
             column++;
 
@@ -64,6 +65,7 @@ protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;
+        column++;
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
@@ -82,6 +84,7 @@ protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
         int pos = column;      
+        column++;
         while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
@@ -142,6 +145,7 @@ class LineComment_Scanner: Scanner
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {                                   
+        column++;
         while ((column < text.length) && (!lexer.isEOL(text[column])))
             column++;
         column++;//Eat the EOF char

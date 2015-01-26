@@ -567,11 +567,12 @@ public:
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
     abstract bool isControl(char vChar);
     abstract bool isOperator(char vChar);
+    abstract bool isSymbol(char vChar);
     abstract bool isNumber(char vChar, bool vOpen = true);
 
     bool isIdentifier(char vChar, bool vOpen = true)
     {
-        bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar);
+        bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar) &&!isSymbol(vChar);
         if (vOpen)
             r = r && !isNumber(vChar, vOpen);
         return r;

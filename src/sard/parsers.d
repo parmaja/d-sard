@@ -303,7 +303,13 @@ public:
                 instruction.setText(aToken);
                 break;
             case Type.Escape: {
-                //aToken = to!string
+                //aToken = to!string//need function doing escapes
+                if (aToken == "\\n")
+                    aToken = "\n";
+                else if (aToken == "\\r")
+                    aToken = "\n";
+                else if (aToken == "\\n")
+                    aToken = "\r";
                 instruction.setText(aToken);
                 break;
             }

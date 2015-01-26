@@ -51,7 +51,7 @@ protected:
         while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
             column++;
 
-        lexer.setWhiteSpaces(text[pos..column]);
+        lexer.parser.setWhiteSpaces(text[pos..column]);
         resume = false;
     }
 
@@ -70,7 +70,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexer.setToken(text[pos..column], Type.Identifier);
+        lexer.parser.setToken(text[pos..column], Token(Type.Identifier));
         resume = false;
     }
 
@@ -89,7 +89,7 @@ protected:
         while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexer.setToken(text[pos..column], Type.Number);
+        lexer.parser.setToken(text[pos..column], Token(Type.Number));
         resume = false;
     }
 
@@ -109,7 +109,7 @@ protected:
         else
             error("Unkown control started with " ~ text[column]);
 
-        lexer.setControl(control.code);
+        lexer.parser.setControl(control.code);
         resume = false;
     }
 
@@ -130,7 +130,7 @@ protected:
         else
             error("Unkown operator started with " ~ text[column]);
 
-        lexer.setOperator(operator);
+        lexer.parser.setOperator(operator);
         resume = false;
     }
 
@@ -192,7 +192,7 @@ protected:
     string closeSymbol;
     bool trimSymbols = true; //ommit send open and close tags when setToken
 
-    abstract void setToken(string token);
+    abstract void setToken(string text);
 
     override void scan(const string text, ref int column, ref bool resume)
     {
@@ -240,7 +240,7 @@ class Comment_Scanner: MultiLine_Scanner
 
     override void setToken(string token)
     {
-        lexer.setToken(token, Type.Comment);
+        lexer.parser.setToken(token, Token(Type.Comment));
     }
 }
 
@@ -249,7 +249,7 @@ abstract class String_Scanner: MultiLine_Scanner
 protected:
     override void setToken(string token)
     {
-        lexer.setToken(token, Type.String);
+        lexer.parser.setToken(token, Token(Type.String));
     }
 
 }
@@ -291,7 +291,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;    
 
-        lexer.setToken(text[pos..column], Type.Escape);
+        lexer.parser.setToken(text[pos..column], Token(Type.Escape));
         resume = false;
     }
 
@@ -301,13 +301,11 @@ protected:
 }
 
 /*-----------------------*/
-/*      Lexer       */
+/*     Script Lexer      */
 /*-----------------------*/
 
 class ScriptLexer: Lexer
 {
-private:
-
 protected:
 
     override void created()
@@ -404,24 +402,6 @@ public:
     override bool isIdentifier(char vChar, bool vOpen = true)
     {
         return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
-    }
-
-    override bool doIdentifier(string identifier)
-    {
-        //example just for fun
-        /*
-        if (identifier == "begin")
-        {
-            setControl(Control.OpenBlock);
-            return true;
-        } 
-        if (identifier == "end")
-        {
-            setControl(Control.CloseBlock);
-            return true;
-        }   
-        else  */    
-        return super.doIdentifier(identifier);
     }
 
 }

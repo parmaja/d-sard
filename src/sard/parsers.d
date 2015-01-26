@@ -51,7 +51,6 @@ protected:
 
 public:
 
-//    Flag flag;
     string identifier;
     OpOperator operator;
     SoObject object;
@@ -293,35 +292,35 @@ public:
     void next(){
     }
 
-    void addToken(string aToken, Type aType)
+    void addToken(string text, Token token)
     {
-        switch (aType) {
+        switch (token.type) {
             case Type.Number: 
-                instruction.setNumber(aToken);
+                instruction.setNumber(text);
                 break;
             case Type.String: 
-                instruction.setText(aToken);
+                instruction.setText(text);
                 break;
             case Type.Escape: {
-                //TODO aToken = //need function doing escapes
-                if (aToken == "\\n")
-                    aToken = "\n";
-                else if (aToken == "\\r")
-                    aToken = "\n";
-                else if (aToken == "\\n")
-                    aToken = "\r";
-                else if (aToken == "\\\"")
-                    aToken = "\"";
-                else if (aToken == "\\\'")
-                    aToken = "\'";
-                instruction.setText(aToken);
+                //TODO text = //need function doing escapes
+                if (text == "\\n")
+                    text = "\n";
+                else if (text == "\\r")
+                    text = "\n";
+                else if (text == "\\n")
+                    text = "\r";
+                else if (text == "\\\"")
+                    text = "\"";
+                else if (text == "\\\'")
+                    text = "\'";
+                instruction.setText(text);
                 break;
             }
             case Type.Comment: 
-                instruction.setComment(aToken);
+                instruction.setComment(text);
                 break;
             default:
-                instruction.setIdentifier(aToken);
+                instruction.setIdentifier(text);
         }
     }    
 
@@ -710,27 +709,49 @@ class ScriptParser: Stack!Collector, IParser
 protected:
     Control lastControl;
 
-    override void setToken(string aToken, Type aType)
+    override bool takeIdentifier(string identifier)
     {
-        debug{        
-            writeln("doSetToken: " ~ aToken ~ " Type:" ~ to!string(aType));
-        }
-        /* 
-            We will send ; after } if we find a token  
-                x:= {
-                        ...
-                    } <---------here not need to add ;
-                y := 10;    
-        */
-        if (lastControl == Control.CloseBlock) 
+        //example just for fun
+        /*
+        if (identifier == "begin")
         {
-            lastControl = Control.None;//prevent from loop
-            setControl(Control.End);
+        setControl(Control.OpenBlock);
+        return true;
+        } 
+        if (identifier == "end")
+        {
+        setControl(Control.CloseBlock);
+        return true;
+        }   
+        else  */    
+        return false;
+    }
+
+    override void setToken(string text, Token token)
+    {
+
+        //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
+        //by default it is id
+        if ((token.type != Type.Identifier) || (!takeIdentifier(text))) 
+        {
+
+            /* 
+                We will send ; after } if we find a token  
+                    x:= {
+                            ...
+                        } <---------here not need to add ;
+                    y := 10;    
+            */
+            if (lastControl == Control.CloseBlock) 
+            {
+                lastControl = Control.None;//prevent from loop
+                setControl(Control.End);
+            }
+            current.addToken(text, token);
+            doQueue();
+            actions = [];
+            lastControl = Control.Token;
         }
-        current.addToken(aToken, aType);
-        doQueue();
-        actions = [];
-        lastControl = Control.Object;
     }
 
     override void setOperator(OpOperator operator)
@@ -768,7 +789,7 @@ protected:
     }
 
     override void setWhiteSpaces(string whitespaces){
-        //nothing todo
+        //nothing to do
     }
 
     override void afterPush()

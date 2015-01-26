@@ -14,6 +14,12 @@ import std.array;
 import std.range;
 import sard.utils;
 
+/**
+*
+*   Exception
+*
+*/
+
 class CodeException: Exception 
 {
     private uint _code;
@@ -52,6 +58,12 @@ void error(string err, int code = -1)
 {
     throw new CodeException(err, code);
 }
+
+/**
+*
+*   Base classes
+*
+*/
 
 class BaseObject: Object 
 {
@@ -373,6 +385,7 @@ public:
 }
 
 //TokenType
+
 enum Type 
 {
     None, 
@@ -382,12 +395,21 @@ enum Type
     String, 
     Escape, //Maybe Strings escape
     Comment 
+}  
+
+struct Token {
+    int type;
+    @disable this();
+
+    this(int t){
+        type = t;
+    }
 }
 
 enum Control
 {
     None,
-    Object,//Token like Identifier or Number, not used in fact    
+    Token,//Token like Identifier or Number, not used in fact    
     Operator,//also not used 
     Start, //Start parsing
     Stop, //Start parsing
@@ -410,14 +432,24 @@ protected:
     abstract void start();
     abstract void stop();    
 
+    //doIdentifier call in setToken if you proceesed it return false
+    //You can proceess as to setControl or setOperator
+    bool takeIdentifier(string identifier);
 public:
-    abstract void setToken(string aToken, Type aType);
+    abstract void setToken(string text, Token tok,);
     abstract void setControl(Control aControl);
     abstract void setOperator(OpOperator operator);
     abstract void setWhiteSpaces(string whitespaces);
 
 public:
 };
+
+/**
+*
+*   Scanner
+*   Small object scan one type of token
+*
+*/
 
 class Scanner: BaseObject 
 {
@@ -475,6 +507,13 @@ public:
     }
 }
 
+/**
+*
+*   Lexer
+*   Base class 
+*
+*/
+
 class Lexer: BaseObject
 {
 private:
@@ -511,42 +550,15 @@ private:
 
 protected:
 
-    //doIdentifier call in setToken if you proceesed it return false
-    //You can proceess as to setControl or setOperator
-    bool doIdentifier(string identifier){
-        return false;
-    }
-
     void doStart() {
-        setControl(Control.Start);
+        parser.setControl(Control.Start);
     }
 
     void doStop() {
-        setControl(Control.Stop);
+        parser.setControl(Control.Stop);
     }
 
 public:
-
-    final void setToken(string aToken, Type aType)
-    {
-        //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
-        //by default it is id
-        if ((aType != Type.Identifier) || (!doIdentifier(aToken)))
-            parser.setToken(aToken, aType);
-    }
-
-    final void setControl(Control aControl){
-        parser.setControl(aControl);
-    }
-
-    final void setOperator(OpOperator operator){
-        parser.setOperator(operator);
-    }
-    
-    final void setWhiteSpaces(string whitespaces){
-        parser.setWhiteSpaces(whitespaces);
-    }
-
 
 public:
     this()

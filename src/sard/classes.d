@@ -380,6 +380,7 @@ enum Type
     Number, 
     Color, 
     String, 
+    Escape, //Maybe Strings escape
     Comment 
 }
 

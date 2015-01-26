@@ -124,14 +124,23 @@ public:
         return result;
     }
 
-    SoText setText(string aIdentifier)
+    SoText setText(string text)
     {
-        if (identifier != "")
-            error("Identifier is already set");
-        //TODO need to check object too
-        SoText result = new SoText(aIdentifier);
+        /*if (identifier != "")
+            error("Identifier is already set");*/
+        //TODO need review
 
-        internalSetObject(result);
+        SoText result;
+        if (object is null) {
+            result = new SoText(text);
+            internalSetObject(result);
+        }
+        else {
+            result = cast(SoText)object;
+            if (result is null)
+                error("Object is already exist when setting string!");
+            result.value = result.value ~ text;
+        }
         return result;
     }
 
@@ -293,6 +302,11 @@ public:
             case Type.String: 
                 instruction.setText(aToken);
                 break;
+            case Type.Escape: {
+                //aToken = to!string
+                instruction.setText(aToken);
+                break;
+            }
             case Type.Comment: 
                 instruction.setComment(aToken);
                 break;

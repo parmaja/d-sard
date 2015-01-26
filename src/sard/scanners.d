@@ -35,6 +35,7 @@ static immutable char[] sWhitespace = sEOL ~ [' ', '\t'];
 static immutable char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 static immutable char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
 static immutable char[] sIdentifierSeparator = ".";
+static immutable char[] sEscape = ['\\'];
 
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
@@ -274,6 +275,25 @@ protected:
 public:
 }
 
+class Escape_Scanner: Scanner
+{
+protected:    
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;
+        column++; //not need first char, it is not pass from isIdentifier
+        while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
+            column++;    
+
+        lexer.setToken(text[pos..column], Type.Escape);
+        resume = false;
+    }
+
+    override bool accept(const string text, int column){
+        return sEscape.indexOf(text[column]) >= 0;
+    }
+}
+
 /*-----------------------*/
 /*      Lexer       */
 /*-----------------------*/
@@ -328,6 +348,7 @@ protected:
             add(new Number_Scanner());
             add(new SQString_Scanner());
             add(new DQString_Scanner());
+            add(new Escape_Scanner());
             add(new Control_Scanner());
             add(new Operator_Scanner()); //Register it after comment because comment take /*
             add(new Identifier_Scanner());//Sould be last one      
@@ -391,4 +412,5 @@ public:
         else  */    
         return super.doIdentifier(identifier);
     }
+
 }

@@ -122,13 +122,13 @@ int main(string[] argv)
 
      results ~= "40";
      sources ~= "//call function
-        foo: { := 12 + 23; }; //this is a declaration 
+        foo: { := 12 + 23; } //this is a declaration 
         x := foo + 5;
         := x;";
 
     results ~= "20";
     sources ~= "//call function
-    foo:(z){ := z + 10; }; //this is a declaration 
+    foo:(z){ := z + 10; } //this is a declaration 
     x := foo(5) + 5;
     := x;"; 
 
@@ -158,7 +158,7 @@ Foo:{ := Bar + 50 }
         results ~= "";
         sources[] = "//call function
         y := 23;
-        foo:(z){ := z + 2; }; //this is a declaration 
+        foo:(z){ := z + 2; } //this is a declaration 
         x := foo + 5;
         := x;"; 
 +/
@@ -178,14 +178,14 @@ Foo:{ := Bar + 50 }
 
         results ~= "20";
         sources ~= "//call function
-        foo:(z){ := z + 10; }; //this is a declaration 
+        foo:(z){ := z + 10; } //this is a declaration 
         x := foo(5 + 1) + 4;
         := x;"; 
 
         results ~= "40";
         sources ~= "//call function
         y := 23;
-        foo:(z){ := z + y; }; //this is a declaration 
+        foo:(z){ := z + y; } //this is a declaration 
         x := foo(5) + 12;
         := x;";
 
@@ -200,8 +200,8 @@ x := x + 10; //Using same variable, until now local variable implemented
 x := {    //Block it any where
             y := 0;
             := y + 5; //this is a result return of the block
-    }; //do not forget to add ; here
-{* This a block comment, compiled, useful for documentation, or regenrate the code *};
+    } //do not forget to add ; here
+{* This a block comment, compiled, useful for documentation, or regenrate the code *}
 := x; //Return result to the main object
 
 s:='Foo';

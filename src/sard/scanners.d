@@ -41,6 +41,19 @@ static immutable char[] sEscape = ['\\'];
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
+//TokenType
+
+enum Type : int
+{
+    None, 
+    Identifier, 
+    Number, 
+    Color, 
+    String, 
+    Escape, //Maybe Strings escape
+    Comment 
+}  
+
 class Whitespace_Scanner: Scanner
 {
 protected:
@@ -190,7 +203,6 @@ protected:
 
     string openSymbol;
     string closeSymbol;
-    bool trimSymbols = true; //ommit send open and close tags when setToken
 
     abstract void setToken(string text);
 
@@ -200,17 +212,17 @@ protected:
         if (!resume) //first time after accept()
         {
             column = column + openSymbol.length;
-            if (trimSymbols)                    
+            if (lexer.trimSymbols)                    
                 pos = pos + openSymbol.length; //we need to ignore open tag {* here
         }
         while (column < text.length) 
         {
             if (scanCompare(closeSymbol, text, column))
             {
-                if (!trimSymbols)                    
+                if (!lexer.trimSymbols)                    
                     column = column + closeSymbol.length;
                 buffer = buffer ~ text[pos..column];
-                if (trimSymbols)                    
+                if (lexer.trimSymbols)                    
                     column = column + closeSymbol.length;
                 setToken(buffer);
                 buffer = "";

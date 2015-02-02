@@ -50,8 +50,10 @@ x := x + 10; //Using same variable, until now local variable implemented
 x := {    //Block it any where
       y := 0;
       := y + 5; //this is a result return of the block
-  }; //do not forget to add ; here
-{* This a block comment, compiled, useful for documentation, or regenrate the code *};
+  }
+
+{* This a block comment, compiled, useful for documentation, or regenrate the code *}
+
 := x; //Return result to the main object
 ```
 First init of the variable define the type
@@ -71,16 +73,16 @@ i := i + 5.5;
 ```
 
 Next f is a function or let us say it is an object we can run it.
+
 ```D
 f:{
     x := 10;
     z: {
       x:=5;
       := x + 5;
-    };
+    }
     := x + z;
-
-  };
+  }
 
 :=f + 10;
 ```
@@ -90,7 +92,7 @@ Declare function/object with parameters
 ```D
 foo:(p1, p2) {
   := p1 * p2;
-};
+}
 
 x := 10;
 
@@ -124,7 +126,7 @@ f.b;
 // With{}
 
 object.{     <-not sure
-};
+}
 ```
 
 ####Rules####
@@ -154,27 +156,32 @@ Arrays:
     s := a['num']; <- not sure if is good
 ```
 
-    Arrays, If initial parse [] as an index and passit to executer or assigner, not initial,
-    it is be a list of statments then run it in runtime and save the results in the list in TsoArray
+Arrays, If initial parse [] as an index and passit to executer or assigner, not initial,
+it is be a list of statments then run it in runtime and save the results in the list in TsoArray
 
-    Optional open source code with <?sard ?> like php
+Optional open source code with <?sard ?> like php
 
-    Preprocessor: When {?somthing it will passed to addon in engine to return the result to rescan it or replace it with this preprocessor
+Preprocessor: When {?somthing it will passed to addon in engine to return the result to rescan it or replace it with this preprocessor
 
-    What about private, public or protected, the default must be protected
+What about private, public or protected, the default must be protected
+
     x:(p1, p2){ block } //protected
     x:-(){} //private
     x:+(){} //public
 
-    We need to add multi blocks to the identifier like this
+We need to add multi blocks to the identifier like this
+
     x(10,10){ ... } { ... }
-    or with : as seperator
+
+or with : as seperator
+
     x(10,10){ ... }:{ ... }
-    it is good to make the "if" object with "else" as the second block.
+
+it is good to make the "if" object with "else" as the second block.
 
 New object
 
-    You not need to create object if u declared it based on another object like that
+You not need to create object if u declared it based on another object like that
 
     AnyObject:{
       num = 0;
@@ -183,11 +190,12 @@ New object
     AnotherObject:AnyObject; <-this is new object from the first one <-naah not goood
 
     New sign is ~
-    You can create object based on any other object, but it will not copy the values(not sure).
 
-    obj = ~AnyObject; //it is mean obj=new AnyObject
+You can create object based on any other object, but it will not copy the values(not sure).
 
-    obj = ~~AnyObject; // new and copy the values
+    obj := ~AnyObject; //it is mean obj=new AnyObject
+
+    obj := ~~AnyObject; // new and copy the values
 
     you can use "with" with it
 
@@ -196,7 +204,7 @@ New object
     }
 
     (~AnyObject).{
-      num = 10; <- theis a member of the object you can use it
+      num = 10; <- this a member of the object you can use it
     }
 
   

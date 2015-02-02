@@ -384,20 +384,9 @@ public:
     }
 }
 
-//TokenType
-
-enum Type 
-{
-    None, 
-    Identifier, 
-    Number, 
-    Color, 
-    String, 
-    Escape, //Maybe Strings escape
-    Comment 
-}  
-
 struct Token {
+    string text;
+
     int type;
     @disable this();
 
@@ -415,7 +404,7 @@ enum Control
     Stop, //Start parsing
     Declare, //Declare a class of object
     Assign, //Assign to object/variable used as :=
-    //Let, //Same as assign in the initial but is equal operator if not in initial statement used to be =
+    Let, //Assign object reference
     Next, //End Params, Comma
     End, //End Statement Semicolon
     OpenBlock, // {
@@ -559,8 +548,6 @@ protected:
     }
 
 public:
-
-public:
     this()
     {
         _scanners = new Scanners(this);
@@ -574,6 +561,8 @@ public:
         destroy(_operators);
         destroy(_controls);
     }
+
+    bool trimSymbols = true; //ommit send open and close tags when setToken
 
     abstract bool isEOL(char vChar);
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
@@ -590,7 +579,7 @@ public:
         return r;
     }
 
-public:
+protected:
 
     Scanner detectScanner(const string text, int column) 
     {
@@ -647,6 +636,8 @@ public:
             error("Scanner not found");
         switchScanner(aScanner);
     }
+
+public:
 
     void scanLine(const string text, const int line) 
     {
@@ -809,4 +800,29 @@ public:
         }
         return null;
     }
+}
+
+class Engine {
+    abstract void print(int color, string text, bool eol = true);
+    void print(string text, bool eol = true){
+        print(0, text, eol);
+    }
+
+    debug void debugWrite(string text){
+    }
+}
+
+private Engine _engine;
+
+public void setEngine(Engine newEngine){
+    if (_engine !is null)
+        destroy(_engine);
+    _engine = newEngine;
+}
+
+public Engine engine(){
+    if (_engine is null) {
+        error("Engine not set!");
+    }
+    return _engine;
 }

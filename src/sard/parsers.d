@@ -20,6 +20,7 @@ import std.datetime;
 
 import sard.utils;
 import sard.classes;
+import sard.scanners;
 import sard.objects;
 import sard.operators;
 
@@ -27,7 +28,7 @@ import minilib.sets;
 
 enum Action 
 {
-    PopCollector, //Pop the current Collector
+    Pop, //Pop the current Collector
     Bypass  //resend the control char to the next Collector
 }
 
@@ -425,7 +426,7 @@ public:
         switch (aControl){
             case Control.End, Control.Next:          
                 post();
-                setAction(Actions([Action.PopCollector, Action.Bypass]));
+                setAction(Actions([Action.Pop, Action.Bypass]));
                 break;
             default:
                 super.control(aControl);
@@ -498,7 +499,7 @@ public:
                     aBlock.parent(declare);
                     declare.executeObject = aBlock;
                     //We will pass the control to the next Collector
-                    setAction(Actions([Action.PopCollector]), new CollectorBlock(parser, aBlock.statements));
+                    setAction(Actions([Action.Pop]), new CollectorBlock(parser, aBlock.statements));
                     break;
 
                 case Control.Declare:
@@ -508,14 +509,14 @@ public:
                     }
                     else {
                         post();
-                        setAction(Actions([Action.PopCollector]));
+                        setAction(Actions([Action.Pop]));
                     }
                     break;
 
                 case Control.Assign:
                     post();
                     declare.executeObject = new SoAssign(declare, declare.name);            
-                    setAction(Actions([Action.PopCollector])); //Finish it, mean there is no body/statment for the declare
+                    setAction(Actions([Action.Pop])); //Finish it, mean there is no body/statment for the declare
                     break;
 
                 case Control.End:
@@ -525,7 +526,7 @@ public:
                     }
                     else {
                         post();
-                        setAction(Actions([Action.PopCollector]));
+                        setAction(Actions([Action.Pop]));
                     }
                     break;
 
@@ -545,7 +546,7 @@ public:
                     post();
                     //pop(); //Finish it
                     param = false;
-                    //action(Actions([paPopCollector]), new CollectorBlock(parser, declare.block)); //return to the statment
+                    //action(Actions([paPop]), new CollectorBlock(parser, declare.block)); //return to the statment
                     break;
 
                 default: 
@@ -639,7 +640,7 @@ public:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Curly");
-                    setAction(Actions([Action.PopCollector]));
+                    setAction(Actions([Action.Pop]));
                     break;
 
                 case Control.OpenParams:
@@ -658,7 +659,7 @@ public:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Bracket");
-                    setAction(Actions([Action.PopCollector]));
+                    setAction(Actions([Action.Pop]));
                     break;
 
                 case Control.Start:            
@@ -715,13 +716,13 @@ protected:
         /*
         if (identifier == "begin")
         {
-        setControl(Control.OpenBlock);
-        return true;
+            setControl(Control.OpenBlock);
+            return true;
         } 
         if (identifier == "end")
         {
-        setControl(Control.CloseBlock);
-        return true;
+            setControl(Control.CloseBlock);
+            return true;
         }   
         else  */    
         return false;
@@ -744,7 +745,7 @@ protected:
             */
             if (lastControl == Control.CloseBlock) 
             {
-                lastControl = Control.None;//prevent from loop
+                lastControl = Control.None;//prevent loop
                 setControl(Control.End);
             }
             current.addToken(text, token);
@@ -776,7 +777,7 @@ protected:
 
         if (lastControl == Control.CloseBlock) //see setToken
         {
-            lastControl = Control.None;//prevent from loop
+            lastControl = Control.None;//prevent loop
             setControl(Control.End);
         }
 
@@ -809,9 +810,9 @@ protected:
 
     void doQueue()
     {
-        if (Action.PopCollector in actions)
+        if (Action.Pop in actions)
         {      
-            actions = actions - Action.PopCollector;
+            actions = actions - Action.Pop;
             pop();
         }
 

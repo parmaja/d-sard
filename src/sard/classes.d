@@ -9,6 +9,7 @@ module sard.classes;
 import std.stdio;
 import std.string;
 import std.conv;
+import std.stream;
 import std.uni;
 import std.array;
 import std.range;
@@ -645,7 +646,8 @@ public:
     void scanLine(const string text, const int line) 
     {
         if (!active)
-            error("Feeder not started");
+            error("Should be started first");
+
         int _line = line;
         int column = 0; 
         int len = text.length;
@@ -687,9 +689,17 @@ public:
         stop();
     }
 
-    void scan(const File file)
+    void scan(InputStream stream)
     {
-        //todo  
+        char[] line;
+        start();
+        int i = 0;
+        while (stream.eof) {
+            line = stream.readLine(); //TODO readLineW
+            scanLine(to!string(line), i);
+            i++;
+        }        
+        stop();
     }
 
     void scan(const string text)
@@ -698,13 +708,21 @@ public:
         scan(lines);
     }
 
-    //void scan(const string fileName);
-    //void scan(const Stream stream);
+    void scanFile(string filename)
+    {
+        scope Stream stream = new BufferedFile(filename);
+        scanStream(stream);
+    }
+
+    void scanStream(Stream stream)
+    {        
+        scan(stream);
+    }
 
     void start()
     {
         if (_active)
-            error("File already opened");
+            error("Already opened");
         _active = true;
         doStart();
         parser.start();
@@ -713,7 +731,7 @@ public:
     void stop()
     {
         if (!_active)
-            error("File already closed");
+            error("Already closed");
         parser.stop();
         doStop();
         _active = false;
@@ -725,7 +743,7 @@ public:
 /*---------------------------*/
 
 /**
-This will used in the scanner
+*   This will used in the scanner
 */
 
 //TODO maybe struct not a class
@@ -776,17 +794,13 @@ public:
     Associative associative;
     string description;
 
-protected: 
-
 public:
-
     debug{
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", precedence * 2) ~ "operator: " ~ name);        
         }
     }
-
 }
 
 /* Operators */
@@ -810,26 +824,29 @@ enum Color
     None,
     Default,
     Black,
-    Blue, 
-    Green,
-    Cyan, 
     Red, 
+    Green,
+    Blue, 
+    Cyan, 
     Magenta,
     Yellow, 
-    LightGray,
-
     Gray,  
-    LightBlue,
-    LightGreen,
-    LightCyan, 
     LightRed, 
+    LightGreen,
+    LightBlue,
+    LightCyan, 
     LightMagenta,
     LightYellow, 
+    LightGray,
     White
 }
 
-class Engine {
+private static Engine _engine;
+
+class Engine
+{
     abstract void print(Color color, string text, bool eol = true);
+
     void print(string text, bool eol = true){
         print(Color.Default, text, eol);
     }
@@ -837,17 +854,19 @@ class Engine {
     debug void log(string text){
         print(Color.Default, text);
     }
+
+    this(){
+    }
 }
 
-private Engine _engine;
-
-public void setEngine(Engine newEngine){
+public static void setEngine(Engine newEngine)
+{
     if (_engine !is null)
         destroy(_engine);
     _engine = newEngine;
 }
 
-public Engine engine(){
+@property public static Engine engine(){
     if (_engine is null) {
         error("Engine not set! set it in the main().");
     }

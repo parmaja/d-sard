@@ -384,20 +384,9 @@ public:
     }
 }
 
-struct Token {
-    string text;
-
-    int type;
-    @disable this();
-
-    this(int t){
-        type = t;
-    }
-}
-
-enum Control
+enum Control: int
 {
-    None,
+    None = 0,
     Token,//Token like Identifier or Number, not used in fact    
     Operator,//also not used 
     Start, //Start parsing
@@ -415,6 +404,21 @@ enum Control
     CloseArray // ]
 }
 
+struct Token 
+{
+public:
+
+    Control control;
+    string value;
+    int type;
+
+    @disable this();
+
+    this(int t){
+        type = t;
+    }
+}
+
 interface IParser 
 {
 protected:
@@ -424,13 +428,12 @@ protected:
     //doIdentifier call in setToken if you proceesed it return false
     //You can proceess as to setControl or setOperator
     bool takeIdentifier(string identifier);
+
 public:
     abstract void setToken(string text, Token tok,);
     abstract void setControl(Control aControl);
     abstract void setOperator(OpOperator operator);
     abstract void setWhiteSpaces(string whitespaces);
-
-public:
 };
 
 /**
@@ -566,9 +569,9 @@ public:
 
     abstract bool isEOL(char vChar);
     abstract bool isWhiteSpace(char vChar, bool vOpen= true);
+    abstract bool isSymbol(char vChar);
     abstract bool isControl(char vChar);
     abstract bool isOperator(char vChar);
-    abstract bool isSymbol(char vChar);
     abstract bool isNumber(char vChar, bool vOpen = true);
 
     bool isIdentifier(char vChar, bool vOpen = true)
@@ -802,13 +805,37 @@ public:
     }
 }
 
+enum Color 
+{   
+    None,
+    Default,
+    Black,
+    Blue, 
+    Green,
+    Cyan, 
+    Red, 
+    Magenta,
+    Yellow, 
+    LightGray,
+
+    Gray,  
+    LightBlue,
+    LightGreen,
+    LightCyan, 
+    LightRed, 
+    LightMagenta,
+    LightYellow, 
+    White
+}
+
 class Engine {
-    abstract void print(int color, string text, bool eol = true);
+    abstract void print(Color color, string text, bool eol = true);
     void print(string text, bool eol = true){
-        print(0, text, eol);
+        print(Color.Default, text, eol);
     }
 
-    debug void debugWrite(string text){
+    debug void log(string text){
+        print(Color.Default, text);
     }
 }
 
@@ -822,7 +849,7 @@ public void setEngine(Engine newEngine){
 
 public Engine engine(){
     if (_engine is null) {
-        error("Engine not set!");
+        error("Engine not set! set it in the main().");
     }
     return _engine;
 }

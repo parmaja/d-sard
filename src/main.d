@@ -17,9 +17,44 @@ import std.path;
 import sard;
 import sard.utils;
 import consoled;
-                                             
+
+class MainEngine: Engine {    
+    
+    shared static consoled.Color[sard.Color] colors = 
+    [
+        sard.Color.None: consoled.Color.initial,
+        sard.Color.Default: consoled.Color.initial,
+        sard.Color.Black: consoled.Color.black,
+        sard.Color.Blue: consoled.Color.blue,
+        sard.Color.Green: consoled.Color.green,
+        sard.Color.Cyan: consoled.Color.cyan,
+        sard.Color.Red: consoled.Color.red,
+        sard.Color.Magenta: consoled.Color.magenta,
+        sard.Color.Yellow: consoled.Color.yellow,
+        sard.Color.LightGray: consoled.Color.lightGray,
+        sard.Color.Gray: consoled.Color.gray,
+        sard.Color.LightBlue: consoled.Color.lightBlue,
+        sard.Color.LightGreen: consoled.Color.lightGreen,
+        sard.Color.LightCyan: consoled.Color.lightCyan,
+        sard.Color.LightRed: consoled.Color.lightRed,
+        sard.Color.LightMagenta: consoled.Color.lightMagenta,
+        sard.Color.LightYellow: consoled.Color.lightYellow,
+        sard.Color.White: consoled.Color.white
+    ];
+
+    consoled.Color mapColor(sard.Color color){
+       return colors[color] ;
+    }
+
+    override void print(sard.Color color, string text, bool eol = true){
+        writeln(text);
+    }
+}
+
 int main(string[] argv) 
 {
+    setEngine(new MainEngine());
+
     string[] sources;
     string[] results;
 
@@ -116,7 +151,7 @@ int main(string[] argv)
     {*
         x := 5;
         x := x + 5;
-        *};
+        *}
         := x;";
     
 
@@ -224,10 +259,10 @@ i := i + 5.5;
         while (loop) 
         {
             Script script;
-            foreground = Color.lightYellow;
+            foreground = consoled.Color.lightYellow;
             writeln("--------- SARD (" ~ sVersion ~ ")----------");
             writeln();
-            foreground = Color.initial;
+            foreground = consoled.Color.initial;
 
             string source;
             int index;
@@ -253,9 +288,9 @@ i := i + 5.5;
                 }
                 else
                 {
-                    foreground = Color.red;
+                    foreground = consoled.Color.red;
                     writeln("There is no source at this index");
-                    foreground = Color.initial;
+                    foreground = consoled.Color.initial;
                     continue;
                 }
             }
@@ -266,9 +301,9 @@ i := i + 5.5;
             //source = sources[sources.length-1];
             //source = sources[$-1];        
             //source = sources.back;
-            foreground = Color.green;
+            foreground = consoled.Color.green;
             writeln(source);
-            foreground = Color.initial;
+            foreground = consoled.Color.initial;
             writeln("---------------");
             script.compile(source);
             writeln();
@@ -280,10 +315,10 @@ i := i + 5.5;
             script.run();
             writeln();
             writeln("----- Result -----");
-            foreground = Color.lightCyan;
+            foreground = consoled.Color.lightCyan;
             string s = script.result;
             writeln(s);  
-            foreground = Color.initial;
+            foreground = consoled.Color.initial;
             if ((index >=0) && (s != results[index]))
                 error("Not expcepted result: " ~ results[index]);
             writeln();
@@ -293,22 +328,22 @@ i := i + 5.5;
     }
     catch(ParserException e)
     {
-        foreground = Color.red;
+        foreground = consoled.Color.red;
         writeln("*******************************");
         with (e){
             writeln(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));          
         } 
         writeln("*******************************");
-        foreground = Color.initial;
+        foreground = consoled.Color.initial;
     }
     catch(Exception e) 
     {
-        foreground = Color.red;
+        foreground = consoled.Color.red;
         writeln("*******************************");
         with (e)
             writeln(msg);    
         writeln("*******************************");
-        foreground = Color.initial;
+        foreground = consoled.Color.initial;
     }
     writeln("Press enter to stop");
     //getch();

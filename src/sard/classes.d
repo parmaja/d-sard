@@ -710,8 +710,15 @@ public:
 
     void scanFile(string filename)
     {
-        scope Stream stream = new BufferedFile(filename);
-        scanStream(stream);
+        BufferedFile stream = new BufferedFile(filename);
+        scope(exit) destroy(stream);
+
+        try {
+            scanStream(stream);
+        } 
+        finally {
+            stream.close();
+        }
     }
 
     void scanStream(Stream stream)

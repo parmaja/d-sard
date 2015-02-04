@@ -38,7 +38,7 @@ alias long integer;
 alias double number;
 alias string text;
 
-enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otDeclare, otObject, otClass, otVariable};
+//enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otDeclare, otObject, otClass, otVariable};
 enum Compare {cmpLess, cmpEqual, cmpGreater};
 
 class DebugInfo: BaseObject 
@@ -190,10 +190,10 @@ private:
 
 protected:
     int refCount;
-    ObjectType _objectType;
+    //ObjectType _objectType;
 
-    public @property ObjectType objectType() {  return _objectType; }
-    public @property ObjectType objectType(ObjectType value) { return _objectType = value; }
+    //public @property ObjectType objectType() {  return _objectType; }
+    //public @property ObjectType objectType(ObjectType value) { return _objectType = value; }
 
 public:
     this()
@@ -495,7 +495,7 @@ public:
 
     override void created(){
         super.created();
-        _objectType = ObjectType.otBlock;
+        //objectType = ObjectType.otBlock;
     }
 
     this(){
@@ -594,7 +594,7 @@ protected:
 
     override void created(){
         super.created();
-        objectType = ObjectType.otComment;
+        //objectType = ObjectType.otComment;
     }
 
 public:
@@ -602,6 +602,7 @@ public:
 }
 
 /* SoPreprocessor */
+
 /*
 class SoPreprocessor: SoObject
 {
@@ -613,7 +614,7 @@ protected:
 
     void created(){
         super.created();
-        objectType = ObjectType.otComment;
+        //objectType = ObjectType.otComment;
     }
 
 public:
@@ -632,7 +633,7 @@ class SoInteger: SoBaseNumber
 protected:
     override void created(){
         super.created();
-        objectType = ObjectType.otInteger;
+        //objectType = ObjectType.otInteger;
     }
 public:
     integer value;
@@ -699,7 +700,7 @@ class SoNumber: SoBaseNumber
 protected:
     override void created(){
         super.created();
-        objectType = ObjectType.otNumber;
+        //objectType = ObjectType.otNumber;
     }
 
 public:
@@ -767,7 +768,7 @@ class SoBool: SoBaseNumber
 protected:
     override void created(){
         super.created();
-        objectType = ObjectType.otBoolean;
+        //objectType = ObjectType.otBoolean;
     }
 public:
     bool value;
@@ -833,7 +834,7 @@ class SoText: SoConst
 protected:
     override void created(){
         super.created();
-        objectType = ObjectType.otText;
+        //objectType = ObjectType.otText;
     }
 public:
     text value;
@@ -1021,7 +1022,7 @@ public:
     override void created()
     {
         super.created();
-        objectType = ObjectType.otObject;
+        //objectType = ObjectType.otObject;
     }
 
     this(){
@@ -1060,7 +1061,7 @@ protected:
     override void created()
     {
         super.created();
-        objectType = ObjectType.otVariable;
+        //objectType = ObjectType.otVariable;
     }
 
 public:  
@@ -1083,7 +1084,7 @@ private:
 protected:
     override void created(){
         super.created();
-        _objectType = ObjectType.otDeclare;
+        //objectType = ObjectType.otDeclare;
     }
 
 public:

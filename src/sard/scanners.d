@@ -1,17 +1,17 @@
 module sard.scanners;
 /**
-    This file is part of the "SARD"
-
-    @license   The MIT License (MIT) Included in this distribution
-    @author    Zaher Dirkey <zaher at yahoo dot com>
+*   This file is part of the "SARD"
+*
+*   @license   The MIT License (MIT) Included in this distribution
+*   @author    Zaher Dirkey <zaher at yahoo dot com>
 */
 
 /**
-    @module: 
-        Scanners: Scan the source code and generate runtime objects
-
-    Lexer: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
-    Scanner: Take this part of source code and convert it to control, operator or token/indentifier
+*   @module: 
+*       Scanners: Scan the source code and generate runtime objects
+*
+*   Lexer: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
+*   Scanner: Take this part of source code and convert it to control, operator or token/indentifier
 */
 
 import std.stdio;
@@ -196,15 +196,14 @@ protected:
 
 abstract class MultiLine_Scanner: Scanner
 {
-private:
-    string buffer;
-
 protected:
 
     string openSymbol;
     string closeSymbol;
 
-    abstract void setToken(string text);
+
+    abstract void finish();
+    abstract void collect(string text);
 
     override void scan(const string text, ref int column, ref bool resume)
     {
@@ -221,17 +220,17 @@ protected:
             {
                 if (!lexer.trimSymbols)                    
                     column = column + closeSymbol.length;
-                buffer = buffer ~ text[pos..column];
+                collect(text[pos..column]);
                 if (lexer.trimSymbols)                    
                     column = column + closeSymbol.length;
-                setToken(buffer);
-                buffer = "";
+                
+                finish();
                 resume = false;
                 return;
             }
             column++;
         }      
-        buffer = buffer ~ text[pos..column];
+        collect(text[pos..column]);
         resume = true;
     }
 
@@ -240,8 +239,26 @@ protected:
     }
 }
 
+abstract class BufferedMultiLine_Scanner: MultiLine_Scanner
+{
+private:
+    string buffer;
+
+protected:
+    abstract void setToken(string text);
+
+    override void finish(){
+        setToken(buffer);
+        buffer = "";
+    }
+
+    override void collect(string text){
+        buffer = buffer ~ text;
+    }
+}
+
 //Comment object {* *}
-class Comment_Scanner: MultiLine_Scanner
+class Comment_Scanner: BufferedMultiLine_Scanner
 {
     override void created()
     {
@@ -256,7 +273,7 @@ class Comment_Scanner: MultiLine_Scanner
     }
 }
 
-abstract class String_Scanner: MultiLine_Scanner
+abstract class String_Scanner: BufferedMultiLine_Scanner
 {
 protected:
     override void setToken(string token)
@@ -415,5 +432,30 @@ public:
     {
         return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
     }
+}
 
+/**
+*
+*   Preprocessor Script
+*
+*
+*/
+
+class PreprocessorLexer: ScriptLexer
+{
+}
+
+/**
+*
+*   Syntax Hightlighter
+*
+*
+*/
+
+class HighlighterLexer: ScriptLexer
+{
+    this(){
+        super();
+        trimSymbols = false;
+    }
 }

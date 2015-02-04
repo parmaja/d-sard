@@ -493,11 +493,6 @@ public:
         }
     }
 
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otBlock;
-    }
-
     this(){
         super();
         _statements = new Statements(this);      
@@ -592,11 +587,6 @@ protected:
         done = true;
     }
 
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otComment;
-    }
-
 public:
     string value;
 }
@@ -610,11 +600,6 @@ protected:
     override void doExecute(RunEnv env, OpOperator operator,ref bool done){
         //TODO execute external program and replace it with the result
         done = true;
-    }
-
-    void created(){
-        super.created();
-        //objectType = ObjectType.otComment;
     }
 
 public:
@@ -631,10 +616,7 @@ abstract class SoBaseNumber: SoConst //base class for Number and Integer
 class SoInteger: SoBaseNumber 
 {
 protected:
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otInteger;
-    }
+
 public:
     integer value;
 
@@ -698,10 +680,6 @@ public:
 class SoNumber: SoBaseNumber 
 {
 protected:
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otNumber;
-    }
 
 public:
     number value;
@@ -766,10 +744,7 @@ public:
 class SoBool: SoBaseNumber 
 {
 protected:
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otBoolean;
-    }
+
 public:
     bool value;
 
@@ -832,10 +807,7 @@ public:
 class SoText: SoConst 
 {
 protected:
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otText;
-    }
+
 public:
     text value;
 
@@ -1019,11 +991,6 @@ protected:
     }
 
 public:
-    override void created()
-    {
-        super.created();
-        //objectType = ObjectType.otObject;
-    }
 
     this(){
         super();
@@ -1058,12 +1025,6 @@ protected:
         }
     }
 
-    override void created()
-    {
-        super.created();
-        //objectType = ObjectType.otVariable;
-    }
-
 public:  
 
     this(){
@@ -1082,10 +1043,6 @@ private:
     public @property Defines defines(){ return _defines; }
 
 protected:
-    override void created(){
-        super.created();
-        //objectType = ObjectType.otDeclare;
-    }
 
 public:
     this(){

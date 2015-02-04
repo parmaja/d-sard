@@ -75,9 +75,6 @@ protected:
     void finalize(){
     }
 
-    void created() {
-    };
-
 public:
 
     debug{
@@ -97,7 +94,6 @@ public:
     }
 
     this(){
-        created(); 
     }
 
 }

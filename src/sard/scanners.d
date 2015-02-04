@@ -260,9 +260,9 @@ protected:
 //Comment object {* *}
 class Comment_Scanner: BufferedMultiLine_Scanner
 {
-    override void created()
+    this()
     {
-        super.created();
+        super();
         openSymbol = "{*";
         closeSymbol = "*}";      
     }
@@ -288,8 +288,8 @@ protected:
 class SQString_Scanner: String_Scanner
 {
 protected:
-    override void created(){
-        super.created();
+    this(){
+        super();
         openSymbol = "\'";
         closeSymbol = "\'";      
     }
@@ -300,9 +300,9 @@ protected:
 class DQString_Scanner: String_Scanner
 {
 protected:
-    override void created()
+    this()
     {
-        super.created();
+        super();
         openSymbol = "\"";
         closeSymbol = "\"";      
     }
@@ -329,6 +329,8 @@ protected:
     }
 }
 
+
+
 /*-----------------------*/
 /*     Script Lexer      */
 /*-----------------------*/
@@ -337,8 +339,9 @@ class ScriptLexer: Lexer
 {
 protected:
 
-    override void created()
-    {     
+public:
+    this(){
+        super();
         with(controls)
         {
             add("(", Control.OpenParams);
@@ -388,11 +391,6 @@ protected:
         }
     }
 
-public:
-    this(){
-        super();
-    }
-
     override bool isEOL(char vChar)
     {
         return sEOL.indexOf(vChar) >= 0;
@@ -434,23 +432,6 @@ public:
     }
 }
 
-/**
-*
-*   Preprocessor Script
-*
-*
-*/
-
-class PreprocessorLexer: ScriptLexer
-{
-}
-
-/**
-*
-*   Syntax Hightlighter
-*
-*
-*/
 
 class HighlighterLexer: ScriptLexer
 {

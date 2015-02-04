@@ -435,12 +435,12 @@ public:
 
 /**
 *
-*   Scanner
+*   Tracker
 *   Small object scan one type of token
 *
 */
 
-class Scanner: BaseObject 
+class Tracker: BaseObject 
 {
 private:
     Lexer _lexer;
@@ -478,16 +478,16 @@ public:
     }
 }
 
-class Scanners: Objects!Scanner{  
+class Trackers: Objects!Tracker{  
 
 private:
     Lexer _lexer;
 
 public:
-    override void beforeAdd(Scanner scanner)
+    override void beforeAdd(Tracker tracker)
     {
-        super.beforeAdd(scanner);
-        scanner._lexer = _lexer;      
+        super.beforeAdd(tracker);
+        tracker._lexer = _lexer;      
     }
 
     this(Lexer aLexer){
@@ -526,11 +526,11 @@ private:
     public @property IParser  parser() { return _parser; };
     public @property IParser  parser(IParser  value) { return _parser = value; }    
 
-    Scanner _current; //current scanner
-    public @property Scanner current() { return _current; } ;      
+    Tracker _current; //current tracker
+    public @property Tracker current() { return _current; } ;      
 
-    Scanners _scanners;
-    public @property Scanners scanners() { return _scanners; } ;  
+    Trackers _trackers;
+    public @property Trackers trackers() { return _trackers; } ;  
 
     OpOperators _operators;
     @property public OpOperators operators () { return _operators; }
@@ -550,14 +550,14 @@ protected:
 public:
     this()
     {
-        _scanners = new Scanners(this);
+        _trackers = new Trackers(this);
         _operators = new OpOperators();
         _controls = new CtlControls();
         super();
     }
 
     ~this(){
-        destroy(_scanners);
+        destroy(_trackers);
         destroy(_operators);
         destroy(_controls);
     }
@@ -581,16 +581,16 @@ public:
 
 protected:
 
-    Scanner detectScanner(const string text, int column) 
+    Tracker detectScanner(const string text, int column) 
     {
-        Scanner result = null;
+        Tracker result = null;
         if (column >= text.length)
         //do i need to switchScanner?
-        //return null; //no scanner for empty line or EOL
+        //return null; //no tracker for empty line or EOL
         result = null;
         else 
         {
-        foreach(e; scanners)                    
+        foreach(e; trackers)                    
         {
             if (e.accept(text, column)) 
             {
@@ -600,13 +600,13 @@ protected:
         }
 
         if (result is null)
-            error("Scanner not found: " ~ text[column]);
+            error("Tracker not found: " ~ text[column]);
         }
         switchScanner(result);
         return result;
     }
 
-    void switchScanner(Scanner nextScanner) 
+    void switchScanner(Tracker nextScanner) 
     {
         if (_current != nextScanner) 
         {
@@ -616,12 +616,12 @@ protected:
         }
     }
 
-    Scanner findClass(const ClassInfo scannerClass) 
+    Tracker findClass(const ClassInfo scannerClass) 
     {
         int i = 0;
-        foreach(scanner; scanners) {
-            if (scanner.classinfo == scannerClass) {
-                return scanner;
+        foreach(tracker; trackers) {
+            if (tracker.classinfo == scannerClass) {
+                return tracker;
             }
             i++;
         }
@@ -631,9 +631,9 @@ protected:
     //This find the class and switch to it
     void SelectScanner(ClassInfo scannerClass) 
     {
-        Scanner aScanner = findClass(scannerClass);
+        Tracker aScanner = findClass(scannerClass);
         if (aScanner is null)
-            error("Scanner not found");
+            error("Tracker not found");
         switchScanner(aScanner);
     }
 
@@ -651,10 +651,10 @@ public:
         while (column < len)
         {
             int oldColumn = column;
-            Scanner oldScanner = _current;
+            Tracker oldScanner = _current;
             try 
             {
-                if (current is null) //resume the line to current/last scanner
+                if (current is null) //resume the line to current/last tracker
                     detectScanner(text, column);
                 else
                     resume = true;
@@ -746,7 +746,7 @@ public:
 /*---------------------------*/
 
 /**
-*   This will used in the scanner
+*   This will used in the tracker
 */
 
 //TODO maybe struct not a class

@@ -8,10 +8,10 @@ module sard.scanners;
 
 /**
 *   @module: 
-*       Scanners: Scan the source code and generate runtime objects
+*       Trackers: Scan the source code and generate runtime objects
 *
-*   Lexer: divied the source code (line) and pass it to small scanners, scanner tell it when it finished
-*   Scanner: Take this part of source code and convert it to control, operator or token/indentifier
+*   Lexer: divied the source code (line) and pass it to small scanners, tracker tell it when it finished
+*   Tracker: Take this part of source code and convert it to control, operator or token/indentifier
 */
 
 import std.stdio;
@@ -54,7 +54,7 @@ enum Type : int
     Comment 
 }  
 
-class Whitespace_Scanner: Scanner
+class Whitespace_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -73,7 +73,7 @@ protected:
     }
 }
 
-class Identifier_Scanner: Scanner
+class Identifier_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -92,7 +92,7 @@ protected:
     }
 }
 
-class Number_Scanner: Scanner
+class Number_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -111,7 +111,7 @@ protected:
     }
 }
 
-class Control_Scanner: Scanner
+class Control_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume) 
@@ -132,7 +132,7 @@ protected:
     }
 }
 
-class Operator_Scanner: Scanner
+class Operator_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -154,7 +154,7 @@ protected:
 
 // Single line comment 
 
-class LineComment_Scanner: Scanner
+class LineComment_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -171,7 +171,7 @@ protected:
     }
 }
 
-class BlockComment_Scanner: Scanner
+class BlockComment_Scanner: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -194,7 +194,7 @@ protected:
     }
 }
 
-abstract class MultiLine_Scanner: Scanner
+abstract class MultiLine_Scanner: Tracker
 {
 protected:
 
@@ -309,7 +309,7 @@ protected:
 public:
 }
 
-class Escape_Scanner: Scanner
+class Escape_Scanner: Tracker
 {
 protected:    
     override void scan(const string text, ref int column, ref bool resume)
@@ -375,7 +375,7 @@ public:
             add(new OpPower());
         }
 
-        with (scanners)
+        with (trackers)
         {
             add(new Whitespace_Scanner());
             add(new BlockComment_Scanner());

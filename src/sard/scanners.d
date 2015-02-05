@@ -64,7 +64,7 @@ protected:
         while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
             column++;
 
-        lexer.parser.setWhiteSpaces(text[pos..column]);
+        lexer.scanner.parser.setWhiteSpaces(text[pos..column]);
         resume = false;
     }
 
@@ -83,7 +83,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexer.parser.setToken(text[pos..column], Token(Type.Identifier));
+        lexer.scanner.parser.setToken(text[pos..column], Token(Type.Identifier));
         resume = false;
     }
 
@@ -102,7 +102,7 @@ protected:
         while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexer.parser.setToken(text[pos..column], Token(Type.Number));
+        lexer.scanner.parser.setToken(text[pos..column], Token(Type.Number));
         resume = false;
     }
 
@@ -122,7 +122,7 @@ protected:
         else
             error("Unkown control started with " ~ text[column]);
 
-        lexer.parser.setControl(control.code);
+        lexer.scanner.parser.setControl(control.code);
         resume = false;
     }
 
@@ -143,7 +143,7 @@ protected:
         else
             error("Unkown operator started with " ~ text[column]);
 
-        lexer.parser.setOperator(operator);
+        lexer.scanner.parser.setOperator(operator);
         resume = false;
     }
 
@@ -269,7 +269,7 @@ class Comment_Scanner: BufferedMultiLine_Scanner
 
     override void setToken(string token)
     {
-        lexer.parser.setToken(token, Token(Type.Comment));
+        lexer.scanner.parser.setToken(token, Token(Type.Comment));
     }
 }
 
@@ -278,7 +278,7 @@ abstract class String_Scanner: BufferedMultiLine_Scanner
 protected:
     override void setToken(string token)
     {
-        lexer.parser.setToken(token, Token(Type.String));
+        lexer.scanner.parser.setToken(token, Token(Type.String));
     }
 
 }
@@ -320,7 +320,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;    
 
-        lexer.parser.setToken(text[pos..column], Token(Type.Escape));
+        lexer.scanner.parser.setToken(text[pos..column], Token(Type.Escape));
         resume = false;
     }
 
@@ -375,7 +375,7 @@ public:
             add(new OpPower());
         }
 
-        with (trackers)
+        with (this)
         {
             add(new Whitespace_Scanner());
             add(new BlockComment_Scanner());
@@ -432,6 +432,12 @@ public:
     }
 }
 
+class ScriptScanner:Scanner{
+    this(){
+        super();
+        add(new ScriptLexer());
+    }
+}
 
 class HighlighterLexer: ScriptLexer
 {

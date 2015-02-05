@@ -478,32 +478,159 @@ public:
     }
 }
 
-class Trackers: Objects!Tracker{  
+class Lexer: Objects!Tracker{
 
 private:
-    Lexer _lexer;
+
+protected:
+    Scanner _scanner;
+    public @property Scanner scanner() { return _scanner; } ;      
+
+    Tracker _current; //current tracker
+    public @property Tracker current() { return _current; } ;      
+
+    OpOperators _operators;
+    @property public OpOperators operators () { return _operators; }
+    CtlControls _controls;
+    @property public CtlControls controls() { return _controls; }    
+
+protected:
+
+    Tracker detectTracker(const string text, int column) 
+{
+    Tracker result = null;
+    if (column >= text.length)
+        //do i need to switchTracker?
+        //return null; //no tracker for empty line or EOL
+        result = null;
+    else 
+    {
+        foreach(e; items)
+        {
+            if (e.accept(text, column)) 
+            {
+                result = e;
+                break;
+            }
+        }
+
+        if (result is null)
+            error("Tracker not found: " ~ text[column]);
+    }
+    switchTracker(result);
+    return result;
+}
+
+    void switchTracker(Tracker nextTracker) 
+    {
+        if (_current != nextTracker) 
+        {
+            _current = nextTracker;
+            if (_current !is null)
+                _current.switched();
+        }
+    }
+
+    Tracker findClass(const ClassInfo trackerClass) 
+    {
+        int i = 0;
+        foreach(t; items) {
+            if (t.classinfo == trackerClass) {
+                return t;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    //This find the class and switch to it
+    void selectTracker(ClassInfo trackerClass) 
+    {
+        Tracker t = findClass(trackerClass);
+        if (t is null)
+            error("Tracker not found");
+        switchTracker(t);
+    }
 
 public:
     override void beforeAdd(Tracker tracker)
     {
         super.beforeAdd(tracker);
-        tracker._lexer = _lexer;      
+        tracker._lexer = this;      
     }
 
-    this(Lexer aLexer){
-        _lexer = aLexer;
+    this(){
         super();
+        _operators = new OpOperators();
+        _controls = new CtlControls();
+    }
+
+    this(Scanner aScanner)
+    {
+        _scanner = aScanner;
+        this();
+    }
+
+    ~this(){
+        destroy(_operators);
+        destroy(_controls);
+    }
+
+    bool trimSymbols = true; //ommit send open and close tags when setToken
+
+    abstract bool isEOL(char vChar);
+    abstract bool isWhiteSpace(char vChar, bool vOpen= true);
+    abstract bool isSymbol(char vChar);
+    abstract bool isControl(char vChar);
+    abstract bool isOperator(char vChar);
+    abstract bool isNumber(char vChar, bool vOpen = true);
+
+    bool isIdentifier(char vChar, bool vOpen = true)
+    {
+        bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar) &&!isSymbol(vChar);
+        if (vOpen)
+            r = r && !isNumber(vChar, vOpen);
+        return r;
+    }
+
+    void scanLine(const string text, const int line, ref int column) 
+    {
+        int len = text.length;
+        bool resume = false;
+        while (column < len)
+        {
+            int oldColumn = column;
+            Tracker oldTracker = _current;
+            try 
+            {
+                if (current is null) //resume the line to current/last tracker
+                    detectTracker(text, column);
+                else
+                    resume = true;
+
+                current.scan(text, column, resume);
+
+                if (!resume)
+                    switchTracker(null);
+
+                if ((oldColumn == column) && (oldTracker == _current))
+                    error("Feeder in loop with: " ~ _current.classinfo.nakename); //TODO: be careful here
+            }
+            catch(Exception e) {          
+                throw new ParserException(e.msg, line, column);
+            }
+        }
     }
 }
 
 /**
 *
-*   Lexer
+*   Scanner
 *   Base class 
 *
 */
 
-class Lexer: BaseObject
+class Scanner: Objects!Lexer
 {
 private:
     bool _active;
@@ -526,16 +653,9 @@ private:
     public @property IParser  parser() { return _parser; };
     public @property IParser  parser(IParser  value) { return _parser = value; }    
 
-    Tracker _current; //current tracker
-    public @property Tracker current() { return _current; } ;      
 
-    Trackers _trackers;
-    public @property Trackers trackers() { return _trackers; } ;  
-
-    OpOperators _operators;
-    @property public OpOperators operators () { return _operators; }
-    CtlControls _controls;
-    @property public CtlControls controls() { return _controls; }    
+protected:
+    Lexer lexer; //current lexer
 
 protected:
 
@@ -550,91 +670,10 @@ protected:
 public:
     this()
     {
-        _trackers = new Trackers(this);
-        _operators = new OpOperators();
-        _controls = new CtlControls();
         super();
     }
 
     ~this(){
-        destroy(_trackers);
-        destroy(_operators);
-        destroy(_controls);
-    }
-
-    bool trimSymbols = true; //ommit send open and close tags when setToken
-
-    abstract bool isEOL(char vChar);
-    abstract bool isWhiteSpace(char vChar, bool vOpen= true);
-    abstract bool isSymbol(char vChar);
-    abstract bool isControl(char vChar);
-    abstract bool isOperator(char vChar);
-    abstract bool isNumber(char vChar, bool vOpen = true);
-
-    bool isIdentifier(char vChar, bool vOpen = true)
-    {
-        bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar) &&!isSymbol(vChar);
-        if (vOpen)
-            r = r && !isNumber(vChar, vOpen);
-        return r;
-    }
-
-protected:
-
-    Tracker detectScanner(const string text, int column) 
-    {
-        Tracker result = null;
-        if (column >= text.length)
-        //do i need to switchScanner?
-        //return null; //no tracker for empty line or EOL
-        result = null;
-        else 
-        {
-        foreach(e; trackers)                    
-        {
-            if (e.accept(text, column)) 
-            {
-                result = e;
-                break;
-            }
-        }
-
-        if (result is null)
-            error("Tracker not found: " ~ text[column]);
-        }
-        switchScanner(result);
-        return result;
-    }
-
-    void switchScanner(Tracker nextScanner) 
-    {
-        if (_current != nextScanner) 
-        {
-            _current = nextScanner;
-            if (_current !is null)
-                _current.switched();
-        }
-    }
-
-    Tracker findClass(const ClassInfo scannerClass) 
-    {
-        int i = 0;
-        foreach(tracker; trackers) {
-            if (tracker.classinfo == scannerClass) {
-                return tracker;
-            }
-            i++;
-        }
-        return null;
-    }
-
-    //This find the class and switch to it
-    void SelectScanner(ClassInfo scannerClass) 
-    {
-        Tracker aScanner = findClass(scannerClass);
-        if (aScanner is null)
-            error("Tracker not found");
-        switchScanner(aScanner);
     }
 
 public:
@@ -646,31 +685,7 @@ public:
 
         int _line = line;
         int column = 0; 
-        int len = text.length;
-        bool resume = false;
-        while (column < len)
-        {
-            int oldColumn = column;
-            Tracker oldScanner = _current;
-            try 
-            {
-                if (current is null) //resume the line to current/last tracker
-                    detectScanner(text, column);
-                else
-                    resume = true;
-
-                current.scan(text, column, resume);
-                
-                if (!resume)
-                    switchScanner(null);
-
-                if ((oldColumn == column) && (oldScanner == _current))
-                    error("Feeder in loop with: " ~ _current.classinfo.nakename); //TODO: be careful here
-            }
-            catch(Exception e) {          
-                throw new ParserException(e.msg, line, column);
-            }
-        }
+        lexer.scanLine(text, line, column);
     }
 
     void scan(const string[] lines)
@@ -727,6 +742,7 @@ public:
         if (_active)
             error("Already opened");
         _active = true;
+        lexer = items[0];
         doStart();
         parser.start();
     }
@@ -737,6 +753,7 @@ public:
             error("Already closed");
         parser.stop();
         doStop();
+        lexer = null;
         _active = false;
     }
 }

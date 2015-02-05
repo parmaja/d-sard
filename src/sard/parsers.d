@@ -293,8 +293,10 @@ public:
     void next(){
     }
 
-    void addToken(string text, Token token)
+    void addToken(Token token)
     {
+        string text = token.value;
+
         switch (token.type) {
             case Type.Number: 
                 instruction.setNumber(text);
@@ -728,12 +730,11 @@ protected:
         return false;
     }
 
-    override void setToken(string text, Token token)
+    override void setToken(Token token)
     {
-
         //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
         //by default it is id
-        if ((token.type != Type.Identifier) || (!takeIdentifier(text))) 
+        if ((token.type != Type.Identifier) || (!takeIdentifier(token.value))) 
         {
 
             /* 
@@ -748,7 +749,7 @@ protected:
                 lastControl = Control.None;//prevent loop
                 setControl(Control.End);
             }
-            current.addToken(text, token);
+            current.addToken(token);
             doQueue();
             actions = [];
             lastControl = Control.Token;

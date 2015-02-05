@@ -204,6 +204,7 @@
   </Folder>
   <Folder name="src">
    <File path="..\..\src\sard\classes.d" />
+   <File path="..\..\src\sard\highlighter.d" />
    <File path="..\..\src\sard\objects.d" />
    <File path="..\..\src\sard\operators.d" />
    <File path="..\..\src\sard\package.d" />

@@ -84,7 +84,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexer.parser.setToken(text[pos..column], Token(Type.Identifier));
+        lexer.parser.setToken(Token(Control.Token, Type.Identifier, text[pos..column]));
         resume = false;
     }
 
@@ -103,7 +103,7 @@ protected:
         while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexer.parser.setToken(text[pos..column], Token(Type.Number));
+        lexer.parser.setToken(Token(Control.Token, Type.Number, text[pos..column]));
         resume = false;
     }
 
@@ -270,7 +270,7 @@ class Comment_tracker: BufferedMultiLine_tracker
 
     override void setToken(string token)
     {
-        lexer.parser.setToken(token, Token(Type.Comment));
+        lexer.parser.setToken(Token(Control.Token, Type.Comment, token));
     }
 }
 
@@ -279,7 +279,7 @@ abstract class String_tracker: BufferedMultiLine_tracker
 protected:
     override void setToken(string token)
     {
-        lexer.parser.setToken(token, Token(Type.String));
+        lexer.parser.setToken(Token(Control.Token, Type.String, token));
     }
 
 }
@@ -321,7 +321,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;    
 
-        lexer.parser.setToken(text[pos..column], Token(Type.Escape));
+        lexer.parser.setToken(Token(Control.Token, Type.Escape, text[pos..column]));
         resume = false;
     }
 

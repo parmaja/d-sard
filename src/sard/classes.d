@@ -416,23 +416,23 @@ public:
 
     @disable this();
 
-    this(int t){
+    this(Control c, int t, string v)
+    {
         type = t;
+        value = v;
+        control = c;
     }
 }
 
 interface IParser 
 {
 protected:
-    //abstract void start();
-    //abstract void stop();    
-
-    //doIdentifier call in setToken if you proceesed it return false
+    //takeIdentifier call in setToken if you proceesed it return false
     //You can proceess as to setControl or setOperator
     bool takeIdentifier(string identifier);
 
 public:
-    abstract void setToken(string text, Token tok,);
+    abstract void setToken(Token token);    
     abstract void setControl(Control aControl);
     abstract void setOperator(OpOperator operator);
     abstract void setWhiteSpaces(string whitespaces);

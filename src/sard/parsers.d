@@ -226,7 +226,7 @@ protected:
     Instruction instruction;
     Controller controller;
 
-    ScriptParser parser;
+    CodeParser parser;
 
     void internalPost(){  
     }
@@ -242,7 +242,7 @@ public:
         debug writeln("new collecter");
     }
 
-    this(ScriptParser aParser)
+    this(CodeParser aParser)
     {
         this();
         parser = aParser;
@@ -255,7 +255,7 @@ public:
         debug writeln("kill collecter");
     }
 
-    //No pop, but when finish ScriptParser will pop it
+    //No pop, but when finish CodeParser will pop it
     void setAction(Actions aActions = [], Collector aNextCollector = null)
     {
         debug{
@@ -355,11 +355,11 @@ protected:
 
 public:
 
-    this(ScriptParser aParser){
+    this(CodeParser aParser){
         super(aParser);
     }
 
-    this(ScriptParser aParser, Statement aStatement)
+    this(CodeParser aParser, Statement aStatement)
     {
         this(aParser);
         statement = aStatement;
@@ -394,7 +394,7 @@ protected:
 
 public:
 
-    this(ScriptParser aParser, Statements aStatements)
+    this(CodeParser aParser, Statements aStatements)
     {
         super(aParser);
         statements = aStatements;
@@ -418,7 +418,7 @@ protected:
 
 public:
 
-    this(ScriptParser aParser){
+    this(CodeParser aParser){
         super(aParser);    
     }
 
@@ -448,11 +448,11 @@ protected:
     bool param;
     SoDeclare declare;
 
-    this(ScriptParser aParser){ 
+    this(CodeParser aParser){ 
         super(aParser);    
     }
 
-    this(ScriptParser aParser, SoDeclare aDeclare){
+    this(CodeParser aParser, SoDeclare aDeclare){
         this(aParser);
         declare = aDeclare;
     }
@@ -705,7 +705,7 @@ public:
 *
 */
 
-class ScriptParser: Stack!Collector, IParser 
+class CodeParser: Stack!Collector, IParser 
 {
 protected:
     Control lastControl;
@@ -826,23 +826,27 @@ public:
     Actions actions;
     Collector nextCollector;
 
-    this(Statements aStatements)
+    Statements statements;//external statements
+
+    this()
     {
         super();      
-
-        if (aStatements is null)
-            error("You must set a block");      
-
-        push(new CollectorBlock(this, aStatements));
     }
 
-    ~this(){
+    ~this(){        
+    }
+
+    void start()
+    {
+        if (statements is null) 
+            error("You should set Parser.statements!");
+
+        push(new CollectorBlock(this, statements));
+        setControl(Control.Start); 
+    }
+
+    void stop(){
+        setControl(Control.Stop);
         pop();//pop the first push
-    }
-
-    override void start(){      
-    }
-
-    override void stop(){
     }
 }

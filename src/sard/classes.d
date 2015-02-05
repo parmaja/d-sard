@@ -258,6 +258,8 @@ public:
 class Stack(T): BaseObject 
 {    
 protected:
+    bool own = true; //free if when remove it
+
     static class StackItem: BaseObject {
         protected {
             T object; 
@@ -364,7 +366,8 @@ public:
     void pop()
     {
         T object = pull();
-        destroy(object);            
+        if (own)
+            destroy(object);            
     }
 
     void clear(){
@@ -397,6 +400,8 @@ enum Control: int
     CloseBlock, // }
     OpenParams, // (
     CloseParams, // )
+    OpenPreprocessor, // <?
+    ClosePreprocessor, // ?>
     OpenArray, // [
     CloseArray // ]
 }
@@ -419,8 +424,8 @@ public:
 interface IParser 
 {
 protected:
-    abstract void start();
-    abstract void stop();    
+    //abstract void start();
+    //abstract void stop();    
 
     //doIdentifier call in setToken if you proceesed it return false
     //You can proceess as to setControl or setOperator
@@ -431,6 +436,9 @@ public:
     abstract void setControl(Control aControl);
     abstract void setOperator(OpOperator operator);
     abstract void setWhiteSpaces(string whitespaces);
+
+    abstract void start();
+    abstract void stop();
 };
 
 /**
@@ -493,6 +501,10 @@ protected:
     @property public OpOperators operators () { return _operators; }
     CtlControls _controls;
     @property public CtlControls controls() { return _controls; }    
+
+    IParser _parser;    
+    public @property IParser parser() { return _parser; };
+    public @property IParser parser(IParser  value) { return _parser = value; }    
 
 protected:
 
@@ -587,7 +599,7 @@ public:
         return r;
     }
 
-    void scanLine(const string text, const int line, ref int column) 
+    final void scanLine(const string text, const int line, ref int column) 
     {
         int len = text.length;
         bool resume = false;
@@ -614,6 +626,14 @@ public:
                 throw new ParserException(e.msg, line, column);
             }
         }
+    }
+
+    void start(){
+        parser.start();
+    }               
+
+    void stop(){
+        parser.stop();
     }
 }
 
@@ -643,10 +663,6 @@ private:
 
     public @property int line() { return _line; };
 
-    IParser _parser;    
-    public @property IParser  parser() { return _parser; };
-    public @property IParser  parser(IParser  value) { return _parser = value; }    
-
 
 protected:
     Lexer lexer; //current lexer
@@ -658,12 +674,10 @@ protected:
         lexer._scanner = this;      
     }
 
-    void doStart() {
-        parser.setControl(Control.Start);
+    void doStart() {        
     }
 
-    void doStop() {
-        parser.setControl(Control.Stop);
+    void doStop() {        
     }
 
 public:
@@ -743,14 +757,12 @@ public:
         _active = true;
         lexer = items[0];
         doStart();
-        parser.start();
     }
 
     void stop()
     {
         if (!_active)
             error("Already closed");
-        parser.stop();
         doStop();
         lexer = null;
         _active = false;
@@ -859,7 +871,7 @@ enum Color
     LightGray,
     White
 }
-
+ 
 private static Engine _engine;
 
 class Engine
@@ -885,7 +897,8 @@ public static void setEngine(Engine newEngine)
     _engine = newEngine;
 }
 
-@property public static Engine engine(){
+@property public static Engine engine()
+{
     if (_engine is null) {
         error("Engine not set! set it in the main().");
     }

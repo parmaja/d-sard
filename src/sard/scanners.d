@@ -24,6 +24,7 @@ import std.datetime;
 
 import sard.utils;
 import sard.classes;
+import sard.parsers;
 import sard.objects;
 import sard.runtimes;
 import sard.operators;
@@ -54,7 +55,7 @@ enum Type : int
     Comment 
 }  
 
-class Whitespace_Scanner: Tracker
+class Whitespace_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -64,7 +65,7 @@ protected:
         while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
             column++;
 
-        lexer.scanner.parser.setWhiteSpaces(text[pos..column]);
+        lexer.parser.setWhiteSpaces(text[pos..column]);
         resume = false;
     }
 
@@ -73,7 +74,7 @@ protected:
     }
 }
 
-class Identifier_Scanner: Tracker
+class Identifier_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -83,7 +84,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexer.scanner.parser.setToken(text[pos..column], Token(Type.Identifier));
+        lexer.parser.setToken(text[pos..column], Token(Type.Identifier));
         resume = false;
     }
 
@@ -92,7 +93,7 @@ protected:
     }
 }
 
-class Number_Scanner: Tracker
+class Number_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -102,7 +103,7 @@ protected:
         while ((column < text.length) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexer.scanner.parser.setToken(text[pos..column], Token(Type.Number));
+        lexer.parser.setToken(text[pos..column], Token(Type.Number));
         resume = false;
     }
 
@@ -111,7 +112,7 @@ protected:
     }
 }
 
-class Control_Scanner: Tracker
+class Control_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume) 
@@ -122,7 +123,7 @@ protected:
         else
             error("Unkown control started with " ~ text[column]);
 
-        lexer.scanner.parser.setControl(control.code);
+        lexer.parser.setControl(control.code);
         resume = false;
     }
 
@@ -132,7 +133,7 @@ protected:
     }
 }
 
-class Operator_Scanner: Tracker
+class Operator_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -143,7 +144,7 @@ protected:
         else
             error("Unkown operator started with " ~ text[column]);
 
-        lexer.scanner.parser.setOperator(operator);
+        lexer.parser.setOperator(operator);
         resume = false;
     }
 
@@ -154,7 +155,7 @@ protected:
 
 // Single line comment 
 
-class LineComment_Scanner: Tracker
+class LineComment_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -171,7 +172,7 @@ protected:
     }
 }
 
-class BlockComment_Scanner: Tracker
+class BlockComment_tracker: Tracker
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -194,7 +195,7 @@ protected:
     }
 }
 
-abstract class MultiLine_Scanner: Tracker
+abstract class MultiLine_tracker: Tracker
 {
 protected:
 
@@ -239,7 +240,7 @@ protected:
     }
 }
 
-abstract class BufferedMultiLine_Scanner: MultiLine_Scanner
+abstract class BufferedMultiLine_tracker: MultiLine_tracker
 {
 private:
     string buffer;
@@ -258,7 +259,7 @@ protected:
 }
 
 //Comment object {* *}
-class Comment_Scanner: BufferedMultiLine_Scanner
+class Comment_tracker: BufferedMultiLine_tracker
 {
     this()
     {
@@ -269,23 +270,23 @@ class Comment_Scanner: BufferedMultiLine_Scanner
 
     override void setToken(string token)
     {
-        lexer.scanner.parser.setToken(token, Token(Type.Comment));
+        lexer.parser.setToken(token, Token(Type.Comment));
     }
 }
 
-abstract class String_Scanner: BufferedMultiLine_Scanner
+abstract class String_tracker: BufferedMultiLine_tracker
 {
 protected:
     override void setToken(string token)
     {
-        lexer.scanner.parser.setToken(token, Token(Type.String));
+        lexer.parser.setToken(token, Token(Type.String));
     }
 
 }
 
 /* Single Quote String */
 
-class SQString_Scanner: String_Scanner
+class SQString_tracker: String_tracker
 {
 protected:
     this(){
@@ -297,7 +298,7 @@ protected:
 
 /* Double Quote String */
 
-class DQString_Scanner: String_Scanner
+class DQString_tracker: String_tracker
 {
 protected:
     this()
@@ -309,7 +310,7 @@ protected:
 public:
 }
 
-class Escape_Scanner: Tracker
+class Escape_tracker: Tracker
 {
 protected:    
     override void scan(const string text, ref int column, ref bool resume)
@@ -320,7 +321,7 @@ protected:
         while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
             column++;    
 
-        lexer.scanner.parser.setToken(text[pos..column], Token(Type.Escape));
+        lexer.parser.setToken(text[pos..column], Token(Type.Escape));
         resume = false;
     }
 
@@ -335,7 +336,7 @@ protected:
 /*     Script Lexer      */
 /*-----------------------*/
 
-class ScriptLexer: Lexer
+class CodeLexer: Lexer
 {
 protected:
 
@@ -377,17 +378,19 @@ public:
 
         with (this)
         {
-            add(new Whitespace_Scanner());
-            add(new BlockComment_Scanner());
-            add(new Comment_Scanner());
-            add(new LineComment_Scanner());
-            add(new Number_Scanner());
-            add(new SQString_Scanner());
-            add(new DQString_Scanner());
-            add(new Escape_Scanner());
-            add(new Control_Scanner());
-            add(new Operator_Scanner()); //Register it after comment because comment take /*
-            add(new Identifier_Scanner());//Sould be last one      
+            add(new Whitespace_tracker());
+            add(new BlockComment_tracker());
+            add(new Comment_tracker());
+            add(new LineComment_tracker());
+            add(new Number_tracker());
+            add(new SQString_tracker());
+            add(new DQString_tracker());
+            add(new Escape_tracker());
+            add(new Control_tracker());
+            add(new Operator_tracker()); //Register it after comment because comment take /*
+            add(new Identifier_tracker());//Sould be last one      
+            
+            parser = new CodeParser();
         }
     }
 
@@ -432,15 +435,123 @@ public:
     }
 }
 
-class ScriptScanner: Scanner
+/**
+*
+*   Plain Lexer
+*
+*/
+
+class OpenPreprocessor_tracker: Tracker
 {
-    this(){
-        super();
-        add(new ScriptLexer());
+protected:
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;
+        column++;
+        while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
+            column++;
+
+        lexer.parser.setWhiteSpaces(text[pos..column]);
+        resume = false;
+    }
+
+    override bool accept(const string text, int column){
+        return lexer.isWhiteSpace(text[column]);
     }
 }
 
-class HighlighterLexer: ScriptLexer
+class PlainLexer: Lexer
+{
+    this()
+    {
+        with(controls)
+        {
+            add("<?", Control.OpenPreprocessor);
+        }
+
+        with(this)
+        {
+            add(new Whitespace_tracker());
+            add(new OpenPreprocessor_tracker());
+        }
+    }
+
+    override bool isEOL(char vChar)
+    {
+        return sEOL.indexOf(vChar) >= 0;
+    }
+
+    override bool isWhiteSpace(char vChar, bool vOpen = true)
+    {
+        return sWhitespace.indexOf(vChar) >= 0;
+    }
+
+    override bool isControl(char vChar)
+    {
+        return controls.isOpenBy(vChar);
+    }
+
+    override bool isOperator(char vChar)
+    {
+        return false;
+    }
+
+    override bool isNumber(char vChar, bool vOpen = true)
+    {
+        return false;
+    }
+
+    override bool isSymbol(char vChar)
+    {
+        return sSymbolChars.indexOf(vChar) >= 0;
+    }
+}
+
+/**
+*
+*   Scanner
+*
+*/
+
+class CodeScanner: Scanner
+{
+protected:
+    SoBlock _block;
+
+public:
+    this(SoBlock block)
+    {
+        super();
+        _block = block;
+        add(new CodeLexer());
+     }
+
+    override void doStart() 
+    {        
+        CodeParser parser = new CodeParser();
+        parser.statements = _block.statements;
+        lexer.parser = parser;
+        lexer.start();
+    }
+
+    override void doStop() 
+    {
+        lexer.stop();
+        lexer.parser = null;
+    }
+}
+
+class ScriptScanner: Scanner
+{
+    this()
+    {
+        super();
+        add(new PlainLexer());
+        add(new CodeLexer());
+    }
+}
+
+class HighlighterLexer: CodeLexer
 {
     this(){
         super();

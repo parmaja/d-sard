@@ -432,7 +432,8 @@ public:
     }
 }
 
-class ScriptScanner:Scanner{
+class ScriptScanner: Scanner
+{
     this(){
         super();
         add(new ScriptLexer());

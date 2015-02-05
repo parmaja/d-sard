@@ -565,12 +565,6 @@ public:
         _controls = new CtlControls();
     }
 
-    this(Scanner aScanner)
-    {
-        _scanner = aScanner;
-        this();
-    }
-
     ~this(){
         destroy(_operators);
         destroy(_controls);
@@ -658,6 +652,11 @@ protected:
     Lexer lexer; //current lexer
 
 protected:
+    override void beforeAdd(Lexer lexer)
+    {
+        super.beforeAdd(lexer);
+        lexer._scanner = this;      
+    }
 
     void doStart() {
         parser.setControl(Control.Start);

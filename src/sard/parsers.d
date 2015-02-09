@@ -226,7 +226,7 @@ protected:
     Instruction instruction;
     Controller controller;
 
-    CodeParser parser;
+    Parser parser;
 
     void internalPost(){  
     }
@@ -242,7 +242,7 @@ public:
         debug(log_compile) writeln("new collecter");
     }
 
-    this(CodeParser aParser)
+    this(Parser aParser)
     {
         this();
         parser = aParser;
@@ -253,16 +253,6 @@ public:
     ~this(){
         destroy(controller);
         debug(log_compile) writeln("kill collecter");
-    }
-
-    //No pop, but when finish CodeParser will pop it
-    void setAction(Actions aActions = [], Collector aNextCollector = null)
-    {
-        debug(log_compile){
-            writeln(aActions);
-        }
-        parser.actions = aActions;
-        parser.nextCollector = aNextCollector;
     }
 
     void reset(){                      
@@ -339,8 +329,8 @@ public:
         return false;
     }
 
-    void control(Control aControl){
-        controller.control(aControl);
+    void setControl(CtlControl control){
+        controller.setControl(control);
     }
 }
 
@@ -357,11 +347,11 @@ protected:
 
 public:
 
-    this(CodeParser aParser){
+    this(Parser aParser){
         super(aParser);
     }
 
-    this(CodeParser aParser, Statement aStatement)
+    this(Parser aParser, Statement aStatement)
     {
         this(aParser);
         statement = aStatement;
@@ -396,7 +386,7 @@ protected:
 
 public:
 
-    this(CodeParser aParser, Statements aStatements)
+    this(Parser aParser, Statements aStatements)
     {
         super(aParser);
         statements = aStatements;
@@ -420,18 +410,18 @@ protected:
 
 public:
 
-    this(CodeParser aParser){
+    this(Parser aParser){
         super(aParser);    
     }
 
-    override void control(Control aControl){
-        switch (aControl){
+    override void setControl(CtlControl control){
+        switch (control.code){
             case Control.End, Control.Next:          
                 post();
-                setAction(Actions([Action.Pop, Action.Bypass]));
+                parser.setAction(Actions([Action.Pop, Action.Bypass]));
                 break;
             default:
-                super.control(aControl);
+                super.setControl(control);
         }
     }
 }
@@ -450,11 +440,11 @@ protected:
     bool param;
     SoDeclare declare;
 
-    this(CodeParser aParser){ 
+    this(Parser aParser){ 
         super(aParser);    
     }
 
-    this(CodeParser aParser, SoDeclare aDeclare){
+    this(Parser aParser, SoDeclare aDeclare){
         this(aParser);
         declare = aDeclare;
     }
@@ -483,7 +473,7 @@ protected:
     }
 
 public:
-    override void control(Control aControl)
+    override void setControl(CtlControl control)
     {
         /*
         x:int  (p1: int; p2: string);
@@ -493,7 +483,7 @@ public:
         */
         with(parser)
         {
-            switch(aControl)
+            switch(control.code)
             {
                 case Control.OpenBlock:
                     post();
@@ -552,7 +542,7 @@ public:
                     break;
 
                 default: 
-                    super.control(aControl);
+                    super.setControl(control);
             }
         }      
     }
@@ -590,7 +580,7 @@ public:
         collector = aCollector;
     }
 
-    abstract void control(Control aControl);
+    abstract void setControl(CtlControl control);
 }
 
 /**
@@ -604,11 +594,11 @@ public:
         super(aCollector);
     }
 
-    override void control(Control aControl)
+    override void setControl(CtlControl control)
     {
         with(collector)
         {
-            switch(aControl)
+            switch(control.code)
             {
                 case Control.Assign:
                     if (isInitial)
@@ -642,7 +632,7 @@ public:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Curly");
-                    setAction(Actions([Action.Pop]));
+                    parser.setAction(Actions([Action.Pop]));
                     break;
 
                 case Control.OpenParams:
@@ -661,7 +651,7 @@ public:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Bracket");
-                    setAction(Actions([Action.Pop]));
+                    parser.setAction(Actions([Action.Pop]));
                     break;
 
                 case Control.Start:            
@@ -695,7 +685,7 @@ public:
         super(aCollector);
     }
 
-    override void control(Control aControl)
+    override void setControl(CtlControl control)
     {
         //nothing O.o
         //TODO change the inheretance 
@@ -707,12 +697,50 @@ public:
 *
 */
 
-class CodeParser: Stack!Collector, IParser 
+class Parser: Stack!Collector, IParser 
+{
+protected:
+    Actions actions;
+    Collector nextCollector;
+
+    bool isKeyword(string identifier){
+        return false;
+    }
+
+public:
+    void setToken(Token token){
+    }
+
+    void setControl(CtlControl control){
+    }
+
+    void setOperator(OpOperator operator){
+    }
+
+    void setWhiteSpaces(string whitespaces){
+    }
+
+    void start(){
+    }
+
+    void stop(){
+    }
+
+    //No pop, but when finish Parser will pop it
+    void setAction(Actions aActions = [], Collector aNextCollector = null)
+    {
+        actions = aActions;
+        nextCollector = aNextCollector;
+    }
+
+}
+
+class CodeParser: Parser
 {
 protected:
     Control lastControl;
 
-    override bool takeIdentifier(string identifier)
+    override bool isKeyword(string identifier)
     {
         //example just for fun
         /*
@@ -734,7 +762,7 @@ protected:
     {
         //here is the magic, we must find it in tokens detector to check if this id is normal id or is control or operator
         //by default it is id
-        if ((token.type != Type.Identifier) || (!takeIdentifier(token.value))) 
+        if ((token.type != Type.Identifier) || (!isKeyword(token.value))) 
         {
 
             /* 
@@ -747,7 +775,7 @@ protected:
             if (lastControl == Control.CloseBlock) 
             {
                 lastControl = Control.None;//prevent loop
-                setControl(Control.End);
+                setControl(lexer.controls.getControl(Control.End));
             }
             current.addToken(token);
             doQueue();
@@ -770,24 +798,24 @@ protected:
         lastControl = Control.Operator;
     }
 
-    override void setControl(Control aControl)
+    override void setControl(CtlControl control)
     {
         debug(log){        
-            writeln("SetControl: " ~ to!string(aControl));
+            writeln("SetControl: " ~ to!string(control));
         }
 
         if (lastControl == Control.CloseBlock) //see setToken
         {
             lastControl = Control.None;//prevent loop
-            setControl(Control.End);
+            setControl(lexer.controls.getControl(Control.End));
         }
 
-        current.control(aControl);
+        current.setControl(control);
         doQueue();
         if (Action.Bypass in actions)//TODO check if Set work good here
-            current.control(aControl); 
+            current.setControl(control); 
         actions = [];
-        lastControl = aControl;
+        lastControl = control.code;
     }
 
     override void setWhiteSpaces(string whitespaces){
@@ -824,30 +852,28 @@ protected:
     }
 
 public:
-    Actions actions;
-    Collector nextCollector;
 
-    Statements statements;//external statements
+    protected Lexer lexer;    
 
-    this()
+    this(Lexer lexer, Statements statements)
     {
-        super();      
+        super();
+        this.lexer = lexer;
+        if (statements is null) 
+            error("You should set Parser.statements!");
+        push(new CollectorBlock(this, statements));                        
     }
 
     ~this(){        
-    }
-
-    void start()
-    {
-        if (statements is null) 
-            error("You should set Parser.statements!");
-
-        push(new CollectorBlock(this, statements));
-        setControl(Control.Start); 
-    }
-
-    void stop(){
-        setControl(Control.Stop);
         pop();//pop the first push
+    }
+
+    override void start()
+    {
+        setControl(lexer.controls.getControl(Control.Start)); 
+    }
+
+    override void stop(){
+        setControl(lexer.controls.getControl(Control.Stop));
     }
 }

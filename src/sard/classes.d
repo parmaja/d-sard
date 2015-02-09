@@ -217,7 +217,7 @@ public:
     bool isOpenBy(const char c)
     {
         foreach(o; items){      
-            if (o.name[0] == toLower(c))
+            if (!o.name.empty && (o.name[0] == toLower(c)))
                 return true;          
         }
         return false;
@@ -373,14 +373,15 @@ public:
     }
 
     ~this(){
-        //clear();
+        if (own)
+            clear();
     }
 }
 
 enum Control: int
 {
     None = 0,
-    Token,//Token like Identifier or Number, not used in fact    
+    Token,//Token like Identifier, Keyword or Number, not used in fact    
     Operator,//also not used 
     Start, //Start parsing
     Stop, //Start parsing
@@ -404,8 +405,8 @@ struct Token
 public:
 
     Control control;
-    string value;
     int type;
+    string value;
 
     @disable this();
 
@@ -420,13 +421,13 @@ public:
 interface IParser 
 {
 protected:
-    //takeIdentifier call in setToken if you proceesed it return false
+    //isKeyword call in setToken if you proceesed it return false
     //You can proceess as to setControl or setOperator
-    bool takeIdentifier(string identifier);
+    bool isKeyword(string identifier);
 
 public:
     abstract void setToken(Token token);    
-    abstract void setControl(Control aControl);
+    abstract void setControl(CtlControl control);
     abstract void setOperator(OpOperator operator);
     abstract void setWhiteSpaces(string whitespaces);
 
@@ -799,6 +800,28 @@ class CtlControl: BaseObject
 
 class CtlControls: NamedObjects!CtlControl
 {
+    CtlControl findControl(Control control)
+    {
+        CtlControl result = null;            
+        foreach(e; items) {
+            if (control == e.code) {
+                result = e;
+                break;
+            }
+        }
+        return result;
+    }
+
+    //getControl like find but raise exception
+    CtlControl getControl(Control control){
+        if (count == 0) 
+            error("No controls is added" ~ to!string(control));
+        CtlControl result = findControl(control);
+        if (!result) 
+            error("Control not found " ~ to!string(control));
+        return result;
+    }
+
     CtlControl add(string name, Control code)
     {
         CtlControl c = new CtlControl(name, code);    

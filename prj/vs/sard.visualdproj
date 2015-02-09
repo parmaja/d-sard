@@ -219,6 +219,6 @@
   <File path="..\..\src\main.d" />
   <File path="..\..\README.md" />
   <File path="..\..\src\consoled\terminal.d" />
-  <File path="..\..\test.d" />
+  <File path="..\..\src\test.d" />
  </Folder>
 </DProject>

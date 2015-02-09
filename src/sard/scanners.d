@@ -123,7 +123,7 @@ protected:
         else
             error("Unkown control started with " ~ text[column]);
 
-        lexer.parser.setControl(control.code);
+        lexer.parser.setControl(control);
         resume = false;
     }
 
@@ -330,8 +330,6 @@ protected:
     }
 }
 
-
-
 /*-----------------------*/
 /*     Script Lexer      */
 /*-----------------------*/
@@ -345,6 +343,15 @@ public:
         super();
         with(controls)
         {
+            add("", Control.None);////TODO i feel it is so bad
+            add("", Control.Token);
+            add("", Control.Operator);
+            add("", Control.Start);
+            add("", Control.Stop);
+            add("", Control.Declare);
+            add("", Control.Assign);
+            add("", Control.Let);
+
             add("(", Control.OpenParams);
             add("[", Control.OpenArray);
             add("{", Control.OpenBlock);
@@ -388,9 +395,7 @@ public:
             add(new Escape_tracker());
             add(new Control_tracker());
             add(new Operator_tracker()); //Register it after comment because comment take /*
-            add(new Identifier_tracker());//Sould be last one      
-            
-            parser = new CodeParser();
+            add(new Identifier_tracker());//Sould be last one                           
         }
     }
 
@@ -528,8 +533,8 @@ public:
 
     override void doStart() 
     {        
-        CodeParser parser = new CodeParser();
-        parser.statements = _block.statements;
+        CodeParser parser = new CodeParser(lexer, _block.statements);
+
         lexer.parser = parser;
         lexer.start();
     }

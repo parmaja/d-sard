@@ -205,9 +205,11 @@ i := i + 5.5;
     := x;`; 
 +/
 
-/*  results ~= "10"; this an example how to convert id to controls
-sources ~= "foo: begin := 10; end;
-:= foo;";*/
+/*  
+    results ~= "10"; this an example how to convert id to controls
+    sources ~= "foo: begin := 10; end;
+    := foo;";
+*/
 
     string source = "";
     int index = 0;
@@ -262,6 +264,7 @@ sources ~= "foo: begin := 10; end;
         index++;
     }
 
+    engine.print(Color.LightRed, "Errors Count: " ~ to!string(errors.length), true);            
     writeln("Press enter to stop");
     readln();
 }

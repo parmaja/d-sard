@@ -39,7 +39,7 @@ import sard.scanners;
 class HighlightParser: BaseObject, IParser 
 {
 protected
-    override bool takeIdentifier(string identifier){
+    override bool isKeyword(string identifier){
         return false;
     }
 
@@ -48,7 +48,7 @@ public:
         engine.print(token.value);
     }
 
-    override void setControl(Control control){
+    override void setControl(CtlControl control){
         //engine.print(control.name);
     
     }

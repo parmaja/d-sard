@@ -12,6 +12,7 @@ import std.math;
 import std.conv;
 import std.array;
 import std.range;
+
 import std.datetime;
 import sard.classes;
 import sard;
@@ -92,23 +93,18 @@ public:
 
         /* Compile */
 
-        writeln("---- Createing lexer objects -----");
-        writeln();
-
         scanner = new CodeScanner(main);
                 
-        writeln("-------- Scanning --------");
+        debug(log_compile) writeln("-------- Scanning --------");
         scanner.scan(text);      
 
-        debug
+        debug(log_nodes) 
         {
             writeln();
             writeln("-------------");
             main.debugWrite(0);
             writeln();
-            writeln("-------------");
-
-            //main.printTree();
+            writeln("-------------");            
         }
     }
 

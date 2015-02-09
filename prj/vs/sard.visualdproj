@@ -32,7 +32,7 @@
   <useArrayBounds>0</useArrayBounds>
   <noboundscheck>0</noboundscheck>
   <useSwitchError>0</useSwitchError>
-  <useUnitTests>0</useUnitTests>
+  <useUnitTests>1</useUnitTests>
   <useInline>0</useInline>
   <release>0</release>
   <preservePaths>1</preservePaths>
@@ -219,5 +219,6 @@
   <File path="..\..\src\main.d" />
   <File path="..\..\README.md" />
   <File path="..\..\src\consoled\terminal.d" />
+  <File path="..\..\test.d" />
  </Folder>
 </DProject>

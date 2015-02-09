@@ -69,15 +69,10 @@ void error(string err, int code = -1)
 class BaseObject: Object 
 {
 protected:
-    void initialize(){
-    }
-
-    void finalize(){
-    }
 
 public:
 
-    debug{
+    debug(log_nodes) {
         /*void printTree(){   
         auto a = [__traits(allMembers, typeof(this))];
         foreach (member; a) 
@@ -87,15 +82,13 @@ public:
         writeln();
         }*/
 
-
-        void debugWrite(int level){
+        debug(log_nodes) void debugWrite(int level){
             writeln(stringRepeat(" ", level * 2) ~ this.classinfo.nakename);
         }
     }
 
     this(){
     }
-
 }
 
 //class Objects(T): BaseObject if(is(T: SomeObject)) {
@@ -119,7 +112,7 @@ protected:
     }
 
     void afterAdd(T object){
-        debug{
+        debug(log) {
             //writeln(this.classinfo.nakename ~ ".add(" ~ object.classinfo.nakename ~ ")");
         }
     }
@@ -195,7 +188,7 @@ public:
         _items = null;
     }
 
-    debug{
+    debug(log_nodes) {
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", level * 2) ~ "Count: " ~ to!string(count));
@@ -302,14 +295,14 @@ protected:
     public @property T parent() { return getParent(); }
 
     void afterPush() {
-        debug{
-//            writeln("push: " ~ T.classinfo.nakename);
+        debug(log) {
+            writeln("push: " ~ T.classinfo.nakename);
         }
     };
 
     void beforePop() {
-        debug{
-            //writeln("pop: " ~ T.classinfo.nakename);
+        debug(log){
+            writeln("pop: " ~ T.classinfo.nakename);
         }
     };
 
@@ -591,6 +584,10 @@ public:
     abstract bool isOperator(char vChar);
     abstract bool isNumber(char vChar, bool vOpen = true);
 
+    bool isKeyword(string keyword){
+        return false;
+    }
+
     bool isIdentifier(char vChar, bool vOpen = true)
     {
         bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar) &&!isSymbol(vChar);
@@ -826,7 +823,7 @@ public:
     string description;
 
 public:
-    debug{
+    debug(log_nodes) {
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", precedence * 2) ~ "operator: " ~ name);        

@@ -239,7 +239,7 @@ public:
 
     this(){
         super();
-        debug writeln("new collecter");
+        debug(log_compile) writeln("new collecter");
     }
 
     this(CodeParser aParser)
@@ -252,13 +252,13 @@ public:
 
     ~this(){
         destroy(controller);
-        debug writeln("kill collecter");
+        debug(log_compile) writeln("kill collecter");
     }
 
     //No pop, but when finish CodeParser will pop it
     void setAction(Actions aActions = [], Collector aNextCollector = null)
     {
-        debug{
+        debug(log_compile){
             writeln(aActions);
         }
         parser.actions = aActions;
@@ -275,13 +275,13 @@ public:
     }
 
     void post(){
-        debug{
+        debug(log_compile){
             writeln("post(" ~ to!string(instruction.operator) ~ ", " ~ instruction.identifier ~ ")");
         }
 
         if (instruction.isEmpty) 
         {
-            writeln("post() empty");
+            debug(log_compile) writeln("post() empty");
         }
         else  {
             prepare();
@@ -409,8 +409,8 @@ public:
             if (statements is null)
                 error("Maybe you need to set a block, or it single statment block");
             statement = statements.add();
-            debug writeln("statements.add");
-        }
+            debug(log_compile) writeln("statements.add");
+        }                      
     }
 }
 
@@ -758,7 +758,7 @@ protected:
 
     override void setOperator(OpOperator operator)
     {
-        debug{
+        debug(log){
             writeln("SetOperator: " ~ operator.name);
         }
         OpOperator o = operator; 
@@ -772,7 +772,7 @@ protected:
 
     override void setControl(Control aControl)
     {
-        debug{        
+        debug(log){        
             writeln("SetControl: " ~ to!string(aControl));
         }
 
@@ -797,15 +797,15 @@ protected:
     override void afterPush()
     {
         super.afterPush();
-        debug{
-            //writeln("push: " ~ current.classinfo.nakename);
+        debug(log){
+            writeln("push: " ~ current.classinfo.nakename);
         }
     }
 
     override void beforePop(){
         super.beforePop();
-        debug{
-            //writeln("pop: " ~ current.classinfo.nakename);
+        debug(log){
+            writeln("pop: " ~ current.classinfo.nakename);
         }      
     }
 

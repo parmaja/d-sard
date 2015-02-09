@@ -149,7 +149,6 @@ public:
 
     RunData findDeclare(string name)
     {
-//        debug writeln("Finding " ~ object.name ~ "."~name);
         RunData declare = find(name);         
         if (parent && (declare is null))
             declare = parent.findDeclare(name);         
@@ -253,7 +252,7 @@ public:
         destroy(_results);    
     }
 
-    debug
+    debug(log_nodes)
     {
         override void debugWrite(int level)
         {

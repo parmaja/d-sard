@@ -75,7 +75,7 @@ public:
         return _object.execute(data, env, _operator);        
     }
 
-    debug{
+    debug(log_nodes){
         override void debugWrite(int level)
         {
             super.debugWrite(level);
@@ -104,7 +104,7 @@ private:
 public:
     void add(OpOperator operator, SoObject aObject)
     {
-        debug{            
+        debug(log_compile) {            
 //            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
         }
         if (aObject.parent !is null)
@@ -280,7 +280,7 @@ public:
 
     SoObject clone(bool withValues = true)
     { 
-        debug {
+        debug(log_run) {
             //writeln("Cloneing " ~ this.classinfo.nakename);
         }
         //TODO, here we want to check if subclass have a default ctor 
@@ -328,7 +328,7 @@ public:
         doExecute(data, env, operator, done);
         afterExecute(data, env, operator);      
 /*
-        debug 
+        debug(log_run)
         {      
             string s = "  " ~ stringRepeat(" ", env.stack.count) ~ ">";
             s = s ~ this.classinfo.nakename ~ " level: " ~ to!string(env.stack.count);
@@ -342,7 +342,7 @@ public:
         return done; 
     }
 
-    debug{
+    debug(log_nodes){
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", level * 2) ~ "name: " ~ name);
@@ -486,7 +486,7 @@ protected:
     }
 
 public:
-    debug{
+    debug(log_nodes){
         override void debugWrite(int level){
             super.debugWrite(level);
             _statements.debugWrite(level + 1);
@@ -897,7 +897,7 @@ public:
         type = aType;
     }
 
-    debug {
+    debug(log_nodes){
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", level * 2) ~ "name: " ~ name);
@@ -1054,7 +1054,7 @@ public:
         destroy(_defines);
     }
 
-    debug{
+    debug(log_nodes){
         override void debugWrite(int level){
             super.debugWrite(level);
             _defines.debugWrite(level + 1);

@@ -131,8 +131,9 @@ object.{     <-not sure
 
 ####Rules####
 
-There is no special functions objects for compiler/parser.
-No special name/char/case for classes.
+- There is no special functions objects for compiler/parser.
+- No special name/char/case for classes.
+- Keep it visual, i mean, you can convert it to uml diagram and vise versa, in fact my target to convert it to Scratch similar visual programming, so any complex parsing will break the rules.
 
 ###Thinking loud###
 

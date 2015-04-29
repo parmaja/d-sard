@@ -30,12 +30,6 @@ Specification
   * There is no "For" "While" "Repeat" or even "If" "Else", those are an objects //not yet
   * No global, but object functions is global for child objects
   
-Rules
------
-
-  *	Do not use $ or % sign any where, I reserved it for special financial operating, btw i am an accountant.
-  * No escapes inside the string/text see todo, escape is outside | x := "foo"\13"bar"\n; 
-  
 #####Done:#####
 
 ```D
@@ -126,6 +120,9 @@ object.{     <-not sure
 
 ####Rules####
 
+
+-	Do not use $ or % sign any where, I reserved it for special financial operating, btw i am an accountant.
+- No escapes inside the string/text see todo, escape is outside | x := "foo"\13"bar"\n; 
 - There is no special functions objects for compiler/parser.
 - No special name/char/case for classes.
 - Keep it visual, i mean, you can convert it to uml diagram and vise versa, in fact my target to convert it to Scratch similar visual programming, so any complex parsing will break the rules.

@@ -114,17 +114,13 @@ x := "I said:"\""As he said";
     Preprocessor, it will run in external addon/command.... and return string into it
     similar to <?foo ?> in xml
 */
-
+```D
 {?foo
 ?}
+```
 
-//Run child object
-f.b;
-~~~
-
+Pattren of object f.b;
 ```D
-// With{}
-
 object.{     <-not sure
 }
 ```

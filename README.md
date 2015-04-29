@@ -14,21 +14,20 @@ Specification
 -------------
 
   * It is case insensitive
-  * Declareing after the name
-  * Assigning ":=" , compare "=", object child "."
+  * Declaration is after the id name.
+  * Assigning ":=" , compare "=", object child pattren "."
   * There is no assign as operator
   * Dot as Identifier separator "."
   * Not equal: "<>" or "!="
-  * Not: "!"  or "|"   
   * Return value not end the execute of block
   * Blocks: { }
   * Comments: //single line and /* multiline */  * 
   * Multiline strings "" or ''
   * Identifiers can take unicode/utf8 characters, so it will support any forign language
-  * Blocks have return value
-  * Functions is objects, or Object can take arguments.
+  * Blocks have return values
+  * Functions is objects, or Object can take arguments and return a value.
   * When execute object we can pass arguments (), array [] and blocks {}{}{} //not yet
-  * There is no "For" "While" "Repeat" or even "If" "Else" those are objects //not yet
+  * There is no "For" "While" "Repeat" or even "If" "Else", those are an objects //not yet
   * No global, but object functions is global for child objects
   
 Rules

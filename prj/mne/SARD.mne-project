@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rtti version="1.0" author="MiniXML">
+  <Object Type="TEditorProject">
+    <Name>sard</Name>
+    <Title>SARD object language</Title>
+    <TendencyName>D</TendencyName>
+    <RootDir>?projectdir../../src</RootDir>
+    <Desktop Class="TEditorDesktop">
+      <Files Class="TEditorDesktopFiles">
+        <CurrentFile>M:\home\d\lib\sard\src\sard.cfg</CurrentFile>
+        <CurrentFolder>M:\home\d\lib\sard\src\</CurrentFolder>
+        <Items>
+          <Object Type="TEditorDesktopFile">
+            <FileName>M:\home\d\lib\sard\src\main.d</FileName>
+            <CaretX>28</CaretX>
+            <CaretY>10</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>M:\home\d\lib\sard\src\sard.cfg</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>M:\home\d\projects\terminal\build.cfg</FileName>
+            <CaretY>6</CaretY>
+          </Object>
+        </Items>
+      </Files>
+    </Desktop>
+    <Options Class="TDProjectOptions">
+      <RunMode>runConsole</RunMode>
+      <MainFile>main.d</MainFile>
+      <OutputFile>sard.exe</OutputFile>
+      <PauseConsole>True</PauseConsole>
+      <Paths Class="TStringList">
+        <Strings>
+          <Line>./sard</Line>
+          <Line>./minilib</Line>
+          <Line>./consoled</Line>
+        </Strings>
+      </Paths>
+      <ExpandPaths>True</ExpandPaths>
+      <ConfigFile>sard.cfg</ConfigFile>
+    </Options>
+  </Object>
+</rtti>

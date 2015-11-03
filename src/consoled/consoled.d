@@ -1,6 +1,8 @@
 /**
  * Provides simple API for coloring and formatting text in terminal.
  * On Windows OS it uses WinAPI functions, on POSIX systems it uses mainly ANSI codes.
+ *
+ * Using terminal.d is recommended as it is more mature and stable.
  * 
  * $(B Important notes):
  * $(UL
@@ -489,7 +491,12 @@ version(Windows)
         
         do {
             ReadConsoleInputA(hInput, &ir, 1, &count);
-        } while(ir.EventType != KEY_EVENT || !ir.KeyEvent.bKeyDown);
+        } while((ir.EventType != KEY_EVENT || !ir.KeyEvent.bKeyDown) && kbhit());
+	// the extra kbhit is to filter out events AFTER the keydown
+	// to ensure next time we call this, we're back on a fresh keydown
+	// event. Without that, the key up event will trigger kbhit, then
+	// you call getch(), and it blocks because it read keyup then looped
+	// and is waiting for another keydown.
         
         mode = m;
         
@@ -920,6 +927,8 @@ else version(Posix)
      */
     int getch(bool echo = false)
     {
+        import std.ascii : toUpper;
+    
         int c;
         string buf;
         ConsoleInputMode m;
@@ -944,7 +953,7 @@ else version(Posix)
         
         mode = m;
         
-        return c;
+        return c.toUpper();
     }
     
     /**
@@ -1180,7 +1189,7 @@ void drawVerticalLine(ConsolePoint pos, int length, char border)
  */
 void writeAt(T)(ConsolePoint point, T data)
 {
-    setConsoleCursor(point.x, point.y);
+    setCursorPos(point.x, point.y);
     write(data);
     stdout.flush();
 }

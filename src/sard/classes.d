@@ -386,8 +386,9 @@ enum Control: int
     Start, //Start parsing
     Stop, //Start parsing
     Declare, //Declare a class of object
-    Assign, //Assign to object/variable used as :=
+
     Let, //Assign object reference
+    Assign, //Assign to object/variable used as :=
     Next, //End Params, Comma
     End, //End Statement Semicolon
     OpenBlock, // {
@@ -403,7 +404,6 @@ enum Control: int
 struct Token 
 {
 public:
-
     Control control;
     int type;
     string value;

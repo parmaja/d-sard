@@ -98,9 +98,7 @@ int main(string[] argv)
     }
     else
     {
-        
-
-        if (argv.length > 1)
+       if (argv.length > 1)
         {
             string code = readText(argv[1]);
             run(code);

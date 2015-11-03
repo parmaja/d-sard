@@ -14,28 +14,21 @@ Specification
 -------------
 
   * It is case insensitive
-  * Declareing after the name
-  * Assigning ":=" , compare "=", object child "."
+  * Declaration is after the id name.
+  * Assigning ":=" , compare "=", object child pattren "."
   * There is no assign as operator
   * Dot as Identifier separator "."
   * Not equal: "<>" or "!="
-  * Not: "!"  or "|"   
   * Return value not end the execute of block
   * Blocks: { }
   * Comments: //single line and /* multiline */  * 
   * Multiline strings "" or ''
   * Identifiers can take unicode/utf8 characters, so it will support any forign language
-  * Blocks have return value
-  * Functions is objects, or Object can take arguments.
+  * Blocks have return values
+  * Functions is objects, or Object can take arguments and return a value.
   * When execute object we can pass arguments (), array [] and blocks {}{}{} //not yet
-  * There is no "For" "While" "Repeat" or even "If" "Else" those are objects //not yet
+  * There is no "For" "While" "Repeat" or even "If" "Else", those are an objects //not yet
   * No global, but object functions is global for child objects
-  
-Rules
------
-
-  *	Do not use $ or % sign any where, I reserved it for special financial operating, btw i am an accountant.
-  * No escapes inside the string/text see todo, escape is outside | x := "foo"\13"bar"\n; 
   
 #####Done:#####
 
@@ -114,25 +107,25 @@ x := "I said:"\""As he said";
     Preprocessor, it will run in external addon/command.... and return string into it
     similar to <?foo ?> in xml
 */
-
+```D
 {?foo
 ?}
+```
 
-//Run child object
-f.b;
-~~~
-
+Pattren of object f.b;
 ```D
-// With{}
-
 object.{     <-not sure
 }
 ```
 
 ####Rules####
 
-There is no special functions objects for compiler/parser.
-No special name/char/case for classes.
+
+-	Do not use $ or % sign any where, I reserved it for special financial operating, btw i am an accountant.
+- No escapes inside the string/text see todo, escape is outside | x := "foo"\13"bar"\n; 
+- There is no special functions objects for compiler/parser.
+- No special name/char/case for classes.
+- Keep it visual, i mean, you can convert it to uml diagram and vise versa, in fact my target to convert it to Scratch similar visual programming, so any complex parsing will break the rules.
 
 ###Thinking loud###
 

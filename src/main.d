@@ -27,8 +27,8 @@ import std.range;
 import std.file;
 import std.path;
 
-import sard;
 import consoled;
+import sard;
 
 class MainEngine: Engine
 {
@@ -81,8 +81,33 @@ unittest{
 }
 
 void run(string source){
-    Script script;
+    try {
+        Script script = new Script();
+        scope(exit) destroy(script);
 
+        script.compile(source);
+        script.run();
+
+        string s = script.result;
+        engine.print(sard.Color.LightCyan, s);
+
+        writeln();
+    }
+    catch(ParserException e)
+    {
+        with (e){
+            writeln();
+            engine.print(sard.Color.LightRed, msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));
+        }
+
+    }
+    catch(Exception e)
+    {
+        with (e){
+            writeln();
+            engine.print(sard.Color.LightRed, "Error: " ~ msg, true);
+        }
+    }
 }
 
 int main(string[] argv)

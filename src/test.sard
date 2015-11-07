@@ -15,7 +15,7 @@ x:=10+1;
 
 //=10
 x := 10;
-:= x
+:= x;
 
 //=15
   x := 10; 
@@ -58,9 +58,10 @@ x := { := 5 }
 x := { := 5; }
 :=x;
         
-
+/* idk what is it, my bad memory
 //=Hello
 World
+*/
 //Hello World 
         s:="Hello
 World";
@@ -77,7 +78,7 @@ World";
     {*
         x := 5;
         x := x + 5;
-        *}
+        *};
         := x;
 
 //=40
@@ -151,7 +152,7 @@ x := {    //Block it any where
             y := 0;
             := y + 5; //this is a result return of the block
     } //do not forget to add ; here
-{* This a block comment, compiled, useful for documentation, or regenrate the code *}
+{* This a block comment, compiled, useful for documentation, or regenrate the code *};
 := x; //Return result to the main object
 
 s:='Foo';

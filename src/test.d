@@ -205,7 +205,7 @@ i := i + 5.5;
     := x;`; 
 +/
 
-/*  
+/*
     results ~= "10"; this an example how to convert id to controls
     sources ~= "foo: begin := 10; end;
     := foo;";

@@ -1,7 +1,7 @@
 module sard.scripts;
 /**
 *    This file is part of the "SARD"
-* 
+*
 *    @license   The MIT License (MIT) Included in this distribution
 *    @author    Zaher Dirkey <zaher at yahoo dot com>
 */
@@ -12,8 +12,8 @@ import std.math;
 import std.conv;
 import std.array;
 import std.range;
-
 import std.datetime;
+
 import sard.classes;
 import sard;
 
@@ -36,7 +36,7 @@ protected:
 class SoTime_Const: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){    
+    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){
         env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
@@ -44,7 +44,7 @@ protected:
 class SoPrint_object: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){    
+    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){
         //env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
         auto v = env.stack.current.variables.find("s");
         if (v !is null){
@@ -78,11 +78,11 @@ public:
         main = new SoBlock(); //destory the old compile and create new
         main.name = "main";
 
-        auto version_const = new SoVersion_Const();        
+        auto version_const = new SoVersion_Const();
         version_const.name = "version";
         main.declareObject(version_const);
 
-        auto PI_const = new SoPI_Const();        
+        auto PI_const = new SoPI_Const();
         PI_const.name = "PI";
         main.declareObject(PI_const);
 
@@ -94,17 +94,17 @@ public:
         /* Compile */
 
         scanner = new CodeScanner(main);
-                
-        debug(log_compile) writeln("-------- Scanning --------");
-        scanner.scan(text);      
 
-        debug(log_nodes) 
+        debug(log_compile) writeln("-------- Scanning --------");
+        scanner.scan(text);
+
+        debug(log_nodes)
         {
             writeln();
             writeln("-------------");
             main.debugWrite(0);
             writeln();
-            writeln("-------------");            
+            writeln("-------------");
         }
     }
 
@@ -114,12 +114,12 @@ public:
 
         env.results.push();
         //env.root.object = main;
-        main.execute(env.root, env, null);         
+        main.execute(env.root, env, null);
 
-        if (env.results.current && env.results.current.result.value) 
+        if (env.results.current && env.results.current.result.value)
         {
             result = env.results.current.result.value.asText();
-        }  
+        }
         env.results.pop();
     };
 }

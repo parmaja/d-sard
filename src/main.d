@@ -14,7 +14,7 @@ debug
         debug = log_run;
         debug = log_nodes;
     }
-    
+
     version = alpha;
 }
 
@@ -28,16 +28,15 @@ import std.file;
 import std.path;
 
 import sard;
-import sard.utils;
 import consoled;
 
-class MainEngine: Engine 
+class MainEngine: Engine
 {
     private static consoled.Color[sard.Color] colors;
 
     this(){
         super();
-        colors = 
+        colors =
         [
             sard.Color.None: consoled.Color.initial,
             sard.Color.Default: consoled.Color.initial,
@@ -78,7 +77,7 @@ class MainEngine: Engine
 }
 
 unittest{
-    
+
 }
 
 void run(string source){
@@ -86,13 +85,14 @@ void run(string source){
 
 }
 
-int main(string[] argv) 
+int main(string[] argv)
 {
     writeln("SARD Script version " ~ sVersion);
 
     setEngine(new MainEngine());
 
     version(unittest){
+        writeln("unittest mode\n");
         import test;
         runTest("");
     }

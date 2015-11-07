@@ -7,20 +7,16 @@
     <RootDir>?projectdir../../src</RootDir>
     <Desktop Class="TEditorDesktop">
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>M:\home\d\lib\sard\src\sard.cfg</CurrentFile>
+        <CurrentFile>M:\home\d\lib\sard\src\dlang.d</CurrentFile>
         <CurrentFolder>M:\home\d\lib\sard\src\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
             <FileName>M:\home\d\lib\sard\src\main.d</FileName>
-            <CaretX>28</CaretX>
-            <CaretY>10</CaretY>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>M:\home\d\lib\sard\src\sard.cfg</FileName>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>M:\home\d\projects\terminal\build.cfg</FileName>
-            <CaretY>6</CaretY>
+            <FileName>M:\home\d\lib\sard\src\dlang.d</FileName>
+            <CaretX>67</CaretX>
+            <CaretY>4</CaretY>
           </Object>
         </Items>
       </Files>
@@ -29,6 +25,7 @@
       <RunMode>runConsole</RunMode>
       <MainFile>main.d</MainFile>
       <OutputFile>sard.exe</OutputFile>
+      <RunParams>test.sard</RunParams>
       <PauseConsole>True</PauseConsole>
       <Paths Class="TStringList">
         <Strings>

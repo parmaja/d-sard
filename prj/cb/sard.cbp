@@ -2,25 +2,27 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="d_sard" />
+		<Option title="SARD" />
 		<Option execution_dir="W:/home/d/projects/sard/src" />
 		<Option pch_mode="2" />
 		<Option compiler="dmd" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/d_sard" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/sard" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="dmd" />
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-debug" />
-					<Add directory="W:/home/d/projects/minilib" />
-					<Add directory="W:/home/d/projects/sard/src/sard" />
+					<Add directory="m:/home/d/lib" />
+					<Add directory="m:/home/d/lib/minilib" />
+					<Add directory="m:/home/d/projects/sard/src/consoled" />
+					<Add directory="m:/home/d/projects/sard/src/" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/d_sard" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/sard" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="dmd" />
@@ -32,14 +34,19 @@
 		<Unit filename="../../../minilib/metaclasses.d" />
 		<Unit filename="../../../minilib/package.d" />
 		<Unit filename="../../../minilib/sets.d" />
+		<Unit filename="../../src/consoled/consoled.d" />
+		<Unit filename="../../src/consoled/terminal.d" />
 		<Unit filename="../../src/main.d" />
-		<Unit filename="../../src/sard/README.md" />
 		<Unit filename="../../src/sard/classes.d" />
-		<Unit filename="../../src/sard/dub.json" />
+		<Unit filename="../../src/sard/highlighter.d" />
 		<Unit filename="../../src/sard/objects.d" />
+		<Unit filename="../../src/sard/operators.d" />
 		<Unit filename="../../src/sard/package.d" />
+		<Unit filename="../../src/sard/parsers.d" />
 		<Unit filename="../../src/sard/process.d" />
+		<Unit filename="../../src/sard/runtimes.d" />
 		<Unit filename="../../src/sard/scanners.d" />
+		<Unit filename="../../src/sard/scripts.d" />
 		<Unit filename="../../src/sard/utils.d" />
 		<Extensions>
 			<code_completion />

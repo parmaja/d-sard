@@ -3,7 +3,7 @@ module sard.classes;
 * This file is part of the "SARD"
 * 
 * @license   The MIT License (MIT) Included in this distribution            
-* @author    Zaher Dirkey <zaher at yahoo dot com>
+* @author    Zaher Dirkey <zaherdirkey at yahoo dot com>
 */
 
 import std.stdio;

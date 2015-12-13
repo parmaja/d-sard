@@ -7,16 +7,18 @@
     <RootDir>?projectdir../../src</RootDir>
     <Desktop Class="TEditorDesktop">
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>M:\home\d\lib\sard\src\dlang.d</CurrentFile>
+        <CurrentFile>M:\home\d\lib\sard\src\test.d</CurrentFile>
         <CurrentFolder>M:\home\d\lib\sard\src\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
             <FileName>M:\home\d\lib\sard\src\main.d</FileName>
+            <CaretY>135</CaretY>
+            <TopLine>111</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>M:\home\d\lib\sard\src\dlang.d</FileName>
-            <CaretX>67</CaretX>
-            <CaretY>4</CaretY>
+            <FileName>M:\home\d\lib\sard\src\test.d</FileName>
+            <CaretX>24</CaretX>
+            <CaretY>16</CaretY>
           </Object>
         </Items>
       </Files>

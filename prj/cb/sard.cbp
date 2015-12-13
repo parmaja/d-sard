@@ -8,17 +8,19 @@
 		<Option compiler="dmd" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/sard" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="../../src/sard" prefix_auto="1" extension_auto="1" />
+				<Option object_output="." />
 				<Option type="1" />
-				<Option compiler="dmd" />
+				<Option compiler="gdc" />
 				<Compiler>
+					<Add option="-w" />
 					<Add option="-g" />
 					<Add option="-debug" />
 					<Add directory="m:/home/d/lib" />
 					<Add directory="m:/home/d/lib/minilib" />
-					<Add directory="m:/home/d/projects/sard/src/consoled" />
-					<Add directory="m:/home/d/projects/sard/src/" />
+					<Add directory="m:/home/d/lib/sard/src/sard" />
+					<Add directory="m:/home/d/lib/sard/src/consoled" />
+					<Add directory="m:/home/d/lib/sard/src/" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -31,7 +33,6 @@
 				</Compiler>
 			</Target>
 		</Build>
-		<Unit filename="../../../minilib/metaclasses.d" />
 		<Unit filename="../../../minilib/package.d" />
 		<Unit filename="../../../minilib/sets.d" />
 		<Unit filename="../../src/consoled/consoled.d" />
@@ -43,7 +44,6 @@
 		<Unit filename="../../src/sard/operators.d" />
 		<Unit filename="../../src/sard/package.d" />
 		<Unit filename="../../src/sard/parsers.d" />
-		<Unit filename="../../src/sard/process.d" />
 		<Unit filename="../../src/sard/runtimes.d" />
 		<Unit filename="../../src/sard/scanners.d" />
 		<Unit filename="../../src/sard/scripts.d" />

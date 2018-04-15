@@ -1,2 +1,2 @@
-dmd main.d @sard.cfg -ofsard.exe
+dmd main.d @main.cfg -ofsard.exe
 pause

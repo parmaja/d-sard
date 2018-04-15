@@ -11,7 +11,7 @@ void runTest(string code)
     import std.stdio;
     import std.string;
     import std.conv;
-    import sard;
+    import sard;    
 
     string[] sources;
     string[] results;

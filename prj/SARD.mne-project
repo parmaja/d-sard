@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rtti version="1.0" author="MiniXML">
+  <Object Type="TRunProject">
+    <Name>sard</Name>
+    <Title>SARD object language</Title>
+    <TendencyName>D</TendencyName>
+    <SCM Class="TTGIT_SCM">
+    </SCM>
+    <Desktop Class="TEditorDesktop">
+      <Breakpoints Class="TmneBreakpoints">
+      </Breakpoints>
+      <Watches Class="TmneWatches">
+      </Watches>
+      <Files Class="TEditorDesktopFiles">
+        <CurrentFile>D:\home\d\sard\src\main.d</CurrentFile>
+        <CurrentFolder>D:\home\d\sard\src\</CurrentFolder>
+        <Items>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\dlang.d</FileName>
+            <CaretY>7</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\sard\classes.d</FileName>
+            <CaretY>20</CaretY>
+            <TopLine>14</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\testfile.d</FileName>
+            <CaretY>14</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\test.txt</FileName>
+            <CaretY>3</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\arsd\terminal.d</FileName>
+            <CaretY>4</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\main.d</FileName>
+            <CaretX>40</CaretX>
+            <CaretY>9</CaretY>
+          </Object>
+        </Items>
+      </Files>
+    </Desktop>
+    <Options Class="TDProjectOptions">
+    </Options>
+    <RunOptions Class="TRunProjectOptions">
+      <MainFolder>..\src\</MainFolder>
+      <MainFile>main.d</MainFile>
+      <ExpandPaths>False</ExpandPaths>
+      <Paths Class="TStringList">
+      </Paths>
+    </RunOptions>
+  </Object>
+</rtti>

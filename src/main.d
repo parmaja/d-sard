@@ -26,53 +26,26 @@ import std.array;
 import std.range;
 import std.file;
 import std.path;
-
-import consoled;
 import sard;
+
+import arsd.terminal;
+
+alias Terminal = arsd.terminal.Terminal;
 
 class MainEngine: Engine
 {
-    private static consoled.Color[sard.Color] colors;
-
     this(){
         super();
-        colors =
-        [
-            sard.Color.None: consoled.Color.initial,
-            sard.Color.Default: consoled.Color.initial,
-            sard.Color.Black: consoled.Color.black,
-            sard.Color.Blue: consoled.Color.blue,
-            sard.Color.Green: consoled.Color.green,
-            sard.Color.Cyan: consoled.Color.cyan,
-            sard.Color.Red: consoled.Color.red,
-            sard.Color.Magenta: consoled.Color.magenta,
-            sard.Color.Yellow: consoled.Color.yellow,
-            sard.Color.LightGray: consoled.Color.lightGray,
-            sard.Color.Gray: consoled.Color.gray,
-            sard.Color.LightBlue: consoled.Color.lightBlue,
-            sard.Color.LightGreen: consoled.Color.lightGreen,
-            sard.Color.LightCyan: consoled.Color.lightCyan,
-            sard.Color.LightRed: consoled.Color.lightRed,
-            sard.Color.LightMagenta: consoled.Color.lightMagenta,
-            sard.Color.LightYellow: consoled.Color.lightYellow,
-            sard.Color.White: consoled.Color.white
-        ];
-    }
-
-    consoled.Color mapColor(sard.Color color){
-       return colors[color] ;
     }
 
     override void print(sard.Color color, string text, bool eol = true)
     {
         //luck for mutlithread
-        auto saved = foreground;
-        foreground = mapColor(color);
+        //Terminal.color(color); //map it
         if (eol)
             writeln(text);
         else
             write(text);
-        foreground = saved;
     }
 }
 

@@ -9,10 +9,10 @@ module sard.classes;
 import std.stdio;
 import std.string;
 import std.conv;
-import std.stream;
 import std.uni;
 import std.array;
 import std.range;
+import std.file;
 import sard.utils;
 
 /**
@@ -711,7 +711,7 @@ public:
         stop();
     }
 
-    void scan(InputStream stream)
+    /*void scan(InputStream stream)
     {
         char[] line;
         start();
@@ -723,31 +723,45 @@ public:
         }        
         stop();
     }
-
+*/
     void scan(const string text)
     {      
         string[] lines = text.split("\n");      
         scan(lines);
     }
 
-    void scanFile(string filename)
+/*    void scanFile(string filename)
     {
         BufferedFile stream = new BufferedFile(filename);
         scope(exit) destroy(stream);
 
         try {
             scanStream(stream);
-        } 
+        }
         finally {
             stream.close();
         }
+    }*/
+    void scanFile(string filename)
+    {
+        auto file = File(filename, "r");
+        auto lines = file.byLine();
+        start();
+        int i = 0;
+        foreach(char[] line; lines)
+        {
+            line = line ~  "\n";
+            scanLine(to!string(line) , i); //TODO i hate to add \n it must be included in the lines itself
+            i++;
+        }
+        stop();
     }
 
-    void scanStream(Stream stream)
+/*   void scanStream(Stream stream)
     {        
         scan(stream);
     }
-
+*/
     void start()
     {
         if (_active)
@@ -870,7 +884,7 @@ public:
     }
 }
 
-enum Color 
+enum Color
 {   
     None,
     Default,

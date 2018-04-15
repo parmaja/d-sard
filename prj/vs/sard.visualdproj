@@ -52,6 +52,7 @@
   <otherDMD>0</otherDMD>
   <cccmd>$(CC) -c</cccmd>
   <ccTransOpt>1</ccTransOpt>
+  <addDepImp>0</addDepImp>
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
@@ -76,6 +77,7 @@
   <dump_source>0</dump_source>
   <mapverbosity>0</mapverbosity>
   <createImplib>0</createImplib>
+  <debuglib>0</debuglib>
   <defaultlibname />
   <debuglibname />
   <moduleDepsFile />
@@ -94,6 +96,9 @@
   <deffile />
   <resfile />
   <exefile>$(OutDir)\$(ProjectName).exe</exefile>
+  <pdbfile>$(IntDir)\$(SafeProjectName).pdb</pdbfile>
+  <impfile>$(IntDir)\$(SafeProjectName).lib</impfile>
+  <mapfile>$(IntDir)\$(SafeProjectName).map</mapfile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>2</cRuntime>
   <privatePhobos>0</privatePhobos>
@@ -154,6 +159,7 @@
   <otherDMD>0</otherDMD>
   <cccmd>$(CC) -c</cccmd>
   <ccTransOpt>1</ccTransOpt>
+  <addDepImp>0</addDepImp>
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath>../../..</imppath>
   <fileImppath />
@@ -178,6 +184,7 @@
   <dump_source>0</dump_source>
   <mapverbosity>0</mapverbosity>
   <createImplib>0</createImplib>
+  <debuglib>0</debuglib>
   <defaultlibname />
   <debuglibname />
   <moduleDepsFile />
@@ -196,6 +203,9 @@
   <deffile />
   <resfile />
   <exefile>$(OutDir)\$(ProjectName).exe</exefile>
+  <pdbfile>$(IntDir)\$(SafeProjectName).pdb</pdbfile>
+  <impfile>$(IntDir)\$(SafeProjectName).lib</impfile>
+  <mapfile>$(IntDir)\$(SafeProjectName).map</mapfile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>1</cRuntime>
   <privatePhobos>0</privatePhobos>
@@ -205,28 +215,31 @@
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
  <Folder name="sard">
-  <Folder name="minilib">
-   <File path="..\..\..\minilib\metaclasses.d" />
-   <File path="..\..\..\minilib\package.d" />
-   <File path="..\..\..\minilib\sets.d" />
-  </Folder>
   <Folder name="src">
-   <File path="..\..\src\sard\classes.d" />
-   <File path="..\..\src\sard\highlighter.d" />
-   <File path="..\..\src\sard\objects.d" />
-   <File path="..\..\src\sard\operators.d" />
-   <File path="..\..\src\sard\package.d" />
-   <File path="..\..\src\sard\parsers.d" />
-   <File path="..\..\src\sard\README.md" />
-   <File path="..\..\src\sard\runtimes.d" />
-   <File path="..\..\src\sard\scanners.d" />
-   <File path="..\..\src\sard\scripts.d" />
-   <File path="..\..\src\sard\utils.d" />
+   <Folder name="arsd">
+    <File path="..\..\src\arsd\terminal.d" />
+   </Folder>
+   <Folder name="minilib">
+    <File path="..\..\src\minilib\metaclasses.d" />
+    <File path="..\..\src\minilib\package.d" />
+    <File path="..\..\src\minilib\sets.d" />
+   </Folder>
+   <Folder name="sard">
+    <File path="..\..\src\sard\classes.d" />
+    <File path="..\..\src\sard\dub.json" />
+    <File path="..\..\src\sard\highlighter.d" />
+    <File path="..\..\src\sard\objects.d" />
+    <File path="..\..\src\sard\operators.d" />
+    <File path="..\..\src\sard\package.d" />
+    <File path="..\..\src\sard\parsers.d" />
+    <File path="..\..\src\sard\README.md" />
+    <File path="..\..\src\sard\runtimes.d" />
+    <File path="..\..\src\sard\scanners.d" />
+    <File path="..\..\src\sard\scripts.d" />
+    <File path="..\..\src\sard\utils.d" />
+   </Folder>
+   <File path="..\..\src\main.d" />
+   <File path="..\..\src\sard.cfg" />
   </Folder>
-  <File path="..\..\src\consoled\consoled.d" />
-  <File path="..\..\src\main.d" />
-  <File path="..\..\README.md" />
-  <File path="..\..\src\consoled\terminal.d" />
-  <File path="..\..\src\test.d" />
  </Folder>
 </DProject>

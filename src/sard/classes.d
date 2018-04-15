@@ -364,7 +364,7 @@ public:
     }
 
     void clear(){
-        while (current is null)        
+        while (!(current is null))        
             pop();
     }
     

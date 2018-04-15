@@ -16,30 +16,10 @@
         <CurrentFolder>D:\home\d\sard\src\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\dlang.d</FileName>
-            <CaretY>7</CaretY>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\sard\classes.d</FileName>
-            <CaretY>20</CaretY>
-            <TopLine>14</TopLine>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\testfile.d</FileName>
-            <CaretY>14</CaretY>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\test.txt</FileName>
-            <CaretY>3</CaretY>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\arsd\terminal.d</FileName>
-            <CaretY>4</CaretY>
-          </Object>
-          <Object Type="TEditorDesktopFile">
             <FileName>D:\home\d\sard\src\main.d</FileName>
-            <CaretX>40</CaretX>
-            <CaretY>9</CaretY>
+            <CaretX>21</CaretX>
+            <CaretY>85</CaretY>
+            <TopLine>77</TopLine>
           </Object>
         </Items>
       </Files>
@@ -47,8 +27,10 @@
     <Options Class="TDProjectOptions">
     </Options>
     <RunOptions Class="TRunProjectOptions">
+      <Params>test.sard</Params>
       <MainFolder>..\src\</MainFolder>
       <MainFile>main.d</MainFile>
+      <OutputFile>./bin/sard</OutputFile>
       <ExpandPaths>False</ExpandPaths>
       <Paths Class="TStringList">
       </Paths>

@@ -3,7 +3,7 @@
 	"description": "SARD objects",
 	"authors": ["Zaher Dirkey"],
 	"license": "MIT",
-	"homepage": "https://github.com/zaher/d-sard",
+	"homepage": "https://github.com/parmaja/sard",
 	"dependencies": {
 	}
 }

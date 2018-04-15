@@ -9,7 +9,7 @@
   <singleFileCompilation>0</singleFileCompilation>
   <oneobj>0</oneobj>
   <mscoff>0</mscoff>
-  <trace>1</trace>
+  <trace>0</trace>
   <quiet>0</quiet>
   <verbose>0</verbose>
   <vtls>0</vtls>
@@ -33,7 +33,7 @@
   <useArrayBounds>0</useArrayBounds>
   <noboundscheck>0</noboundscheck>
   <useSwitchError>0</useSwitchError>
-  <useUnitTests>1</useUnitTests>
+  <useUnitTests>0</useUnitTests>
   <useInline>0</useInline>
   <release>0</release>
   <preservePaths>1</preservePaths>
@@ -42,7 +42,7 @@
   <checkProperty>0</checkProperty>
   <genStackFrame>1</genStackFrame>
   <pic>0</pic>
-  <cov>1</cov>
+  <cov>0</cov>
   <nofloat>0</nofloat>
   <Dversion>2</Dversion>
   <ignoreUnsupportedPragmas>0</ignoreUnsupportedPragmas>
@@ -52,7 +52,7 @@
   <otherDMD>0</otherDMD>
   <cccmd>$(CC) -c</cccmd>
   <ccTransOpt>1</ccTransOpt>
-  <addDepImp>0</addDepImp>
+  <addDepImp>1</addDepImp>
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
@@ -68,7 +68,7 @@
   <doHdrGeneration>0</doHdrGeneration>
   <hdrdir />
   <hdrname />
-  <doXGeneration>1</doXGeneration>
+  <doXGeneration>0</doXGeneration>
   <xfilename>$(IntDir)\$(TargetName).json</xfilename>
   <debuglevel>0</debuglevel>
   <debugids />
@@ -238,8 +238,9 @@
     <File path="..\..\src\sard\scripts.d" />
     <File path="..\..\src\sard\utils.d" />
    </Folder>
-   <File path="..\..\src\main.d" />
+   <File path="..\..\src\main.d" tool="DMD" />
    <File path="..\..\src\sard.cfg" />
+   <File path="..\..\src\test.d" />
   </Folder>
  </Folder>
 </DProject>

@@ -5,3 +5,5 @@ __dummy.html
 *.obj
 bin
 /prj/cb/sard.layout
+/junk
+/output

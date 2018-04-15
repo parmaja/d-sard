@@ -25,7 +25,7 @@
   <isSolaris>0</isSolaris>
   <scheduler>0</scheduler>
   <useDeprecated>0</useDeprecated>
-  <errDeprecated>0</errDeprecated>
+  <errDeprecated>1</errDeprecated>
   <useAssert>0</useAssert>
   <useInvariants>0</useInvariants>
   <useIn>0</useIn>
@@ -56,8 +56,8 @@
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>$(ConfigurationName)</outdir>
-  <objdir>$(OutDir)</objdir>
+  <outdir>..\..\bin</outdir>
+  <objdir>..\..\output</objdir>
   <objname />
   <libname />
   <doDocComments>0</doDocComments>

@@ -9,7 +9,7 @@
   <singleFileCompilation>0</singleFileCompilation>
   <oneobj>0</oneobj>
   <mscoff>0</mscoff>
-  <trace>0</trace>
+  <trace>1</trace>
   <quiet>0</quiet>
   <verbose>0</verbose>
   <vtls>0</vtls>
@@ -68,7 +68,7 @@
   <doHdrGeneration>0</doHdrGeneration>
   <hdrdir />
   <hdrname />
-  <doXGeneration>0</doXGeneration>
+  <doXGeneration>1</doXGeneration>
   <xfilename>$(IntDir)\$(TargetName).json</xfilename>
   <debuglevel>0</debuglevel>
   <debugids />

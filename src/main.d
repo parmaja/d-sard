@@ -93,13 +93,21 @@ int main(string[] argv)
         writeln("unittest mode\n");
         import test;
         runTest("");
-    }
+    } 
     else
     {
        if (argv.length > 1)
         {
-            string code = readText(argv[1]);
-            run(code);
+            auto file = argv[1];
+            if (exists(file))
+            {
+                string code = readText(file);
+                run(code);
+            }
+            else {
+                writeln("File not exists" ~ file ~ "\n");
+                return 1;
+            }
         }
         else
             run("");

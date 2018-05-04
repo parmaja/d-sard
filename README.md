@@ -3,24 +3,26 @@ Sard Script
 
 It is an object script language not a programming language, but you can use it as programming language.
 
-The idea behind it, it is not use any of reserved words, only signs, only objects there is no "void", "var", "let" "function" or "procedure" or even "if", "else" or "while".
-But we can implement "if" "while" internal by define it as internal object (not yet)
+But "A new language should bring somthing new to the table.", Until now it is just training to build language or teaching my self D language.
 
-This project ported to D from my old project writen in Pascal language, and i will continue with D
+The idea behind it, it is not use any of reserved words it is kind of challenge, only signs (symbols), only objects there is no "void", "var", "let" "function" or "procedure" or even "if", "else" or "while".
+But we can implement "if" or "while" internally by define it as internal object (not yet).
+
+This project ported to D from my old project writen in Pascal language, and I will continue it with D
 
 https://github.com/parmaja/fpc-sard/
 
 Specification
 -------------
 
-  * It is case insensitive
+  * It is case insensitive.
   * Declaration is after the id name.
   * Assigning ":=" , compare "=", object child pattren "."
   * There is no assign as operator
   * Dot as Identifier separator "."
   * Not equal: "<>" or "!="
   * Return value not end the execute of block
-  * Blocks: { }
+  * Blocks: { }, or predefined it (not yet)
   * Comments: //single line and /* multiline */  * 
   * Multiline strings "" or ''
   * Identifiers can take unicode/utf8 characters, so it will support any forign language
@@ -204,7 +206,8 @@ You can create object based on any other object, but it will not copy the values
 Required
 --------
 
-D Language http://dlang.org DMD2
+D v2.079+ http://dlang.org DMD2
+
 
 Library
 --------

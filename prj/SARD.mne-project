@@ -12,14 +12,22 @@
       <Watches Class="TmneWatches">
       </Watches>
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>D:\home\d\sard\src\main.d</CurrentFile>
+        <CurrentFile>D:\home\d\sard\src\sard\scripts.d</CurrentFile>
         <CurrentFolder>D:\home\d\sard\src\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\home\d\sard\src\main.d</FileName>
-            <CaretX>21</CaretX>
-            <CaretY>85</CaretY>
-            <TopLine>77</TopLine>
+            <CaretY>116</CaretY>
+            <TopLine>89</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\bin\test.sard</FileName>
+            <CaretY>4</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\sard\scripts.d</FileName>
+            <CaretX>37</CaretX>
+            <CaretY>12</CaretY>
           </Object>
         </Items>
       </Files>
@@ -27,10 +35,10 @@
     <Options Class="TDProjectOptions">
     </Options>
     <RunOptions Class="TRunProjectOptions">
-      <Params>test.sard</Params>
+      <Params>../bin/test.sard</Params>
       <MainFolder>..\src\</MainFolder>
       <MainFile>main.d</MainFile>
-      <OutputFile>./bin/sard</OutputFile>
+      <OutputFile>../bin/sard.exe</OutputFile>
       <ExpandPaths>False</ExpandPaths>
       <Paths Class="TStringList">
       </Paths>

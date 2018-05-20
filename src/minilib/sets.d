@@ -1,4 +1,4 @@
-﻿module minilib.sets;
+module minilib.sets;
 /**
     This file is part of the "minilib"
 
@@ -181,7 +181,7 @@ public:
     bool exists(SetArray array) 
     {
         if (array.length == 0)
-            return false;//todo not sure if we must return false?
+            return false;  //todo not sure if we must return false?
         foreach(int i, Element element; array) {
             if (!exists(element))
                 return false;
@@ -199,7 +199,7 @@ public:
         return c;
     }
 
-    ///We count only true elements
+    //We count only true elements
     int count() {
         return countOf(_elements);
     }

@@ -563,5 +563,3 @@ class HighlighterLexer: CodeLexer
         trimSymbols = false;
     }
 }
-
-

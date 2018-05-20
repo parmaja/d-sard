@@ -11,6 +11,7 @@ import std.string;
 import std.array;
 
 //Destroy and null the object
+
 void dispose(Object)(ref Object object) 
 {
     destroy(object);
@@ -39,10 +40,6 @@ string trim(string s)
     }
 }
 
-bool scanCompare(string s, const string text, int index){
-    return scanText(s, text, index);
-}
-
 /**
 * return true if s is founded in text at index
 */
@@ -58,6 +55,6 @@ bool scanText(string s, const string text, ref int index)
     return r;
 }
 
-string stringRepeat(string s, int count){
-    return replicate(s, count);
+bool scanCompare(string s, const string text, int index){
+    return scanText(s, text, index);
 }

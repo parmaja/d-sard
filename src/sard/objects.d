@@ -21,13 +21,14 @@ import std.conv;
 import std.uni;
 import std.datetime;
 import std.string;
+import std.array;
 
 import sard.utils;
 import sard.classes;
 import sard.runtimes;
 import sard.operators;
 
-import minilib.sets;
+//import minilib.sets;
 
 import std.typecons;
 
@@ -843,7 +844,7 @@ public:
 
             case "*":  //stupid idea ^.^ 
                 if (cast(SoBaseNumber)object !is null) {
-                    value = stringRepeat(value, to!int((cast(SoBaseNumber)object).asInteger));
+                    value = replicate(value, to!int((cast(SoBaseNumber)object).asInteger));
                     return true;
                 }
                 else

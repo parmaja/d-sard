@@ -12,22 +12,43 @@
       <Watches Class="TmneWatches">
       </Watches>
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>D:\home\d\sard\src\sard\scripts.d</CurrentFile>
+        <CurrentFile>D:\home\d\sard\src\sard\runtimes.d</CurrentFile>
         <CurrentFolder>D:\home\d\sard\src\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\main.d</FileName>
-            <CaretY>116</CaretY>
-            <TopLine>89</TopLine>
+            <FileName>D:\home\d\sard\src\test.d</FileName>
+            <CaretX>261</CaretX>
+            <CaretY>288</CaretY>
+            <TopLine>262</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\bin\test.sard</FileName>
-            <CaretY>4</CaretY>
+            <FileName>D:\home\d\sard\src\main.d</FileName>
+            <CaretY>104</CaretY>
+            <TopLine>87</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\compile.cmd</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\minilib\sets.d</FileName>
+            <CaretY>204</CaretY>
+            <TopLine>181</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\sard\scanners.d</FileName>
+            <CaretY>565</CaretY>
+            <TopLine>536</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\home\d\sard\src\sard\scripts.d</FileName>
+            <CaretY>99</CaretY>
+            <TopLine>73</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\home\d\sard\src\sard\runtimes.d</FileName>
             <CaretX>37</CaretX>
-            <CaretY>12</CaretY>
+            <CaretY>114</CaretY>
+            <TopLine>108</TopLine>
           </Object>
         </Items>
       </Files>

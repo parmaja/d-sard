@@ -95,22 +95,26 @@ int main(string[] argv)
         runTest("");
     } 
     else
-    {
-       if (argv.length > 1)
+    {   
+        string file;
+        
+        if (argv.length > 1)
         {
-            auto file = argv[1];
-            if (exists(file))
-            {
-                string code = readText(file);
-                run(code);
-            }
-            else {
-                writeln("File not exists" ~ file ~ "\n");
-                return 1;
-            }
+            file = argv[1];
         }
-        else
-            run("");
+        else {
+            file = "test.sard";
+        }
+
+        if (exists(file))
+        {
+            string code = readText(file);
+            run(code);
+        }
+        else {
+            writeln("File not exists: " ~ file ~ "\n");
+            return 1;
+        }
     }
     return 0;
 }

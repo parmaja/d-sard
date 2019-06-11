@@ -28,8 +28,6 @@ import sard.classes;
 import sard.runtimes;
 import sard.operators;
 
-//import minilib.sets;
-
 import std.typecons;
 
 const string sVersion = "0.01";
@@ -77,7 +75,7 @@ public:
     }
 
     debug(log_nodes){
-        override void debugWrite(int level)
+        override void debugWrite(int level) 
         {
             super.debugWrite(level);
             if (_operator !is null)
@@ -119,7 +117,7 @@ public:
     {
         //https://en.wikipedia.org/wiki/Shunting-yard_algorithm        
         //:= "Result is " + 10 + 10 ;
-        foreach(e; items) 
+        foreach(e; this)
         {
             e.execute(data, env);
         }
@@ -162,7 +160,7 @@ public:
             return false;
         else
         {            
-            foreach(e; items) 
+            foreach(e; this)
             {
                 //each statment have a result
                 env.results.push();

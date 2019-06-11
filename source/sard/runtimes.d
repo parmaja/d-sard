@@ -54,7 +54,7 @@ public:
 
 class RunVariables: NamedObjects!RunValue
 {
-    RunValue register(string name, RunVarKinds kind)//TODO bad idea
+    RunValue register(string name, RunVarKinds kind) //TODO bad idea
     {
         RunValue result = find(name);
         if (result is null)
@@ -113,7 +113,7 @@ public:
     RunData find(const string name) 
     {            
         RunData result = null;            
-        foreach(e; items) {
+        foreach(e; this) {
             if (icmp(name, e.name) == 0) {
                 result = e;
                 break;
@@ -124,7 +124,7 @@ public:
 
     RunData findObject(SoObject object)
     {
-        foreach(e; items) {
+        foreach(e; this) {
             if (e.object is object) {
                 return e;
             }

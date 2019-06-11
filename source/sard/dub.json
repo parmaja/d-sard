@@ -1,9 +1,0 @@
-{
-	"name": "SARD library",
-	"description": "SARD objects",
-	"authors": ["Zaher Dirkey"],
-	"license": "MIT",
-	"homepage": "https://github.com/parmaja/sard",
-	"dependencies": {
-	}
-}

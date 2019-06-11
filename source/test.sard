@@ -69,7 +69,7 @@ World";
 
 //=Hello World
 //Hello World 
-        s:='Hello';
+        s:='Hello ';
         s := s+' World';
         := s;
 

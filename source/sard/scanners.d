@@ -55,6 +55,10 @@ enum Type : int
     Comment 
 }  
 
+/**
+    Trackers
+*/
+
 class Whitespace_tracker: Tracker
 {
 protected:

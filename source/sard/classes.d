@@ -96,11 +96,11 @@ public:
 class Objects(T): BaseObject 
 {
 private:
-    T[] _items;//TODO hash string list for namedobjects    
+    T[] _items;//TODO hash string list for namedobjects
     bool _owned;
 
 public:
-    alias items = this;
+    //alias items = this;
 
 protected:
     T getItem(int index) {
@@ -205,7 +205,7 @@ public:
     T find(const string name) 
     {            
         T result = null;            
-        foreach(e; items) {
+        foreach(e; this) {
             if (icmp(name, e.name) == 0) {
                 result = e;
                 break;
@@ -216,7 +216,7 @@ public:
 
     bool isOpenBy(const char c)
     {
-        foreach(o; items){      
+        foreach(o; this){
             if (!o.name.empty && (o.name[0] == toLower(c)))
                 return true;          
         }
@@ -227,7 +227,7 @@ public:
     {
         T result = null;
         int max = 0;        
-        foreach(e; items) 
+        foreach(e; this)
         {
             if (scanCompare(e.name, text, index))
             {
@@ -251,7 +251,7 @@ public:
 class Stack(T): BaseObject 
 {    
 protected:
-    bool own = true; //free if when remove it
+    bool own = true; //free when remove it
 
     static class StackItem: BaseObject {
         protected {
@@ -313,12 +313,11 @@ public:
 
     void push(T aObject) 
     {
-        StackItem aItem;
 
         if (aObject is null)
             error("Can't push null");
 
-        aItem = new StackItem();
+        StackItem aItem = new StackItem();
         aItem.object = aObject;
         aItem.parent = _currentItem;
         aItem.owner = this;
@@ -331,7 +330,7 @@ public:
         afterPush();
     }
 
-    T push(){
+    T push(){  //deprecated
         T o = new T();
         push(o);
         return o;
@@ -378,27 +377,29 @@ public:
     }
 }
 
+//* Control
+
 enum Control: int
 {
     None = 0,
-    Token,//Token like Identifier, Keyword or Number, not used in fact    
-    Operator,//also not used 
-    Start, //Start parsing
-    Stop, //Start parsing
-    Declare, //Declare a class of object
+    Token,//* Token like Identifier, Keyword or Number, not used in fact
+    Operator,// *also not used
+    Start, //* Start parsing
+    Stop, //* Stop parsing
+    Declare, //* Declare a class of object
 
-    Let, //Assign object reference
-    Assign, //Assign to object/variable used as :=
-    Next, //End Params, Comma
-    End, //End Statement Semicolon
-    OpenBlock, // {
-    CloseBlock, // }
-    OpenParams, // (
-    CloseParams, // )
-    OpenPreprocessor, // <?
-    ClosePreprocessor, // ?>
-    OpenArray, // [
-    CloseArray // ]
+    Let, //* Assign object reference
+    Assign, //* Assign to object/variable used as :=
+    Next, //* End Params, Comma ,
+    End, //* End Statement Semicolon ;
+    OpenBlock, //* {
+    CloseBlock, //* }
+    OpenParams, //* (
+    CloseParams, //* )
+    OpenPreprocessor, //* <?
+    ClosePreprocessor, //* ?>
+    OpenArray, //* [
+    CloseArray //* ]
 }
 
 struct Token 
@@ -466,7 +467,7 @@ protected:
 
 public:
 
-    void set(Lexer lexer) { //todo maybe rename to opCall
+    void setLexer(Lexer lexer) { //todo maybe rename to opCall
         _lexer = lexer;
     }
 
@@ -476,11 +477,11 @@ public:
 
     this(Lexer lexer){ 
         this();
-        set(lexer);
+        setLexer(lexer);
     }
 }
 
-class Lexer: Objects!Tracker{
+class Lexer: Objects!Tracker {
 
 private:
 
@@ -493,6 +494,7 @@ protected:
 
     OpOperators _operators;
     @property public OpOperators operators () { return _operators; }
+
     CtlControls _controls;
     @property public CtlControls controls() { return _controls; }    
 
@@ -511,7 +513,7 @@ protected:
         result = null;
     else 
     {
-        foreach(e; items)
+        foreach(e; this)
         {
             if (e.accept(text, column)) 
             {
@@ -540,7 +542,7 @@ protected:
     Tracker findClass(const ClassInfo trackerClass) 
     {
         int i = 0;
-        foreach(t; items) {
+        foreach(t; this) {
             if (t.classinfo == trackerClass) {
                 return t;
             }
@@ -767,7 +769,7 @@ public:
         if (_active)
             error("Already opened");
         _active = true;
-        lexer = items[0];
+        lexer = this[0];
         doStart();
     }
 
@@ -781,9 +783,9 @@ public:
     }
 }
 
-/*---------------------------*/
-/*        Controls           */
-/*---------------------------*/
+/**---------------------------*/
+/**        Controls           */
+/**---------------------------*/
 
 /**
 *   This will used in the tracker
@@ -810,14 +812,14 @@ class CtlControl: BaseObject
     }
 }
 
-/* Controls */
+/** Controls */
 
 class CtlControls: NamedObjects!CtlControl
 {
     CtlControl findControl(Control control)
     {
         CtlControl result = null;            
-        foreach(e; items) {
+        foreach(e; this) {
             if (control == e.code) {
                 result = e;
                 break;
@@ -868,14 +870,14 @@ public:
     }
 }
 
-/* Operators */
+/** Operators */
 
 class OpOperators: NamedObjects!OpOperator
 {
 public:
     OpOperator findByTitle(string title)
     {
-        foreach(o; items)
+        foreach(o; this)
         {
             if (icmp(title, o.title) == 0) 
             return o;
@@ -884,40 +886,14 @@ public:
     }
 }
 
-enum Color
-{   
-    None,
-    Default,
-    Black,
-    Red, 
-    Green,
-    Blue, 
-    Cyan, 
-    Magenta,
-    Yellow, 
-    Gray,  
-    LightRed, 
-    LightGreen,
-    LightBlue,
-    LightCyan, 
-    LightMagenta,
-    LightYellow, 
-    LightGray,
-    White
-}
- 
 private static Engine _engine;
 
 class Engine
 {
-    abstract void print(Color color, string text, bool eol = true);
-
-    void print(string text, bool eol = true){
-        print(Color.Default, text, eol);
-    }
+    abstract void print(string text, bool eol = true);
 
     debug void log(string text){
-        print(Color.Default, text);
+        print(text);
     }
 
     this(){

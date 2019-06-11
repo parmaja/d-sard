@@ -1,2 +1,2 @@
-dmd main.d @main.cfg -of..\bin\sard.exe
+dmd main.d @main.cfg -of=..\bin\sard.exe -color
 pause

@@ -11,11 +11,9 @@ debug
 
     debug(log){
         debug = log_compile;
-        debug = log_run;
+        debug = log_run; 
         debug = log_nodes;
     }
-
-    version = alpha;
 }
 
 import std.stdio;
@@ -28,17 +26,13 @@ import std.file;
 import std.path;
 import sard;
 
-import arsd.terminal;
-
-alias Terminal = arsd.terminal.Terminal;
-
 class MainEngine: Engine
 {
     this(){
         super();
     }
 
-    override void print(sard.Color color, string text, bool eol = true)
+    override void print(string text, bool eol = true)
     {
         //luck for mutlithread
         //Terminal.color(color); //map it
@@ -62,7 +56,7 @@ void run(string source){
         script.run();
 
         string s = script.result;
-        engine.print(sard.Color.LightCyan, s);
+        engine.print(s);
 
         writeln();
     }
@@ -70,7 +64,7 @@ void run(string source){
     {
         with (e){
             writeln();
-            engine.print(sard.Color.LightRed, msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));
+            engine.print(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));
         }
 
     }
@@ -78,7 +72,7 @@ void run(string source){
     {
         with (e){
             writeln();
-            engine.print(sard.Color.LightRed, "Error: " ~ msg, true);
+            engine.print("Error: " ~ msg, true);
         }
     }
 }
@@ -86,11 +80,14 @@ void run(string source){
 int main(string[] argv)
 {
     writeln("SARD Script version " ~ sVersion);
+    debug{
+        writeln("Debug Mode\n");
+    }
 
     setEngine(new MainEngine());
 
     version(unittest){
-        writeln("unittest mode\n");
+        writeln("Unittest Mode\n");
         import test;
         runTest("");
     } 
@@ -98,16 +95,18 @@ int main(string[] argv)
     {   
         string file;
         
+        writeln(getcwd());
         if (argv.length > 1)
         {
             file = argv[1];
         }
         else {
-            file = "test.sard";
+            file = "./source/test.sard";
         }
 
         if (exists(file))
         {
+            writeln("run file: " ~ file);
             string code = readText(file);
             run(code);
         }

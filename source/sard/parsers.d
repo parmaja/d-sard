@@ -20,6 +20,7 @@ import std.datetime;
 
 import sard.utils;
 import sard.classes;
+import sard.types;
 import sard.scanners;
 import sard.objects;
 import sard.operators;

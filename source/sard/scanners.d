@@ -24,6 +24,7 @@ import std.datetime;
 
 import sard.utils;
 import sard.classes;
+import sard.types;
 import sard.parsers;
 import sard.objects;
 import sard.runtimes;
@@ -371,7 +372,7 @@ public:
         with (operators)
         {
             add(new OpPlus);
-            add(new OpMinus());
+            add(new OpSub());
             add(new OpMultiply());
             add(new OpDivide());
 

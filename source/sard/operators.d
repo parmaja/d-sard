@@ -26,7 +26,6 @@ class OpNone: OpOperator
         super();
         name = "";
         title = "None";
-        precedence = 50;
         associative = Associative.Left;
         description = "Nothing";
     }
@@ -39,22 +38,20 @@ class OpPlus: OpOperator
         super();
         name = "+";
         title = "Plus";
-        precedence = 51;
         associative = Associative.Left;
         description = "Add object to another object";
     }
 }
 
-class OpMinus: OpOperator
+class OpSub: OpOperator
 {
     this()
     {
         super();
         name = "-";
-        title = "Minus";
-        precedence = 51;
+        title = "Sub";
         associative = Associative.Left;
-        description = "Sub object to another object";
+        description = "Sub object from another object";
     }
 }
 
@@ -65,7 +62,6 @@ class OpMultiply: OpOperator
         super();
         name = "*";
         title = "Multiply";
-        precedence = 52;
         associative = Associative.Left;
         description = "";
     }
@@ -78,7 +74,6 @@ class OpDivide: OpOperator
         super();
         name = "/";
         title = "Divition";
-        precedence = 52;
         associative = Associative.Left;
         description = "";
     }
@@ -91,7 +86,6 @@ class OpPower: OpOperator
         super();
         name = "^";
         title = "Power";
-        precedence = 53;
         associative = Associative.Right;
         description = "";
     }
@@ -104,7 +98,6 @@ class OpLesser: OpOperator
         super();
         name = "<";
         title = "Lesser";
-        precedence = 54;
         associative = Associative.Left;
         description = "";
     }
@@ -117,7 +110,6 @@ class OpGreater: OpOperator
         super();
         name = ">";
         title = "Greater";
-        precedence = 54;
         associative = Associative.Left;
         description = "";
     }
@@ -130,7 +122,6 @@ class OpEqual: OpOperator
         super();
         name = "=";
         title = "Equal";
-        precedence = 54;
         associative = Associative.Left;
         description = "";
         //control = ctlAssign; bad idea
@@ -144,7 +135,6 @@ class OpNotEqual: OpOperator
         super();
         name = "<>";
         title = "NotEqual";
-        precedence = 54;
         associative = Associative.Left;
         description = "";    
     }
@@ -157,7 +147,6 @@ class OpNot: OpOperator
         super();
         name = "!";
         title = "Not";
-        precedence = 54;
         associative = Associative.Left;
         description = "";
     }
@@ -170,7 +159,6 @@ class OpAnd: OpOperator
         super();
         name = "&";
         title = "And";
-        precedence = 54;
         associative = Associative.Left;
         description = "";
     }
@@ -183,7 +171,6 @@ class OpOr: OpOperator
         super();
         name = "|";
         title = "Or";
-        precedence = 54;
         associative = Associative.Left;
         description = "";
     }

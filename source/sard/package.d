@@ -8,6 +8,7 @@ module sard;
 
 public import sard.classes;
 public import sard.objects;
+public import sard.types;
 public import sard.runtimes;
 public import sard.operators;
 

@@ -18,6 +18,7 @@ import std.typecons;
 import sard.utils;
 import sard.classes;
 import sard.objects;
+import sard.types;
 
 import minilib.sets;
 
@@ -113,9 +114,9 @@ public:
     RunData find(const string name) 
     {            
         RunData result = null;            
-        foreach(e; this) {
-            if (icmp(name, e.name) == 0) {
-                result = e;
+        foreach(itm; this) {
+            if (icmp(name, itm.name) == 0) {
+                result = itm;
                 break;
             }
         }
@@ -124,9 +125,9 @@ public:
 
     RunData findObject(SoObject object)
     {
-        foreach(e; this) {
-            if (e.object is object) {
-                return e;
+        foreach(itm; this) {
+            if (itm.object is object) {
+                return itm;
             }
         }
         return null;

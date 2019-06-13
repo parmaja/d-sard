@@ -15,11 +15,14 @@ import std.range;
 import std.file;
 import sard.utils;
 
-/**
-*
-*   Exception
-*
-*/
+//alias bool bool; //already exists
+alias long integer;
+alias double number;
+alias string text;
+
+/**---------------------------*/
+/**        Exception
+/**---------------------------*/
 
 class CodeException: Exception 
 {
@@ -60,11 +63,9 @@ void error(string err, int code = -1)
     throw new CodeException(err, code);
 }
 
-/**
-*
-*   Base classes
-*
-*/
+/**---------------------------*/
+/**    Base classes
+/**---------------------------*/
 
 class BaseObject: Object 
 {
@@ -88,6 +89,14 @@ public:
     }
 
     this(){
+    }
+}
+
+class BaseNamedObject: BaseObject {
+    string _name;
+    public @property string name(){ return _name; }
+    public @property string name(string value){
+        return _name = value;
     }
 }
 
@@ -148,9 +157,9 @@ public:
 
     int opApply(int delegate(T) dg) 
     {            
-        foreach(e; _items)
+        foreach(itm; _items)
         {
-            int b = dg(e);
+            int b = dg(itm);
             if (b)
                 return b;                  
         }
@@ -192,8 +201,8 @@ public:
         override void debugWrite(int level){
             super.debugWrite(level);
             writeln(stringRepeat(" ", level * 2) ~ "Count: " ~ to!string(count));
-            foreach(e; items) {
-                e.debugWrite(level + 1);
+            foreach(itm; items) {
+                itm.debugWrite(level + 1);
             }
         }
     }
@@ -205,9 +214,9 @@ public:
     T find(const string name) 
     {            
         T result = null;            
-        foreach(e; this) {
-            if (icmp(name, e.name) == 0) {
-                result = e;
+        foreach(itm; this) {
+            if (icmp(name, itm.name) == 0) {
+                result = itm;
                 break;
             }
         }
@@ -216,8 +225,8 @@ public:
 
     bool isOpenBy(const char c)
     {
-        foreach(o; this){
-            if (!o.name.empty && (o.name[0] == toLower(c)))
+        foreach(itm; this){
+            if (!itm.name.empty && (itm.name[0] == toLower(c)))
                 return true;          
         }
         return false;
@@ -227,14 +236,14 @@ public:
     {
         T result = null;
         int max = 0;        
-        foreach(e; this)
+        foreach(itm; this)
         {
-            if (scanCompare(e.name, text, index))
+            if (scanCompare(itm.name, text, index))
             {
-                if (max < e.name.length) 
+                if (max < itm.name.length)
                 {
-                    max = e.name.length;
-                    result = e;
+                    max = itm.name.length;
+                    result = itm;
                 }
             }
         }
@@ -242,13 +251,11 @@ public:
     }
 }
 
-/**
-*
-*  Stack
-*
-*/
+/**---------------------------*/
+/**        Stack
+/**---------------------------*/
 
-class Stack(T): BaseObject 
+class Stack(T): BaseObject
 {    
 protected:
     bool own = true; //free when remove it
@@ -377,7 +384,9 @@ public:
     }
 }
 
-//* Control
+/**---------------------------*/
+/**        Controls
+/**---------------------------*/
 
 enum Control: int
 {
@@ -402,7 +411,106 @@ enum Control: int
     CloseArray //* ]
 }
 
-struct Token 
+/**
+*   This will used in the tracker
+*/
+
+//TODO maybe struct not a class
+
+class CtlControl: BaseObject
+{
+    string name;
+    Control code;
+    int level;
+    string description;
+
+    this(){
+        super();
+    }
+
+    this(string aName, Control aCode)
+    {
+        this();
+        name = aName;
+        code = aCode;
+    }
+}
+
+class CtlControls: NamedObjects!CtlControl
+{
+    CtlControl findControl(Control control)
+    {
+        CtlControl result = null;
+        foreach(itm; this) {
+            if (control == itm.code) {
+                result = itm;
+                break;
+            }
+        }
+        return result;
+    }
+
+    //getControl like find but raise exception
+    CtlControl getControl(Control control){
+        if (count == 0)
+            error("No controls is added" ~ to!string(control));
+        CtlControl result = findControl(control);
+        if (!result)
+            error("Control not found " ~ to!string(control));
+        return result;
+    }
+
+    CtlControl add(string name, Control code)
+    {
+        CtlControl c = new CtlControl(name, code);
+        super.add(c);
+        return c;
+    }
+}
+
+/**---------------------------*/
+/**        Operators
+/**---------------------------*/
+
+enum Associative {Left, Right};
+
+class OpOperator: BaseObject
+{
+public:
+    string name; //Sign like + or -
+    string title;
+//    int precedence;//TODO it is bad idea, we need more intelligent way to define the power level of operators
+    Associative associative;
+    string description;
+
+public:
+    debug(log_nodes) {
+        override void debugWrite(int level){
+            super.debugWrite(level);
+            writeln("operator: " ~ name);
+        }
+    }
+}
+
+class OpOperators: NamedObjects!OpOperator
+{
+public:
+    OpOperator findByTitle(string title)
+    {
+        foreach(itm; this)
+        {
+            if (icmp(title, itm.title) == 0)
+            return itm;
+        }
+        return null;
+    }
+}
+
+/**---------------------------*/
+/**        Token
+/**---------------------------*/
+
+struct Token
 {
 public:
     Control control;
@@ -418,6 +526,10 @@ public:
         control = c;
     }
 }
+
+/**---------------------------*/
+/**        IParser
+/**---------------------------*/
 
 interface IParser 
 {
@@ -436,9 +548,12 @@ public:
     abstract void stop();
 };
 
+/**---------------------------*/
+/**        Tracker
+/**---------------------------*/
+
 /**
 *
-*   Tracker
 *   Small object scan one type of token
 *
 */
@@ -481,6 +596,10 @@ public:
     }
 }
 
+/**---------------------------*/
+/**        Lexer
+/**---------------------------*/
+
 class Lexer: Objects!Tracker {
 
 private:
@@ -500,34 +619,35 @@ protected:
 
     IParser _parser;    
     public @property IParser parser() { return _parser; };
-    public @property IParser parser(IParser  value) { return _parser = value; }    
+    public @property IParser parser(IParser value) { return _parser = value; }
 
 protected:
 
     Tracker detectTracker(const string text, int column) 
-{
-    Tracker result = null;
-    if (column >= text.length)
-        //do i need to switchTracker?
-        //return null; //no tracker for empty line or EOL
-        result = null;
-    else 
     {
-        foreach(e; this)
-        {
-            if (e.accept(text, column)) 
-            {
-                result = e;
-                break;
-            }
+        Tracker result = null;
+        if (column >= text.length) {
+            //do i need to switchTracker?
+            //return null; //no tracker for empty line or EOL
+            //result = null; nothing to do already nil
         }
+        else
+        {
+            foreach(itm; this)
+            {
+                if (itm.accept(text, column))
+                {
+                    result = itm;
+                    break;
+                }
+            }
 
-        if (result is null)
-            error("Tracker not found: " ~ text[column]);
+            if (result is null)
+                error("Tracker not found: " ~ text[column]);
+        }
+        switchTracker(result);
+        return result;
     }
-    switchTracker(result);
-    return result;
-}
 
     void switchTracker(Tracker nextTracker) 
     {
@@ -542,9 +662,9 @@ protected:
     Tracker findClass(const ClassInfo trackerClass) 
     {
         int i = 0;
-        foreach(t; this) {
-            if (t.classinfo == trackerClass) {
-                return t;
+        foreach(itm; this) {
+            if (itm.classinfo == trackerClass) {
+                return itm;
             }
             i++;
         }
@@ -552,12 +672,13 @@ protected:
     }
 
     //This find the class and switch to it
-    void selectTracker(ClassInfo trackerClass) 
+    Tracker selectTracker(ClassInfo trackerClass)
     {
         Tracker t = findClass(trackerClass);
         if (t is null)
             error("Tracker not found");
         switchTracker(t);
+        return t;
     }
 
 public:
@@ -606,7 +727,7 @@ public:
         while (column < len)
         {
             int oldColumn = column;
-            Tracker oldTracker = _current;
+            Tracker oldTracker = current;
             try 
             {
                 if (current is null) //resume the line to current/last tracker
@@ -637,30 +758,27 @@ public:
     }
 }
 
-/**
-*
-*   Scanner
-*   Base class 
-*
-*/
+/**---------------------------*/
+/**        Scanner
+/**---------------------------*/
 
 class Scanner: Objects!Lexer
 {
 private:
     bool _active;
-    string _ver;
-    string _charset;
-
     public @property bool active() { return _active; }
+
+    string _ver;
     public @property string ver() { return _ver; }
+
+    string _charset;
     public @property string charset() { return _charset; }
 
     //TODO: use env to wrap the code inside <?sard ... ?>,
     //the current one must detect ?> to stop scanning and pop
     //but the other lexer will throw none code to output provider
 
-    int _line;    
-
+    int _line;
     public @property int line() { return _line; };
 
 
@@ -696,7 +814,7 @@ public:
         if (!active)
             error("Should be started first");
 
-        int _line = line;
+        _line = line;
         int column = 0; 
         lexer.scanLine(text, line, column);
     }
@@ -769,7 +887,7 @@ public:
         if (_active)
             error("Already opened");
         _active = true;
-        lexer = this[0];
+        lexer = this[0]; //First one
         doStart();
     }
 
@@ -783,108 +901,10 @@ public:
     }
 }
 
+
 /**---------------------------*/
-/**        Controls           */
+/**        Engine
 /**---------------------------*/
-
-/**
-*   This will used in the tracker
-*/
-
-//TODO maybe struct not a class
-
-class CtlControl: BaseObject
-{
-    string name;
-    Control code;
-    int level;
-    string description;
-
-    this(){
-        super();
-    }
-
-    this(string aName, Control aCode)
-    {
-        this();
-        name = aName;
-        code = aCode;
-    }
-}
-
-/** Controls */
-
-class CtlControls: NamedObjects!CtlControl
-{
-    CtlControl findControl(Control control)
-    {
-        CtlControl result = null;            
-        foreach(e; this) {
-            if (control == e.code) {
-                result = e;
-                break;
-            }
-        }
-        return result;
-    }
-
-    //getControl like find but raise exception
-    CtlControl getControl(Control control){
-        if (count == 0) 
-            error("No controls is added" ~ to!string(control));
-        CtlControl result = findControl(control);
-        if (!result) 
-            error("Control not found " ~ to!string(control));
-        return result;
-    }
-
-    CtlControl add(string name, Control code)
-    {
-        CtlControl c = new CtlControl(name, code);    
-        super.add(c);
-        return c;
-    }
-}
-
-/*---------------------------*/
-/*        Operators          */
-/*---------------------------*/
-
-enum Associative {Left, Right};
-
-class OpOperator: BaseObject
-{
-public:
-    string name; //Sign like + or -
-    string title;
-    int precedence;//TODO it is bad idea, we need more intelligent way to define the power level of operators
-    Associative associative;
-    string description;
-
-public:
-    debug(log_nodes) {
-        override void debugWrite(int level){
-            super.debugWrite(level);
-            writeln(stringRepeat(" ", precedence * 2) ~ "operator: " ~ name);        
-        }
-    }
-}
-
-/** Operators */
-
-class OpOperators: NamedObjects!OpOperator
-{
-public:
-    OpOperator findByTitle(string title)
-    {
-        foreach(o; this)
-        {
-            if (icmp(title, o.title) == 0) 
-            return o;
-        }
-        return null;
-    }
-}
 
 private static Engine _engine;
 

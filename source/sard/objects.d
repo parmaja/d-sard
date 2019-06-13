@@ -93,13 +93,13 @@ private:
     SoObject _parent;
     public @property SoObject parent() { return _parent; }
 
+public:
     this(SoObject aParent)
     {
         super();
         _parent = aParent;
-    }   
+    }
 
-public:
     void add(OpOperator operator, SoObject aObject)
     {
         debug(log_compile) {            
@@ -306,7 +306,7 @@ protected:
         return false;
     }
 
-    final bool operate(SoObject object, OpOperator operator) 
+    public final bool operate(SoObject object, OpOperator operator)
     {
         if (operator is null)
             return false;
@@ -366,7 +366,6 @@ public:
 *   maybe move it to runtimes.d
 *
 */
-
 
 struct RefObject
 {    

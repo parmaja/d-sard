@@ -8,7 +8,7 @@ module sard.types;
 
 import std.stdio;
 import std.string;
-//import std.conv;
+import std.conv:to;
 import std.uni;
 import std.array;
 import std.range;
@@ -29,6 +29,7 @@ class SoSub: SoObject
 protected:
     Statement _statement;
     public @property Statement statement() { return _statement; };
+
     public alias statement this;
 
     override void beforeExecute(RunData data, RunEnv env, OpOperator operator)

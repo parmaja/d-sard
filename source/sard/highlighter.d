@@ -52,7 +52,7 @@ public:
         //engine.print(control.name);
     
     }
-    override void setOperator(OpOperator operator){
+    override void setOperator(Operator operator){
         engine.print(operator.name);
     }
 

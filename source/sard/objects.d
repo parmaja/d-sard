@@ -45,15 +45,15 @@ class DebugInfo: BaseObject
 class Clause: BaseObject
 {
 private:
-    OpOperator _operator;
-    @property OpOperator operator() { return _operator; }
+    Operator _operator;
+    @property Operator operator() { return _operator; }
 
     SoObject _object;
     @property SoObject object() { return _object; }
 
 public:
 
-    this(OpOperator operator, SoObject object) 
+    this(Operator operator, SoObject object) 
     {
         super();
         _operator = operator;
@@ -100,7 +100,7 @@ public:
         _parent = aParent;
     }
 
-    void add(OpOperator operator, SoObject aObject)
+    void add(Operator operator, SoObject aObject)
     {
         debug(log_compile) {            
 //            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
@@ -244,7 +244,6 @@ public:
         return false;
     }
 
-public:
     @property final text asText()
     {
         string o;
@@ -302,11 +301,23 @@ public:
     }
 
 protected: 
-    bool doOperate(SoObject object, OpOperator operator) {
+    bool doOperate(SoObject object, Operator operator) {
         return false;
     }
 
-    public final bool operate(SoObject object, OpOperator operator)
+    void beforeExecute(RunData data, RunEnv env, Operator operator){
+        if (data is null)
+            error("Data is needed!");
+    }
+
+    void afterExecute(RunData data, RunEnv env, Operator operator){
+
+    }
+
+    abstract void doExecute(RunData data, RunEnv env, Operator operator, ref bool done);    
+
+public:
+    final bool operate(SoObject object, Operator operator)
     {
         if (operator is null)
             return false;
@@ -314,19 +325,7 @@ protected:
             return doOperate(object, operator);
     }
 
-    void beforeExecute(RunData data, RunEnv env, OpOperator operator){
-        if (data is null)
-            error("Data is needed!");
-    }
-
-    void afterExecute(RunData data, RunEnv env, OpOperator operator){
-
-    }
-
-    abstract void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done);    
-
-public:
-    final bool execute(RunData data, RunEnv env, OpOperator operator, Defines defines = null, Statements arguments = null, Statements blocks = null)
+    final bool execute(RunData data, RunEnv env, Operator operator, Defines defines = null, Statements arguments = null, Statements blocks = null)
     {
         bool done = false;
 

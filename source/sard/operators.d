@@ -19,7 +19,7 @@ import std.stdio;
 import sard.utils;
 import sard.classes;
 
-class OpNone: OpOperator
+class OpNone: Operator
 {
     this()
     {
@@ -31,7 +31,7 @@ class OpNone: OpOperator
     }
 }
 
-class OpPlus: OpOperator
+class OpPlus: Operator
 {
     this()
     {
@@ -43,7 +43,7 @@ class OpPlus: OpOperator
     }
 }
 
-class OpSub: OpOperator
+class OpSub: Operator
 {
     this()
     {
@@ -55,7 +55,7 @@ class OpSub: OpOperator
     }
 }
 
-class OpMultiply: OpOperator
+class OpMultiply: Operator
 {
     this()
     {
@@ -67,7 +67,7 @@ class OpMultiply: OpOperator
     }
 }
 
-class OpDivide: OpOperator
+class OpDivide: Operator
 {
     this()
     {
@@ -79,7 +79,7 @@ class OpDivide: OpOperator
     }
 }
 
-class OpPower: OpOperator
+class OpPower: Operator
 {
     this()
     {
@@ -91,7 +91,7 @@ class OpPower: OpOperator
     }
 }
 
-class OpLesser: OpOperator
+class OpLesser: Operator
 {
     this()
     {
@@ -103,7 +103,7 @@ class OpLesser: OpOperator
     }
 }
 
-class OpGreater: OpOperator
+class OpGreater: Operator
 {
     this()
     {
@@ -115,7 +115,7 @@ class OpGreater: OpOperator
     }
 }
 
-class OpEqual: OpOperator
+class OpEqual: Operator
 {
     this()
     {
@@ -128,7 +128,7 @@ class OpEqual: OpOperator
     }
 }
 
-class OpNotEqual: OpOperator
+class OpNotEqual: Operator
 {
     this()
     {
@@ -140,7 +140,7 @@ class OpNotEqual: OpOperator
     }
 }
 
-class OpNot: OpOperator
+class OpNot: Operator
 {
     this()
     {
@@ -152,7 +152,7 @@ class OpNot: OpOperator
     }
 }            
 
-class OpAnd: OpOperator
+class OpAnd: Operator
 {
     this()
     {
@@ -164,7 +164,7 @@ class OpAnd: OpOperator
     }
 }
 
-class OpOr: OpOperator
+class OpOr: Operator
 {
     this()
     {

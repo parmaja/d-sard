@@ -32,13 +32,13 @@ protected:
 
     public alias statement this;
 
-    override void beforeExecute(RunData data, RunEnv env, OpOperator operator)
+    override void beforeExecute(RunData data, RunEnv env, Operator operator)
     {
         super.beforeExecute(data, env, operator);
         env.results.push();
     }
 
-    override void afterExecute(RunData data, RunEnv env, OpOperator operator)
+    override void afterExecute(RunData data, RunEnv env, Operator operator)
     {
         super.afterExecute(data, env, operator);
         RunResult t = env.results.pull();
@@ -46,7 +46,7 @@ protected:
             t.result.value.execute(data, env, operator);
     }
 
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
         statement.execute(data, env);
         done = true;
@@ -73,7 +73,7 @@ protected:
     Statements _statements;
     public @property Statements statements() { return _statements; };
 
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
         /*if (env.stack.current.data.object !is this)
             error("Can not execute block directly, data.object must set to this encloser");*/
@@ -123,13 +123,13 @@ class SoBlock: SoEnclose  //Result was droped until using := assign in the first
 private:
 
 protected:
-    override void beforeExecute(RunData data, RunEnv env, OpOperator operator)
+    override void beforeExecute(RunData data, RunEnv env, Operator operator)
     {
         env.stack.push();
         super.beforeExecute(data, env, operator);
     }
 
-    override void afterExecute(RunData data, RunEnv env, OpOperator operator)
+    override void afterExecute(RunData data, RunEnv env, Operator operator)
     {
         super.afterExecute(data, env, operator);
         env.stack.pop();
@@ -154,7 +154,7 @@ public:
 
 abstract class SoConst: SoObject
 {
-    override final void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
+    override final void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
         if (!env.results.current)
             error("There is no stack results!");
@@ -189,7 +189,7 @@ class SoNone: SoConst  //None it is not Null, it is an initial value we sart it
 class SoComment: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator,ref bool done)
+    override void doExecute(RunData data, RunEnv env, Operator operator,ref bool done)
     {
         //Guess what!, we will not to execute the comment ;)
         done = true;
@@ -205,7 +205,7 @@ public:
 class SoPreprocessor: SoObject
 {
 protected:
-    override void doExecute(RunEnv env, OpOperator operator,ref bool done){
+    override void doExecute(RunEnv env, Operator operator,ref bool done){
         //TODO execute external program and replace it with the result
         done = true;
     }
@@ -241,7 +241,7 @@ public:
         value = fromObject.asInteger;
     }
 
-    override bool doOperate(SoObject object, OpOperator operator)
+    override bool doOperate(SoObject object, Operator operator)
     {
         switch(operator.name)
         {
@@ -305,7 +305,7 @@ public:
         value = fromObject.asNumber;
     }
 
-    override bool doOperate(SoObject object, OpOperator operator)
+    override bool doOperate(SoObject object, Operator operator)
     {
         switch(operator.name)
         {
@@ -369,7 +369,7 @@ public:
         value = fromObject.asBool;
     }
 
-    override bool doOperate(SoObject object, OpOperator operator)
+    override bool doOperate(SoObject object, Operator operator)
     {
         switch(operator.name){
             case "+":
@@ -432,7 +432,7 @@ public:
         value = fromObject.asText;
     }
 
-    override bool doOperate(SoObject object, OpOperator operator)
+    override bool doOperate(SoObject object, Operator operator)
     {
         switch(operator.name){
             case "+":
@@ -505,7 +505,7 @@ private
     public @property Statements arguments() { return _arguments; };
 
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
         RunData d = data.findDeclare(name);
         if (d !is null) //maybe we must check Define.count, cuz it refere to it class
@@ -543,7 +543,7 @@ class SoAssign: SoObject
 {
 protected:
 
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done)
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
         /** if not have a name, assign it to parent result */
         done = true;
@@ -602,7 +602,7 @@ public:
 
     string resultType;
 
-    override protected void doExecute(RunData data, RunEnv env, OpOperator operator,ref bool done)
+    override protected void doExecute(RunData data, RunEnv env, Operator operator,ref bool done)
     {
         data.declare(this);
     }

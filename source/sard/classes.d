@@ -474,7 +474,7 @@ class CtlControls: NamedObjects!CtlControl
 
 enum Associative {Left, Right};
 
-class OpOperator: BaseObject
+class Operator: BaseObject
 {
 public:
     string name; //Sign like + or -
@@ -492,10 +492,10 @@ public:
     }
 }
 
-class OpOperators: NamedObjects!OpOperator
+class Operators: NamedObjects!Operator
 {
 public:
-    OpOperator findByTitle(string title)
+    Operator findByTitle(string title)
     {
         foreach(itm; this)
         {
@@ -541,7 +541,7 @@ protected:
 public:
     abstract void setToken(Token token);    
     abstract void setControl(CtlControl control);
-    abstract void setOperator(OpOperator operator);
+    abstract void setOperator(Operator operator);
     abstract void setWhiteSpaces(string whitespaces);
 
     abstract void start();
@@ -611,8 +611,8 @@ protected:
     Tracker _current; //current tracker
     public @property Tracker current() { return _current; } ;      
 
-    OpOperators _operators;
-    @property public OpOperators operators () { return _operators; }
+    Operators _operators;
+    @property public Operators operators () { return _operators; }
 
     CtlControls _controls;
     @property public CtlControls controls() { return _controls; }    
@@ -690,7 +690,7 @@ public:
 
     this(){
         super();
-        _operators = new OpOperators();
+        _operators = new Operators();
         _controls = new CtlControls();
     }
 

@@ -54,7 +54,7 @@ protected:
 public:
 
     string identifier;
-    OpOperator operator;
+    Operator operator;
     SoObject object;
 
     //Return true if Identifier is not empty and object is nil
@@ -96,7 +96,7 @@ public:
         //TODO and attributes
     }
 
-    void setOperator(OpOperator aOperator)
+    void setOperator(Operator aOperator)
     {
         if (operator !is null)
             error("Operator is already set");
@@ -318,7 +318,7 @@ public:
         }
     }    
 
-    void addOperator(OpOperator operator)
+    void addOperator(Operator operator)
     {
         post();
         instruction.setOperator(operator);
@@ -715,7 +715,7 @@ public:
     void setControl(CtlControl control){
     }
 
-    void setOperator(OpOperator operator){
+    void setOperator(Operator operator){
     }
 
     void setWhiteSpaces(string whitespaces){
@@ -785,14 +785,14 @@ protected:
         }
     }
 
-    override void setOperator(OpOperator operator)
+    override void setOperator(Operator operator)
     {
         debug(log){
             writeln("SetOperator: " ~ operator.name);
         }
-        OpOperator o = operator; 
+        Operator o = operator; 
         if (o is null) 
-            error("SetOperator not OpOperator");
+            error("SetOperator not Operator");
         current.addOperator(o);
         doQueue();
         actions = [];

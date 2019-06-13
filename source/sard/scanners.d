@@ -143,7 +143,7 @@ class Operator_tracker: Tracker
 protected:
     override void scan(const string text, ref int column, ref bool resume)
     {
-        OpOperator operator = lexer.operators.scan(text, column);
+        Operator operator = lexer.operators.scan(text, column);
         if (operator !is null)
             column = column + operator.name.length;
         else

@@ -166,7 +166,7 @@ public:
     {
     }
 
-    final bool execute(RunEnv env, OpOperator operator, Statements arguments = null, Statements blocks = null)
+    final bool execute(RunEnv env, Operator operator, Statements arguments = null, Statements blocks = null)
     {
         if (object is null) {
             error("Object of declaration is not set!");

@@ -20,7 +20,7 @@ import sard;
 class SoVersion_Const: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         env.results.current.result.value = new SoText(sVersion);
     }
 }
@@ -28,7 +28,7 @@ protected:
 class SoPI_Const: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         env.results.current.result.value = new SoNumber(PI);
     }
 }
@@ -36,7 +36,7 @@ protected:
 class SoTime_Const: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
     }
 }
@@ -44,7 +44,7 @@ protected:
 class SoPrint_object: SoObject
 {
 protected:
-    override void doExecute(RunData data, RunEnv env, OpOperator operator, ref bool done){
+    override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         //env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
         auto v = env.stack.current.variables.find("s");
         if (v !is null){

@@ -7,6 +7,7 @@ module sard;
 */
 
 public import sard.classes;
+public import sard.lexers;
 public import sard.objects;
 public import sard.types;
 public import sard.runtimes;

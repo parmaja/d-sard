@@ -18,6 +18,7 @@ import std.stdio;
 
 import sard.utils;
 import sard.classes;
+import sard.lexers;
 
 class OpNone: Operator
 {

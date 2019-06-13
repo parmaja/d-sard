@@ -17,6 +17,7 @@ import std.typecons;
 
 import sard.utils;
 import sard.classes;
+import sard.lexers;
 import sard.objects;
 import sard.types;
 

@@ -25,7 +25,7 @@ enum Control: int
 {
     None = 0,
     Token,//* Token like Identifier, Keyword or Number, not used in fact
-    Operator,// *also not used
+    //Operator,// *also not used
     Start, //* Start parsing
     Stop, //* Stop parsing
     Declare, //* Declare a class of object
@@ -44,8 +44,21 @@ enum Control: int
     CloseArray //* ]
 }
 
+//TokenType
+
+enum Type : int
+{
+    None,
+    Identifier,
+    Number,
+    Color,
+    String,
+    Escape, //Maybe Strings escape
+    Comment
+}
+
 /**
-*   This will used in the tracker
+*   This will used in the tokenizer
 */
 
 //TODO maybe struct not a class
@@ -182,7 +195,7 @@ public:
 };
 
 /**---------------------------*/
-/**        Tracker
+/**        Tokenizer
 /**---------------------------*/
 
 /**
@@ -191,7 +204,7 @@ public:
 *
 */
 
-class Tracker: BaseObject
+class Tokenizer: BaseObject
 {
 private:
     Lexer _lexer;
@@ -233,7 +246,7 @@ public:
 /**        Lexer
 /**---------------------------*/
 
-class Lexer: Objects!Tracker {
+class Lexer: Objects!Tokenizer {
 
 private:
 
@@ -241,8 +254,8 @@ protected:
     Scanner _scanner;
     public @property Scanner scanner() { return _scanner; } ;
 
-    Tracker _current; //current tracker
-    public @property Tracker current() { return _current; } ;
+    Tokenizer _current; //current tokenizer
+    public @property Tokenizer current() { return _current; } ;
 
     Operators _operators;
     @property public Operators operators () { return _operators; }
@@ -256,12 +269,12 @@ protected:
 
 protected:
 
-    Tracker detectTracker(const string text, int column)
+    Tokenizer detectTokenizer(const string text, int column)
     {
-        Tracker result = null;
+        Tokenizer result = null;
         if (column >= text.length) {
-            //do i need to switchTracker?
-            //return null; //no tracker for empty line or EOL
+            //do i need to switchTokenizer?
+            //return null; //no tokenizer for empty line or EOL
             //result = null; nothing to do already nil
         }
         else
@@ -276,27 +289,27 @@ protected:
             }
 
             if (result is null)
-                error("Tracker not found: " ~ text[column]);
+                error("Tokenizer not found: " ~ text[column]);
         }
-        switchTracker(result);
+        switchTokenizer(result);
         return result;
     }
 
-    void switchTracker(Tracker nextTracker)
+    void switchTokenizer(Tokenizer nextTokenizer)
     {
-        if (_current != nextTracker)
+        if (_current != nextTokenizer)
         {
-            _current = nextTracker;
+            _current = nextTokenizer;
             if (_current !is null)
                 _current.switched();
         }
     }
 
-    Tracker findClass(const ClassInfo trackerClass)
+    Tokenizer findClass(const ClassInfo tokenizerClass)
     {
         int i = 0;
         foreach(itm; this) {
-            if (itm.classinfo == trackerClass) {
+            if (itm.classinfo == tokenizerClass) {
                 return itm;
             }
             i++;
@@ -305,20 +318,20 @@ protected:
     }
 
     //This find the class and switch to it
-    Tracker selectTracker(ClassInfo trackerClass)
+    Tokenizer selectTokenizer(ClassInfo tokenizerClass)
     {
-        Tracker t = findClass(trackerClass);
+        Tokenizer t = findClass(tokenizerClass);
         if (t is null)
-            error("Tracker not found");
-        switchTracker(t);
+            error("Tokenizer not found");
+        switchTokenizer(t);
         return t;
     }
 
 public:
-    override void beforeAdd(Tracker tracker)
+    override void beforeAdd(Tokenizer tokenizer)
     {
-        super.beforeAdd(tracker);
-        tracker._lexer = this;
+        super.beforeAdd(tokenizer);
+        tokenizer._lexer = this;
     }
 
     this(){
@@ -360,20 +373,20 @@ public:
         while (column < len)
         {
             int oldColumn = column;
-            Tracker oldTracker = current;
+            Tokenizer oldTokenizer = current;
             try
             {
-                if (current is null) //resume the line to current/last tracker
-                    detectTracker(text, column);
+                if (current is null) //resume the line to current/last tokenizer
+                    detectTokenizer(text, column);
                 else
                     resume = true;
 
                 current.scan(text, column, resume);
 
                 if (!resume)
-                    switchTracker(null);
+                    switchTokenizer(null);
 
-                if ((oldColumn == column) && (oldTracker == _current))
+                if ((oldColumn == column) && (oldTokenizer == _current))
                     error("Feeder in loop with: " ~ _current.classinfo.nakename); //TODO: be careful here
             }
             catch(Exception e) {

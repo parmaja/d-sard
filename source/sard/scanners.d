@@ -8,10 +8,10 @@ module sard.scanners;
 
 /**
 *   @module: 
-*       Trackers: Scan the source code and generate runtime objects
+*       Tokenizers: Scan the source code and generate runtime objects
 *
-*   Lexer: divied the source code (line) and pass it to small scanners, tracker tell it when it finished
-*   Tracker: Take this part of source code and convert it to control, operator or token/indentifier
+*   Lexer: divied the source code (line) and pass it to small scanners, tokenizer tell it when it finished
+*   Tokenizer: Take this part of source code and convert it to control, operator or token/indentifier
 */
 
 import std.stdio;
@@ -44,24 +44,11 @@ static immutable char[] sEscape = ['\\'];
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
-//TokenType
-
-enum Type : int
-{
-    None, 
-    Identifier, 
-    Number, 
-    Color, 
-    String, 
-    Escape, //Maybe Strings escape
-    Comment 
-}  
-
 /**
-    Trackers
+    Tokenizers
 */
 
-class Whitespace_tracker: Tracker
+class Whitespace_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -80,7 +67,7 @@ protected:
     }
 }
 
-class Identifier_tracker: Tracker
+class Identifier_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -99,7 +86,7 @@ protected:
     }
 }
 
-class Number_tracker: Tracker
+class Number_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -118,7 +105,7 @@ protected:
     }
 }
 
-class Control_tracker: Tracker
+class Control_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume) 
@@ -135,11 +122,11 @@ protected:
 
     override bool accept(const string text, int column)
     {
-        return lexer.isControl(text[column]);   
+        return lexer.isControl(text[column]);
     }
 }
 
-class Operator_tracker: Tracker
+class Operator_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -161,7 +148,7 @@ protected:
 
 // Single line comment 
 
-class LineComment_tracker: Tracker
+class LineComment_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -178,7 +165,7 @@ protected:
     }
 }
 
-class BlockComment_tracker: Tracker
+class BlockComment_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -201,7 +188,7 @@ protected:
     }
 }
 
-abstract class MultiLine_tracker: Tracker
+abstract class MultiLine_Tokenizer: Tokenizer
 {
 protected:
 
@@ -246,7 +233,7 @@ protected:
     }
 }
 
-abstract class BufferedMultiLine_tracker: MultiLine_tracker
+abstract class BufferedMultiLine_Tokenizer: MultiLine_Tokenizer
 {
 private:
     string buffer;
@@ -265,7 +252,7 @@ protected:
 }
 
 //Comment object {* *}
-class Comment_tracker: BufferedMultiLine_tracker
+class Comment_Tokenizer: BufferedMultiLine_Tokenizer
 {
     this()
     {
@@ -280,7 +267,7 @@ class Comment_tracker: BufferedMultiLine_tracker
     }
 }
 
-abstract class String_tracker: BufferedMultiLine_tracker
+abstract class String_Tokenizer: BufferedMultiLine_Tokenizer
 {
 protected:
     override void setToken(string token)
@@ -292,7 +279,7 @@ protected:
 
 /* Single Quote String */
 
-class SQString_tracker: String_tracker
+class SQString_Tokenizer: String_Tokenizer
 {
 protected:
     this(){
@@ -304,7 +291,7 @@ protected:
 
 /* Double Quote String */
 
-class DQString_tracker: String_tracker
+class DQString_Tokenizer: String_Tokenizer
 {
 protected:
     this()
@@ -316,7 +303,7 @@ protected:
 public:
 }
 
-class Escape_tracker: Tracker
+class Escape_Tokenizer: Tokenizer
 {
 protected:    
     override void scan(const string text, ref int column, ref bool resume)
@@ -391,17 +378,17 @@ public:
 
         with (this)
         {
-            add(new Whitespace_tracker());
-            add(new BlockComment_tracker());
-            add(new Comment_tracker());
-            add(new LineComment_tracker());
-            add(new Number_tracker());
-            add(new SQString_tracker());
-            add(new DQString_tracker());
-            add(new Escape_tracker());
-            add(new Control_tracker());
-            add(new Operator_tracker()); //Register it after comment because comment take /*
-            add(new Identifier_tracker());//Sould be last one                           
+            add(new Whitespace_Tokenizer());
+            add(new BlockComment_Tokenizer());
+            add(new Comment_Tokenizer());
+            add(new LineComment_Tokenizer());
+            add(new Number_Tokenizer());
+            add(new SQString_Tokenizer());
+            add(new DQString_Tokenizer());
+            add(new Escape_Tokenizer());
+            add(new Control_Tokenizer());
+            add(new Operator_Tokenizer()); //Register it after comment because comment take /*
+            add(new Identifier_Tokenizer());//Sould be last one                           
         }
     }
 
@@ -452,7 +439,7 @@ public:
 *
 */
 
-class OpenPreprocessor_tracker: Tracker
+class OpenPreprocessor_Tokenizer: Tokenizer
 {
 protected:
     override void scan(const string text, ref int column, ref bool resume)
@@ -482,8 +469,8 @@ class PlainLexer: Lexer
 
         with(this)
         {
-            add(new Whitespace_tracker());
-            add(new OpenPreprocessor_tracker());
+            add(new Whitespace_Tokenizer());
+            add(new OpenPreprocessor_Tokenizer());
         }
     }
 

@@ -188,69 +188,6 @@ protected:
     }
 }
 
-abstract class MultiLine_Tokenizer: Tokenizer
-{
-protected:
-
-    string openSymbol;
-    string closeSymbol;
-
-
-    abstract void finish();
-    abstract void collect(string text);
-
-    override void scan(const string text, ref int column, ref bool resume)
-    {
-        int pos = column;    
-        if (!resume) //first time after accept()
-        {
-            column = column + openSymbol.length;
-            if (lexer.trimSymbols)                    
-                pos = pos + openSymbol.length; //we need to ignore open tag {* here
-        }
-        while (column < text.length) 
-        {
-            if (scanCompare(closeSymbol, text, column))
-            {
-                if (!lexer.trimSymbols)                    
-                    column = column + closeSymbol.length;
-                collect(text[pos..column]);
-                if (lexer.trimSymbols)                    
-                    column = column + closeSymbol.length;
-                
-                finish();
-                resume = false;
-                return;
-            }
-            column++;
-        }      
-        collect(text[pos..column]);
-        resume = true;
-    }
-
-    override bool accept(const string text, int column){
-        return scanText(openSymbol, text, column);
-    }
-}
-
-abstract class BufferedMultiLine_Tokenizer: MultiLine_Tokenizer
-{
-private:
-    string buffer;
-
-protected:
-    abstract void setToken(string text);
-
-    override void finish(){
-        setToken(buffer);
-        buffer = "";
-    }
-
-    override void collect(string text){
-        buffer = buffer ~ text;
-    }
-}
-
 //Comment object {* *}
 class Comment_Tokenizer: BufferedMultiLine_Tokenizer
 {
@@ -261,20 +198,10 @@ class Comment_Tokenizer: BufferedMultiLine_Tokenizer
         closeSymbol = "*}";      
     }
 
-    override void setToken(string token)
+    override void setToken(string text)
     {
-        lexer.parser.setToken(Token(Control.Token, Type.Comment, token));
+        lexer.parser.setToken(Token(Control.Token, Type.Comment, text));
     }
-}
-
-abstract class String_Tokenizer: BufferedMultiLine_Tokenizer
-{
-protected:
-    override void setToken(string token)
-    {
-        lexer.parser.setToken(Token(Control.Token, Type.String, token));
-    }
-
 }
 
 /* Single Quote String */
@@ -300,7 +227,6 @@ protected:
         openSymbol = "\"";
         closeSymbol = "\"";      
     }
-public:
 }
 
 class Escape_Tokenizer: Tokenizer
@@ -329,8 +255,6 @@ protected:
 
 class CodeLexer: Lexer
 {
-protected:
-
 public:
     this(){
         super();
@@ -360,20 +284,20 @@ public:
         with (operators)
         {
             add(new OpPlus);
-            add(new OpSub());
-            add(new OpMultiply());
-            add(new OpDivide());
+            add(new OpSub);
+            add(new OpMultiply);
+            add(new OpDivide);
 
-            add(new OpEqual());
-            add(new OpNotEqual());
-            add(new OpAnd());
-            add(new OpOr());
-            add(new OpNot());
+            add(new OpEqual);
+            add(new OpNotEqual);
+            add(new OpAnd);
+            add(new OpOr);
+            add(new OpNot);
 
-            add(new OpGreater());
-            add(new OpLesser());
+            add(new OpGreater);
+            add(new OpLesser);
 
-            add(new OpPower());
+            add(new OpPower);
         }
 
         with (this)
@@ -429,7 +353,7 @@ public:
 
     override bool isIdentifier(char vChar, bool vOpen = true)
     {
-        return super.isIdentifier(vChar, vOpen); //we can not override it, but it is nice to see it here 
+        return super.isIdentifier(vChar, vOpen); //we do not need to override it, but it is nice to see it here
     }
 }
 

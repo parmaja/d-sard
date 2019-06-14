@@ -24,8 +24,8 @@ import sard.utils;
 enum Control: int
 {
     None = 0,
-    Token,//* Token like Identifier, Keyword or Number, not used in fact
-    //Operator,// *also not used
+    Token,//* Token like Identifier, Keyword or Number
+    Operator,//
     Start, //* Start parsing
     Stop, //* Stop parsing
     Declare, //* Declare a class of object
@@ -182,7 +182,7 @@ interface IParser
 protected:
     //isKeyword call in setToken if you proceesed it return false
     //You can proceess as to setControl or setOperator
-    bool isKeyword(string identifier);
+//    bool isKeyword(string identifier);
 
 public:
     abstract void setToken(Token token);
@@ -239,6 +239,79 @@ public:
     this(Lexer lexer){
         this();
         setLexer(lexer);
+    }
+}
+
+abstract class MultiLine_Tokenizer: Tokenizer
+{
+protected:
+
+    string openSymbol;
+    string closeSymbol;
+
+
+    abstract void finish();
+    abstract void collect(string text);
+
+    override void scan(const string text, ref int column, ref bool resume)
+    {
+        int pos = column;
+        if (!resume) //first time after accept()
+        {
+            column = column + openSymbol.length;
+            if (lexer.trimSymbols)
+                pos = pos + openSymbol.length; //we need to ignore open tag {* here
+        }
+
+        while (column < text.length)
+        {
+            if (scanCompare(closeSymbol, text, column))
+            {
+                if (!lexer.trimSymbols)
+                    column = column + closeSymbol.length;
+                collect(text[pos..column]);
+                if (lexer.trimSymbols)
+                    column = column + closeSymbol.length;
+
+                finish();
+                resume = false;
+                return;
+            }
+            column++;
+        }
+        collect(text[pos..column]);
+        resume = true;
+    }
+
+    override bool accept(const string text, int column){
+        return scanText(openSymbol, text, column);
+    }
+}
+
+abstract class BufferedMultiLine_Tokenizer: MultiLine_Tokenizer
+{
+private:
+    string buffer;
+
+protected:
+    abstract void setToken(string text);
+
+    override void collect(string text){
+        buffer = buffer ~ text;
+    }
+
+    override void finish(){
+        setToken(buffer);
+        buffer = "";
+    }
+}
+
+abstract class String_Tokenizer: BufferedMultiLine_Tokenizer
+{
+protected:
+    override void setToken(string text)
+    {
+        lexer.parser.setToken(Token(Control.Token, Type.String, text));
     }
 }
 

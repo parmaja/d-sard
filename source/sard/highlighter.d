@@ -39,11 +39,6 @@ import sard.scanners;
 
 class HighlightParser: BaseObject, IParser 
 {
-protected
-    override bool isKeyword(string identifier){
-        return false;
-    }
-
 public:
     override void setToken(Token token){
         engine.print(token.value);

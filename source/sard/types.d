@@ -25,7 +25,7 @@ x := 10  + ( 500 + 600);
 -------------[  Sub    ]-------
 */
 
-class SoSub: SoObject
+class SoSub: Node
 {
 protected:
     Statement _statement;
@@ -68,7 +68,7 @@ public:
 *   SoEnclose is a base class for list of objects (statements) like SoBlock
 */
 
-abstract class SoEnclose: SoObject
+abstract class SoEnclose: Node
 {
 protected:
     Statements _statements;
@@ -139,7 +139,7 @@ protected:
 public:
     /*    deprecated("testing") */
     private Statement declareStatement;
-    SoDeclare declareObject(SoObject object)
+    SoDeclare declareObject(Node object)
     {
         if (declareStatement is null)
             declareStatement =  statements.add();
@@ -153,7 +153,7 @@ public:
 
 /*--------------------------------------------*/
 
-abstract class SoConst: SoObject
+abstract class SoConst: Node
 {
     override final void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
@@ -187,7 +187,7 @@ class SoNone: SoConst  //None it is not Null, it is an initial value we sart it
 
 /* SoComment */
 
-class SoComment: SoObject
+class SoComment: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator,ref bool done)
@@ -203,7 +203,7 @@ public:
 /* SoPreprocessor */
 
 /*
-class SoPreprocessor: SoObject
+class SoPreprocessor: Node
 {
 protected:
     override void doExecute(RunEnv env, Operator operator,ref bool done){
@@ -238,11 +238,11 @@ public:
         value = aValue;
     }
 
-    override void assign(SoObject fromObject){
+    override void assign(Node fromObject){
         value = fromObject.asInteger;
     }
 
-    override bool doOperate(SoObject object, Operator operator)
+    override bool doOperate(Node object, Operator operator)
     {
         switch(operator.name)
         {
@@ -302,11 +302,11 @@ public:
         value = aValue;
     }
 
-    override void assign(SoObject fromObject){
+    override void assign(Node fromObject){
         value = fromObject.asNumber;
     }
 
-    override bool doOperate(SoObject object, Operator operator)
+    override bool doOperate(Node object, Operator operator)
     {
         switch(operator.name)
         {
@@ -366,11 +366,11 @@ public:
         value = aValue;
     }
 
-    override void assign(SoObject fromObject){
+    override void assign(Node fromObject){
         value = fromObject.asBool;
     }
 
-    override bool doOperate(SoObject object, Operator operator)
+    override bool doOperate(Node object, Operator operator)
     {
         switch(operator.name){
             case "+":
@@ -429,11 +429,11 @@ public:
         value = aValue;
     }
 
-    override void assign(SoObject fromObject){
+    override void assign(Node fromObject){
         value = fromObject.asText;
     }
 
-    override bool doOperate(SoObject object, Operator operator)
+    override bool doOperate(Node object, Operator operator)
     {
         switch(operator.name){
             case "+":
@@ -499,7 +499,7 @@ public:
 *   -------------Id [Statements]--------
 */
 
-class SoInstance: SoObject
+class SoInstance: Node
 {
 private
     Statements _arguments;
@@ -540,7 +540,7 @@ public:
 
 /** It is assign a variable value, x := 10 + y */
 
-class SoAssign: SoObject
+class SoAssign: Node
 {
 protected:
 
@@ -567,44 +567,8 @@ public:
         super();
     }
 
-    this(SoObject vParent, string vName){ //not auto inherited, OH Deee
+    this(Node vParent, string vName){ //not auto inherited, OH Deee
         super(vParent, vName);
     }
 }
 
-class SoDeclare: SoObject
-{
-private:
-    Defines _defines;
-    public @property Defines defines(){ return _defines; }
-
-protected:
-
-public:
-    this(){
-        super();
-        _defines = new Defines();
-    }
-
-    ~this(){
-        destroy(_defines);
-    }
-
-    debug(log_nodes){
-        override void debugWrite(int level){
-            super.debugWrite(level);
-            _defines.debugWrite(level + 1);
-        }
-    }
-
-public:
-    //executeObject will execute in a context of statement if it is not null,
-    SoObject executeObject;
-
-    string resultType;
-
-    override protected void doExecute(RunData data, RunEnv env, Operator operator,ref bool done)
-    {
-        data.declare(this);
-    }
-}

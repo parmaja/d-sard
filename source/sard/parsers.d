@@ -20,11 +20,12 @@ import std.datetime;
 
 import sard.utils;
 import sard.classes;
-import sard.lexers;
-import sard.types;
-import sard.scanners;
 import sard.objects;
+import sard.lexers;
 import sard.operators;
+import sard.types;
+import sard.runtimes;
+import sard.scanners;
 
 import minilib.sets;
 
@@ -45,7 +46,7 @@ struct Instruction
 public:
 
 protected:
-    void internalSetObject(SoObject aObject)
+    void internalSetObject(Node aObject)
     {
         if ((object !is null) && (aObject !is null))
             error("Object is already set");
@@ -56,7 +57,7 @@ public:
 
     string identifier;
     Operator operator;
-    SoObject object;
+    Node object;
 
     //Return true if Identifier is not empty and object is nil
     bool checkIdentifier(in bool raise = false)
@@ -158,7 +159,7 @@ public:
         return result;
     }
 
-    void setObject(SoObject aObject)
+    void setObject(Node aObject)
     {
         if (identifier != "")
             error("Identifier is already set");

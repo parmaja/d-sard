@@ -17,7 +17,7 @@ import std.datetime;
 import sard.classes;
 import sard;
 
-class SoVersion_Const: SoObject
+class SoVersion_Const: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
@@ -25,7 +25,7 @@ protected:
     }
 }
 
-class SoPI_Const: SoObject
+class SoPI_Const: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
@@ -33,7 +33,7 @@ protected:
     }
 }
 
-class SoTime_Const: SoObject
+class SoTime_Const: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
@@ -41,7 +41,7 @@ protected:
     }
 }
 
-class SoPrint_object: SoObject
+class SoPrint_object: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){

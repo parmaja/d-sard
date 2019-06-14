@@ -49,12 +49,12 @@ private:
     Operator _operator;
     @property Operator operator() { return _operator; }
 
-    SoObject _object;
-    @property SoObject object() { return _object; }
+    Node _object;
+    @property Node object() { return _object; }
 
 public:
 
-    this(Operator operator, SoObject object) 
+    this(Operator operator, Node object) 
     {
         super();
         _operator = operator;
@@ -91,17 +91,17 @@ public:
 class Statement:Objects!Clause
 {
 private:
-    SoObject _parent;
-    public @property SoObject parent() { return _parent; }
+    Node _parent;
+    public @property Node parent() { return _parent; }
 
 public:
-    this(SoObject aParent)
+    this(Node aParent)
     {
         super();
         _parent = aParent;
     }
 
-    void add(Operator operator, SoObject aObject)
+    void add(Operator operator, Node aObject)
     {
         debug(log_compile) {            
 //            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
@@ -133,13 +133,13 @@ public:
 class Statements: Objects!Statement
 {
 private:
-    SoObject _parent;
-    public @property SoObject parent() { return _parent; }
+    Node _parent;
+    public @property Node parent() { return _parent; }
 
 public:    
 
     //check BUG1
-    this(SoObject aParent){
+    this(Node aParent){
         super();
         _parent = aParent;    
     }   
@@ -178,10 +178,10 @@ public:
 }
 
 /**---------------------------*/
-/**        SoObject
+/**        Node
 /**---------------------------*/
 
-abstract class SoObject: BaseObject
+abstract class Node: BaseObject
 {
 private:
     int _id;
@@ -209,17 +209,17 @@ public:
         super();
     }
 
-    this(SoObject aParent, string aName)
+    this(Node aParent, string aName)
     { 
         this();      
         _name = aName;
         parent = aParent;
     }
 
-    private SoObject _parent;
+    private Node _parent;
 
-    @property SoObject parent() {return _parent; };
-    @property SoObject parent(SoObject value) 
+    @property Node parent() {return _parent; };
+    @property Node parent(Node value) 
     {
         if (_parent !is null) 
             error("Already have a parent");
@@ -281,18 +281,18 @@ public:
             return false;
     };
 
-    void assign(SoObject fromObject)
+    void assign(Node fromObject)
     {
         //nothing
     }
 
-    SoObject clone(bool withValues = true)
+    Node clone(bool withValues = true)
     { 
         debug(log_run) {
             //writeln("Cloneing " ~ this.classinfo.nakename);
         }
         //TODO, here we want to check if subclass have a default ctor 
-        SoObject object = cast(SoObject)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
+        Node object = cast(Node)this.classinfo.create(); //new typeof(this);//<-bad i want to create new object same as current object but with descent
         if (object is null)
             error("Error when cloning");      
 
@@ -302,7 +302,7 @@ public:
     }
 
 protected: 
-    bool doOperate(SoObject object, Operator operator) {
+    bool doOperate(Node object, Operator operator) {
         return false;
     }
 
@@ -318,7 +318,7 @@ protected:
     abstract void doExecute(RunData data, RunEnv env, Operator operator, ref bool done);    
 
 public:
-    final bool operate(SoObject object, Operator operator)
+    final bool operate(Node object, Operator operator)
     {
         if (operator is null)
             return false;
@@ -361,7 +361,7 @@ public:
 
 /**
 *
-*   RefObject, refcounted of SoObject
+*   RefObject, refcounted of Node
 *   This just trying to make it, not sure about the results
 *   maybe move it to runtimes.d
 *
@@ -369,14 +369,14 @@ public:
 
 struct RefObject
 {    
-    public SoObject _object;
-    public @property SoObject object(){ return _object; };    
+    public Node _object;
+    public @property Node object(){ return _object; };    
 
     alias _object this;
 
     @disable this();
 
-    this(SoObject o){
+    this(Node o){
         _object = o;
         if (_object !is null)
             ++_object.refCount;
@@ -397,7 +397,7 @@ struct RefObject
     }
 */
 
-    void opAssign(SoObject rhs)
+    void opAssign(Node rhs)
     {
         if (_object !is null)
             --_object.refCount;

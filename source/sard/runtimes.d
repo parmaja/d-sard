@@ -40,13 +40,23 @@ alias RunVarKinds = Set!RunVarKind;
 class RunValue: BaseObject
 {
 public:
-    string name;
-    RunVarKinds kind;
-    SoObject value;
+    private string _name;
+    public @property string name(){ return _name; }
+
+    private RunVarKinds _kind;
+    public @property RunVarKinds kind(){ return _kind; }
+
+    Node value;
     
     this(){
         value = RefObject(null);
         super();
+    }
+
+    this(string name, RunVarKinds kind) {
+        this();
+        _name = name;
+        _kind = kind;
     }
 
     void clear(){
@@ -56,27 +66,25 @@ public:
 
 class RunVariables: NamedObjects!RunValue
 {
+public:
+
     RunValue register(string name, RunVarKinds kind) //TODO bad idea
     {
         RunValue result = find(name);
         if (result is null)
         {
-            result = new RunValue();
-            result.name = name;
-            result.kind = kind;
+            result = new RunValue(name, kind);
             add(result);
         }
         return result;
     }
 }
 
-/**
-*
-*   Result
-*   Need it when execute a statment and get a result from it even if we not have a result, it assigned to it, and killed when exit the env/scope
-*   But it can ref to parent result by parent assign :=, or ref to variable in the env
-*
-*/
+/**---------------------------*/
+/**          RunResult
+/**   Need it when execute a statment and get a result from it even if we not have a result, it assigned to it, and killed when exit the env/scope
+/**   But it can ref to parent result by parent assign :=, or ref to variable in the env
+/**---------------------------*/
 
 class RunResult: BaseObject
 {
@@ -86,8 +94,8 @@ public:
 
     this()
     {
+        super();
         result = new RunValue();
-        super();      
     }
 }
 
@@ -95,12 +103,54 @@ class RunResults: Stack!RunResult
 {
 }
 
+/**---------------------------*/
+/**          SoDeclare
+/**---------------------------*/
+
+class SoDeclare: Node
+{
+private:
+    Defines _defines;
+    public @property Defines defines(){ return _defines; }
+
+protected:
+
+public:
+    this(){
+        super();
+        _defines = new Defines();
+    }
+
+    ~this(){
+        destroy(_defines);
+    }
+
+    debug(log_nodes){
+        override void debugWrite(int level){
+            super.debugWrite(level);
+            _defines.debugWrite(level + 1);
+        }
+    }
+
+public:
+    //executeObject will execute in a context of statement if it is not null,
+    Node executeObject;
+
+    string resultType;
+
+    override protected void doExecute(RunData data, RunEnv env, Operator operator,ref bool done)
+    {
+        data.declare(this);
+    }
+}
+
+/**---------------------------*/
+/**          RunData
 /**
-*
-*   Declare object to take it ref into variable
-*   used by SoDeclare
-*
-*/
+/**   Declare object to take it ref into variable
+/**   used by SoDeclare
+/**
+/**---------------------------*/
 
 //Is that a Scope!!!, idk!
 
@@ -124,7 +174,7 @@ public:
         return result;
     }
 
-    RunData findObject(SoObject object)
+    RunData findObject(Node object)
     {
         foreach(itm; this) {
             if (itm.object is object) {
@@ -142,10 +192,10 @@ public:
         if (o is null) 
         {
             o = new RunData(this);
+            o.name = object.name;
             o.object = object;
-            o.name = object.name;        
         }
-        add(o);
+        add(o);//TODO BUG maybe into if
         return o;        
     }
 
@@ -180,8 +230,7 @@ public:
                 return false;
             }           
 
-            bool done = object.executeObject.execute(this, env, operator, object.defines, arguments, blocks);
-            return done;
+            return object.executeObject.execute(this, env, operator, object.defines, arguments, blocks);
         }
     }
 }

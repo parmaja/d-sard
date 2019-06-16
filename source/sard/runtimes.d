@@ -104,10 +104,10 @@ class RunResults: Stack!RunResult
 }
 
 /**---------------------------*/
-/**          SoDeclare
+/**          Declare_Node
 /**---------------------------*/
 
-class SoDeclare: Node
+class Declare_Node: Node
 {
 private:
     Defines _defines;
@@ -148,7 +148,7 @@ public:
 /**          RunData
 /**
 /**   Declare object to take it ref into variable
-/**   used by SoDeclare
+/**   used by Declare_Node
 /**
 /**---------------------------*/
 
@@ -158,7 +158,7 @@ class RunData: Objects!RunData
 {
 public:
     string name;
-    SoDeclare object;
+    Declare_Node object;
 
     RunData parent;
 
@@ -184,7 +184,7 @@ public:
         return null;
     }
 
-    RunData declare(SoDeclare object)
+    RunData declare(Declare_Node object)
     {
         if (object is null)
             error("Can not register null in data");

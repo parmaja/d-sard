@@ -74,13 +74,13 @@ public:
     //Return true if Object is not nil and Identifier is empty
     bool checkObject(in bool raise = false)
     {
-        bool b = object !is null;
-        if (raise && !b)
+        bool r = object !is null;
+        if (raise && !r)
             error("Object is not set!");
-        b = b && (identifier == "");
-        if (raise && !b) 
+        r = r && (identifier == "");
+        if (raise && !r)
             error("Identifier is already set!");
-        return b;
+        return r;
     }
 
     //Return true if Operator is not nil
@@ -112,34 +112,34 @@ public:
         identifier = aIdentifier;
     }
 
-    SoBaseNumber setNumber(string aIdentifier)
+    BaseNumber_Node setNumber(string aIdentifier)
     {
         if (identifier != "")
             error("Identifier is already set to " ~ identifier);
         //TODO need to check object too
-        SoBaseNumber result;
+        BaseNumber_Node result;
         if ((aIdentifier.indexOf(".") >= 0) || ((aIdentifier.indexOf("E") >= 0)))
-            result = new SoNumber(to!float(aIdentifier));
+            result = new Number_Node(to!float(aIdentifier));
         else 
-            result = new SoInteger(to!int(aIdentifier));
+            result = new Integer_Node(to!int(aIdentifier));
 
         internalSetObject(result);
         return result;
     }
 
-    SoText setText(string text)
+    Text_Node setText(string text)
     {
         /*if (identifier != "")
             error("Identifier is already set");*/
         //TODO need review
 
-        SoText result;
+        Text_Node result;
         if (object is null) {
-            result = new SoText(text);
+            result = new Text_Node(text);
             internalSetObject(result);
         }
         else {
-            result = cast(SoText)object;
+            result = cast(Text_Node)object;
             if (result is null)
                 error("Object is already exist when setting string!");
             result.value = result.value ~ text;
@@ -147,13 +147,13 @@ public:
         return result;
     }
 
-    SoComment setComment(string aIdentifier)
+    Comment_Node setComment(string aIdentifier)
     {
         //We need to check if it the first expr in the statment
         if (identifier != "")
             error("Identifier is already set");
         //TODO need to check object too
-        SoComment result = new SoComment();
+        Comment_Node result = new Comment_Node();
         result.value = aIdentifier;
         internalSetObject(result);
         return result;
@@ -166,49 +166,49 @@ public:
         internalSetObject(aObject);  
     }  
 
-    SoInstance setInstance(string aIdentifier)
+    Instance_Node setInstance(string aIdentifier)
     {
         if (identifier == "")
             error("Identifier is already set");
-        SoInstance result = new SoInstance();
+        Instance_Node result = new Instance_Node();
         result.name = aIdentifier;
         internalSetObject(result);
         return result;
     }
 
-    SoInstance setInstance()
+    Instance_Node setInstance()
     {
         if (identifier == "")
             error("Identifier is not set");
-        SoInstance result = setInstance(identifier);
+        Instance_Node result = setInstance(identifier);
         identifier = "";	  
         return result;
     }
 
-    SoSub setSub()
+    Fork_Node setFork()
     { 
         if (identifier != "")
             error("Identifier is already set");
-        SoSub result = new SoSub();
+        Fork_Node result = new Fork_Node();
         internalSetObject(result);
         return result;
     }
 
-    SoAssign setAssign()
+    Assign_Node setAssign()
     {
         //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
-        SoAssign result = new SoAssign();
+        Assign_Node result = new Assign_Node();
         result.name = identifier;    
         internalSetObject(result);
         identifier = "";
         return result;
     }
 
-    SoDeclare setDeclare()
+    Declare_Node setDeclare()
     {
         if (identifier == "")
             error("identifier is not set");
-        SoDeclare result = new SoDeclare();
+        Declare_Node result = new Declare_Node();
         result.name = identifier;    
         internalSetObject(result);
         identifier = "";
@@ -441,13 +441,13 @@ private:
 protected:
     State state;
     bool param;
-    SoDeclare declare;
+    Declare_Node declare;
 
     this(Parser aParser){ 
         super(aParser);    
     }
 
-    this(Parser aParser, SoDeclare aDeclare){
+    this(Parser aParser, Declare_Node aDeclare){
         this(aParser);
         declare = aDeclare;
     }
@@ -490,7 +490,7 @@ public:
             {
                 case Control.OpenBlock:
                     post();
-                    SoBlock aBlock = new SoBlock();
+                    Block_Node aBlock = new Block_Node();
                     aBlock.parent(declare);
                     declare.executeObject = aBlock;
                     //We will pass the control to the next Collector
@@ -510,7 +510,7 @@ public:
 
                 case Control.Assign:
                     post();
-                    declare.executeObject = new SoAssign(declare, declare.name);            
+                    declare.executeObject = new Assign_Node(declare, declare.name);
                     setAction(Actions([Action.Pop])); //Finish it, mean there is no body/statment for the declare
                     break;
 
@@ -617,7 +617,7 @@ public:
                 case Control.Declare:
                     if (isInitial)
                     {
-                        SoDeclare aDeclare = instruction.setDeclare();
+                        Declare_Node aDeclare = instruction.setDeclare();
                         post();
                         parser.push(new CollectorDefine(parser, aDeclare));
                     } 
@@ -626,7 +626,7 @@ public:
                     break;
 
                 case Control.OpenBlock:
-                    SoBlock aBlock = new SoBlock();
+                    Block_Node aBlock = new Block_Node();
                     instruction.setObject(aBlock);
                     parser.push(new CollectorBlock(parser, aBlock.statements));
                     break;
@@ -646,7 +646,7 @@ public:
                             parser.push(new CollectorBlock(parser, arguments));
                     }
                     else //No it is just sub statment like: 10+(5*5)
-                        with (instruction.setSub())
+                        with (instruction.setFork())
                             parser.push(new CollectorStatement(parser, statement));
                     break;
 

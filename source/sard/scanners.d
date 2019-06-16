@@ -438,10 +438,10 @@ class PlainLexer: Lexer
 class CodeScanner: Scanner
 {
 protected:
-    SoBlock _block;
+    Block_Node _block;
 
 public:
-    this(SoBlock block)
+    this(Block_Node block)
     {
         super();
         _block = block;

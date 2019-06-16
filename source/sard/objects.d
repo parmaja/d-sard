@@ -211,7 +211,7 @@ public:
 
     this(Node aParent, string aName)
     { 
-        this();      
+        this();
         _name = aName;
         parent = aParent;
     }

@@ -17,35 +17,35 @@ import std.datetime;
 import sard.classes;
 import sard;
 
-class SoVersion_Const: Node
+class Version_Const_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
-        env.results.current.result.value = new SoText(sVersion);
+        env.results.current.result.value = new Text_Node(sVersion);
     }
 }
 
-class SoPI_Const: Node
+class PI_Const_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
-        env.results.current.result.value = new SoNumber(PI);
+        env.results.current.result.value = new Number_Node(PI);
     }
 }
 
-class SoTime_Const: Node
+class Time_Const_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
-        env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
+        env.results.current.result.value = new Text_Node(Clock.currTime().toISOExtString());
     }
 }
 
-class SoPrint_object: Node
+class Print_object_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
-        //env.results.current.result.value = new SoText(Clock.currTime().toISOExtString());
+        //env.results.current.result.value = new Text_Node(Clock.currTime().toISOExtString());
         auto v = env.stack.current.variables.find("s");
         if (v !is null){
             //if (v.value !is null) //TODO it is bad, we should not have it null
@@ -59,7 +59,7 @@ class Script: BaseObject
 protected:
 
 public:
-    SoBlock main;
+    Block_Node main;
     Scanner scanner;
     string result;
 
@@ -76,20 +76,20 @@ public:
     {
         //writeln("-------------------------------");
 
-        main = new SoBlock(); //destory the old compile and create new
+        main = new Block_Node(); //destory the old compile and create new
         main.name = "main";
 
-        auto version_const = new SoVersion_Const();
+        auto version_const = new Version_Const_Node();
         version_const.name = "version";
         main.declareObject(version_const);
 
-        auto PI_const = new SoPI_Const();
+        auto PI_const = new PI_Const_Node();
         PI_const.name = "PI";
         main.declareObject(PI_const);
 
-        auto print_object = new SoPrint_object();
+        auto print_object = new Print_object_Node();
         print_object.name = "print";
-        SoDeclare print_declare = main.declareObject(print_object);
+        Declare_Node print_declare = main.declareObject(print_object);
         print_declare.defines.parameters.add("s", "string");
 
         /* Compile */

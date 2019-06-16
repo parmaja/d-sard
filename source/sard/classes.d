@@ -89,6 +89,17 @@ public:
     }
 
     this(){
+        created();
+    }
+
+    ~this(){
+        destroyed();
+    }
+
+    void created(){
+    }
+
+    void destroyed() {
     }
 }
 

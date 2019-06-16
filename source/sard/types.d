@@ -22,16 +22,14 @@ import sard.runtimes;
 
 /**
 x := 10  + ( 500 + 600);
--------------[  Sub    ]-------
+-------------[  Fork  ]-------
 */
 
-class SoSub: Node
+class Fork_Node: Node
 {
 protected:
     Statement _statement;
     public @property Statement statement() { return _statement; };
-
-    public alias statement this;
 
     override void beforeExecute(RunData data, RunEnv env, Operator operator)
     {
@@ -65,10 +63,10 @@ public:
 }
 
 /*
-*   SoEnclose is a base class for list of objects (statements) like SoBlock
+*   Enclose_Node is a base class for list of objects (statements) like Block_Node
 */
 
-abstract class SoEnclose: Node
+abstract class Enclose_Node: Node
 {
 protected:
     Statements _statements;
@@ -113,13 +111,13 @@ public:
 }
 
 
-/** SoBlock */
+/** Block_Node */
 /**
     Used by { }
     It a block before execute push in env, after execute will pop the env, it have return value too in the env
 */
 
-class SoBlock: SoEnclose  //Result was droped until using := assign in the first of statement
+class Block_Node: Enclose_Node  //Result was droped until using := assign in the first of statement
 {
 private:
 
@@ -139,11 +137,12 @@ protected:
 public:
     /*    deprecated("testing") */
     private Statement declareStatement;
-    SoDeclare declareObject(Node object)
+
+    Declare_Node declareObject(Node object)
     {
         if (declareStatement is null)
             declareStatement =  statements.add();
-        SoDeclare declare = new SoDeclare();
+        Declare_Node declare = new Declare_Node(); //TODO should use ctor to init variables
         declare.name = object.name;
         declare.executeObject = object;
         declareStatement.add(null, declare);
@@ -153,7 +152,7 @@ public:
 
 /*--------------------------------------------*/
 
-abstract class SoConst: Node
+abstract class Const_Node: Node
 {
     override final void doExecute(RunData data, RunEnv env, Operator operator, ref bool done)
     {
@@ -177,17 +176,17 @@ abstract class SoConst: Node
 /*       Const Objects
 /*-------------------------------*/
 
-/* SoNone */
+/* None_Node */
 
-class SoNone: SoConst  //None it is not Null, it is an initial value we sart it
+class Non_Nodee: Const_Node  //None it is not Null, it is an initial value we sart it
 {
     //Do operator
     //Convert to 0 or ''
 }
 
-/* SoComment */
+/* Comment_Node */
 
-class SoComment: Node
+class Comment_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator,ref bool done)
@@ -200,10 +199,10 @@ public:
     string value;
 }
 
-/* SoPreprocessor */
+/* Preprocessor_Node */
 
 /*
-class SoPreprocessor: Node
+class Preprocessor_Node: Node
 {
 protected:
     override void doExecute(RunEnv env, Operator operator,ref bool done){
@@ -216,13 +215,13 @@ public:
 }
 */
 
-abstract class SoBaseNumber: SoConst //base class for Number and Integer
+abstract class BaseNumber_Node: Const_Node //base class for Number and Integer
 {
 }
 
-/* SoInteger */
+/* Integer_Node */
 
-class SoInteger: SoBaseNumber
+class Integer_Node: BaseNumber_Node
 {
 protected:
 
@@ -284,9 +283,9 @@ public:
     }
 }
 
-/* SoNumber */
+/* Number_Node */
 
-class SoNumber: SoBaseNumber
+class Number_Node: BaseNumber_Node
 {
 protected:
 
@@ -348,9 +347,9 @@ public:
     }
 }
 
-/* SoBool */
+/* Bool_Node */
 
-class SoBool: SoBaseNumber
+class Bool_Node: BaseNumber_Node
 {
 protected:
 
@@ -411,9 +410,9 @@ public:
     }
 }
 
-/* SoText */
+/* Text_Node */
 
-class SoText: SoConst
+class Text_Node: Const_Node
 {
 protected:
 
@@ -441,9 +440,9 @@ public:
                 return true;
 
             case "-":
-                if (cast(SoBaseNumber)object !is null) {
+                if (cast(BaseNumber_Node)object !is null) {
                     int c = value.length -1;
-                    c = c - to!int((cast(SoBaseNumber)object).asInteger);
+                    c = c - to!int((cast(BaseNumber_Node)object).asInteger);
                     value = value[0..c + 1];
                     return true;
                 }
@@ -451,8 +450,8 @@ public:
                     return false;
 
             case "*":  //stupid idea ^.^
-                if (cast(SoBaseNumber)object !is null) {
-                    value = replicate(value, to!int((cast(SoBaseNumber)object).asInteger));
+                if (cast(BaseNumber_Node)object !is null) {
+                    value = replicate(value, to!int((cast(BaseNumber_Node)object).asInteger));
                     return true;
                 }
                 else
@@ -487,7 +486,7 @@ public:
 }
 
 
-/**   SoInstance */
+/**   Instance_Node */
 
 /**
 *   it is a variable value like x in this "10 + x + 5"
@@ -499,7 +498,7 @@ public:
 *   -------------Id [Statements]--------
 */
 
-class SoInstance: Node
+class Instance_Node: Node
 {
 private
     Statements _arguments;
@@ -540,7 +539,7 @@ public:
 
 /** It is assign a variable value, x := 10 + y */
 
-class SoAssign: Node
+class Assign_Node: Node
 {
 protected:
 

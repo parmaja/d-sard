@@ -112,14 +112,14 @@ public:
         identifier = aIdentifier;
     }
 
-    BaseNumber_Node setNumber(string aIdentifier)
+    Number_Node setNumber(string aIdentifier)
     {
         if (identifier != "")
             error("Identifier is already set to " ~ identifier);
         //TODO need to check object too
-        BaseNumber_Node result;
+        Number_Node result;
         if ((aIdentifier.indexOf(".") >= 0) || ((aIdentifier.indexOf("E") >= 0)))
-            result = new Number_Node(to!float(aIdentifier));
+            result = new Real_Node(to!float(aIdentifier));
         else 
             result = new Integer_Node(to!int(aIdentifier));
 

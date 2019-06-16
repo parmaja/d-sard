@@ -178,7 +178,7 @@ abstract class Const_Node: Node
 
 /* None_Node */
 
-class Non_Nodee: Const_Node  //None it is not Null, it is an initial value we sart it
+class None_Node: Const_Node  //None it is not Null, it is an initial value we sart it
 {
     //Do operator
     //Convert to 0 or ''
@@ -215,13 +215,13 @@ public:
 }
 */
 
-abstract class BaseNumber_Node: Const_Node //base class for Number and Integer
+abstract class Number_Node: Const_Node //base class for Number and Integer
 {
 }
 
 /* Integer_Node */
 
-class Integer_Node: BaseNumber_Node
+class Integer_Node: Number_Node
 {
 protected:
 
@@ -285,7 +285,7 @@ public:
 
 /* Number_Node */
 
-class Number_Node: BaseNumber_Node
+class Real_Node: Number_Node
 {
 protected:
 
@@ -349,7 +349,7 @@ public:
 
 /* Bool_Node */
 
-class Bool_Node: BaseNumber_Node
+class Bool_Node: Number_Node
 {
 protected:
 
@@ -440,9 +440,9 @@ public:
                 return true;
 
             case "-":
-                if (cast(BaseNumber_Node)object !is null) {
+                if (cast(Number_Node)object !is null) {
                     int c = value.length -1;
-                    c = c - to!int((cast(BaseNumber_Node)object).asInteger);
+                    c = c - to!int((cast(Number_Node)object).asInteger);
                     value = value[0..c + 1];
                     return true;
                 }
@@ -450,8 +450,8 @@ public:
                     return false;
 
             case "*":  //stupid idea ^.^
-                if (cast(BaseNumber_Node)object !is null) {
-                    value = replicate(value, to!int((cast(BaseNumber_Node)object).asInteger));
+                if (cast(Number_Node)object !is null) {
+                    value = replicate(value, to!int((cast(Number_Node)object).asInteger));
                     return true;
                 }
                 else

@@ -29,7 +29,7 @@ class PI_Const_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
-        env.results.current.result.value = new Number_Node(PI);
+        env.results.current.result.value = new Real_Node(PI);
     }
 }
 

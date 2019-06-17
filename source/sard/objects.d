@@ -209,13 +209,6 @@ public:
         super();
     }
 
-    this(Node aParent, string aName)
-    { 
-        this();
-        _name = aName;
-        parent = aParent;
-    }
-
     private Node _parent;
 
     @property Node parent() {return _parent; };

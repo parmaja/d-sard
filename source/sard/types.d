@@ -562,12 +562,5 @@ protected:
 
 public:
 
-    this(){
-        super();
-    }
-
-    this(Node vParent, string vName){ //not auto inherited, OH Deee
-        super(vParent, vName);
-    }
+    this(){ super(); }
 }
-

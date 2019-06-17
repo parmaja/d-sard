@@ -228,17 +228,8 @@ protected:
 
 public:
 
-    void setLexer(Lexer lexer) { //todo maybe rename to opCall
-        _lexer = lexer;
-    }
-
     this(){
         super();
-    }
-
-    this(Lexer lexer){
-        this();
-        setLexer(lexer);
     }
 }
 

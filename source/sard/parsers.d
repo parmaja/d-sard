@@ -234,14 +234,13 @@ protected:
     void internalPost(){  
     }
 
-    Controller createControllerClass() {
+    Controller createController() {
         return new ControllerNormal(this);
     }
 
 public:
 
     this(){
-        super();
         debug(log_compile) writeln("new collecter");
     }
 
@@ -249,7 +248,7 @@ public:
     {
         this();
         parser = aParser;
-        controller = createControllerClass();
+        controller = createController();
         reset();
     }
 
@@ -302,8 +301,6 @@ public:
                 if (text == "\\n")
                     text = "\n";
                 else if (text == "\\r")
-                    text = "\n";
-                else if (text == "\\n")
                     text = "\r";
                 else if (text == "\\\"")
                     text = "\"";
@@ -332,7 +329,7 @@ public:
         return false;
     }
 
-    void setControl(CtlControl control){
+    void addControl(CtlControl control){
         controller.setControl(control);
     }
 }
@@ -417,14 +414,15 @@ public:
         super(aParser);    
     }
 
-    override void setControl(CtlControl control){
+    override void addControl(CtlControl control)
+    {
         switch (control.code){
             case Control.End, Control.Next:          
                 post();
                 parser.setAction(Actions([Action.Pop, Action.Bypass]));
                 break;
             default:
-                super.setControl(control);
+                super.addControl(control);
         }
     }
 }
@@ -454,6 +452,7 @@ protected:
 
     override void internalPost()
     {
+        super.internalPost();
         if (instruction.identifier == "")
             error("Identifier not set"); //TODO maybe check if he post const or another things
         if (param)
@@ -471,12 +470,12 @@ protected:
             declare.resultType = instruction.identifier;            
     }
 
-    override Controller createControllerClass(){
+    override Controller createController(){
         return new ControllerDefines(this);
     }
 
 public:
-    override void setControl(CtlControl control)
+    override void addControl(CtlControl control)
     {
         /*
         x:int  (p1: int; p2: string);
@@ -491,7 +490,7 @@ public:
                 case Control.OpenBlock:
                     post();
                     Block_Node aBlock = new Block_Node();
-                    aBlock.parent(declare);
+                    aBlock.parent = declare;
                     declare.executeObject = aBlock;
                     //We will pass the control to the next Collector
                     setAction(Actions([Action.Pop]), new CollectorBlock(parser, aBlock.statements));
@@ -510,7 +509,9 @@ public:
 
                 case Control.Assign:
                     post();
-                    declare.executeObject = new Assign_Node(declare, declare.name);
+                    declare.executeObject = new Assign_Node();
+                    declare.executeObject.parent = declare;
+                    declare.executeObject.name = declare.name;
                     setAction(Actions([Action.Pop])); //Finish it, mean there is no body/statment for the declare
                     break;
 
@@ -545,17 +546,9 @@ public:
                     break;
 
                 default: 
-                    super.setControl(control);
+                    super.addControl(control);
             }
         }      
-    }
-
-    override void prepare(){
-        super.prepare();
-    }
-
-    override void next(){
-        super.next();
     }
 
     override void reset(){
@@ -813,10 +806,10 @@ protected:
             setControl(lexer.controls.getControl(Control.End));
         }
 
-        current.setControl(control);
+        current.addControl(control);
         doQueue();
         if (Action.Bypass in actions)//TODO check if Set work good here
-            current.setControl(control); 
+            current.addControl(control);
         actions = [];
         lastControl = control.code;
     }

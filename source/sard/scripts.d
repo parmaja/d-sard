@@ -17,11 +17,56 @@ import std.datetime;
 import sard.classes;
 import sard;
 
+/**
+*
+*   Code Scanner
+*
+*/
+
+class CodeScanner: Scanner
+{
+protected:
+    Block_Node _block;
+
+public:
+    this(Block_Node block)
+    {
+        super();
+        _block = block;
+        add(new CodeLexer());
+     }
+
+    override void doStart()
+    {
+        CodeParser parser = new CodeParser(lexer, _block.statements);
+
+        lexer.parser = parser;
+        lexer.start();
+    }
+
+    override void doStop()
+    {
+        lexer.stop();
+        lexer.parser = null;
+    }
+}
+
+/*class ScriptScanner: Scanner
+{
+    this()
+    {
+        super();
+        add(new PlainLexer());
+        add(new CodeLexer());
+    }
+}*/
+
 class Version_Const_Node: Node
 {
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         env.results.current.result.value = new Text_Node(sVersion);
+        done = true;
     }
 }
 
@@ -30,6 +75,7 @@ class PI_Const_Node: Node
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         env.results.current.result.value = new Real_Node(PI);
+        done = true;
     }
 }
 
@@ -38,6 +84,7 @@ class Time_Const_Node: Node
 protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         env.results.current.result.value = new Text_Node(Clock.currTime().toISOExtString());
+        done = true;
     }
 }
 
@@ -50,11 +97,12 @@ protected:
         if (v !is null){
             //if (v.value !is null) //TODO it is bad, we should not have it null
                 sard.classes.engine.print(v.value.asText);
+                done = true;
         }
     }
 }
 
-class Script: BaseObject
+class SardScript: BaseObject
 {
 protected:
 

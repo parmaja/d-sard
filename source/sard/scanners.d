@@ -429,49 +429,6 @@ class PlainLexer: Lexer
     }
 }
 
-/**
-*
-*   Scanner
-*
-*/
-
-class CodeScanner: Scanner
-{
-protected:
-    Block_Node _block;
-
-public:
-    this(Block_Node block)
-    {
-        super();
-        _block = block;
-        add(new CodeLexer());
-     }
-
-    override void doStart() 
-    {        
-        CodeParser parser = new CodeParser(lexer, _block.statements);
-
-        lexer.parser = parser;
-        lexer.start();
-    }
-
-    override void doStop() 
-    {
-        lexer.stop();
-        lexer.parser = null;
-    }
-}
-
-class ScriptScanner: Scanner
-{
-    this()
-    {
-        super();
-        add(new PlainLexer());
-        add(new CodeLexer());
-    }
-}
 
 class HighlighterLexer: CodeLexer
 {

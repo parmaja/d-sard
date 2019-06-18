@@ -1,0 +1,13 @@
+{
+  "name" : "sard",
+  "description" : "Sard script",
+  "authors" : [
+    "Zaher Dirkey"
+  ],
+  "license" : "MIT",
+  "homepage" : "https://github.com/parmaja/sard",
+  "targetName" : "sard",
+  "targetType" : "executable",
+  "targetPath" : "bin",
+  "workingDirectory" : "bin"
+}

@@ -12,8 +12,8 @@
       <Watches Class="TmneWatches">
       </Watches>
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>D:\lab\d\sard\source\sard\lexers.d</CurrentFile>
-        <CurrentFolder>D:\lab\d\sard\source\sard\</CurrentFolder>
+        <CurrentFile>D:\lab\pascal\p-sard\wiki\Home.md</CurrentFile>
+        <CurrentFolder>D:\lab\d\sard\source\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\sard\source\sard\parsers.d</FileName>
@@ -23,7 +23,6 @@
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\sard\source\sard\lexers.d</FileName>
-            <CaretX>48</CaretX>
             <CaretY>445</CaretY>
             <TopLine>428</TopLine>
           </Object>
@@ -52,6 +51,9 @@
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\pascal\sard\demo\console\test.sard</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\pascal\p-sard\wiki\Home.md</FileName>
           </Object>
         </Items>
       </Files>

@@ -13,7 +13,7 @@ x := {
       y := 0;
       x := foo(x, y);
       := y + x + 500 * %10; //this is a result return of the block
-  }
+  } //do not forget to add ; here
 
 {* Embeded block comment *}
 
@@ -23,6 +23,6 @@ f := z + 5.5;
 {?name Preprocessor Commands:
       need to install addon to ur environment ?}
 
-:= "result:" + x + ' It is an example:
+:= "Result:" + x + ' It is an example:
   Multi Line String
 ';

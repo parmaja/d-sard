@@ -12,43 +12,46 @@
       <Watches Class="TmneWatches">
       </Watches>
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>D:\home\d\sard\src\sard\runtimes.d</CurrentFile>
-        <CurrentFolder>D:\home\d\sard\src\</CurrentFolder>
+        <CurrentFile>D:\lab\d\sard\source\sard\lexers.d</CurrentFile>
+        <CurrentFolder>D:\lab\d\sard\source\sard\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\test.d</FileName>
-            <CaretX>261</CaretX>
-            <CaretY>288</CaretY>
-            <TopLine>262</TopLine>
+            <FileName>D:\lab\d\sard\source\sard\parsers.d</FileName>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\main.d</FileName>
-            <CaretY>104</CaretY>
-            <TopLine>87</TopLine>
+            <FileName>D:\lab\d\sard\source\sard\scanners.d</FileName>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\compile.cmd</FileName>
+            <FileName>D:\lab\d\sard\source\sard\lexers.d</FileName>
+            <CaretX>48</CaretX>
+            <CaretY>445</CaretY>
+            <TopLine>428</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\minilib\sets.d</FileName>
-            <CaretY>204</CaretY>
-            <TopLine>181</TopLine>
+            <FileName>D:\lab\d\sard\source\sard\classes.d</FileName>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\sard\scanners.d</FileName>
-            <CaretY>565</CaretY>
-            <TopLine>536</TopLine>
+            <FileName>D:\lab\d\sard\source\sard\types.d</FileName>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\sard\scripts.d</FileName>
-            <CaretY>99</CaretY>
-            <TopLine>73</TopLine>
+            <FileName>D:\lab\d\sard\source\sard\objects.d</FileName>
           </Object>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\home\d\sard\src\sard\runtimes.d</FileName>
-            <CaretX>37</CaretX>
-            <CaretY>114</CaretY>
-            <TopLine>108</TopLine>
+            <FileName>D:\lab\d\sard\source\sard\runtimes.d</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\sard\source\sard\scripts.d</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\sard\source\main.d</FileName>
+            <CaretY>53</CaretY>
+            <TopLine>49</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\sard\source\test.d</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\pascal\sard\demo\console\test.sard</FileName>
           </Object>
         </Items>
       </Files>
@@ -57,7 +60,7 @@
     </Options>
     <RunOptions Class="TRunProjectOptions">
       <Params>../bin/test.sard</Params>
-      <MainFolder>..\src\</MainFolder>
+      <MainFolder>..\source\</MainFolder>
       <MainFile>main.d</MainFile>
       <OutputFile>../bin/sard.exe</OutputFile>
       <ExpandPaths>False</ExpandPaths>

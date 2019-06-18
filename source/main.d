@@ -49,7 +49,7 @@ unittest{
 
 void run(string source){
     try {
-        Script script = new Script();
+        SardScript script = new SardScript();
         scope(exit) destroy(script);
 
         script.compile(source);

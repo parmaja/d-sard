@@ -329,7 +329,7 @@ public:
         return false;
     }
 
-    void addControl(CtlControl control){
+    void addControl(Control control){
         controller.setControl(control);
     }
 }
@@ -414,10 +414,10 @@ public:
         super(aParser);    
     }
 
-    override void addControl(CtlControl control)
+    override void addControl(Control control)
     {
         switch (control.code){
-            case Control.End, Control.Next:          
+            case Ctl.End, Ctl.Next:
                 post();
                 parser.setAction(Actions([Action.Pop, Action.Bypass]));
                 break;
@@ -475,7 +475,7 @@ protected:
     }
 
 public:
-    override void addControl(CtlControl control)
+    override void addControl(Control control)
     {
         /*
         x:int  (p1: int; p2: string);
@@ -487,7 +487,7 @@ public:
         {
             switch(control.code)
             {
-                case Control.OpenBlock:
+                case Ctl.OpenBlock:
                     post();
                     Block_Node aBlock = new Block_Node();
                     aBlock.parent = declare;
@@ -496,7 +496,7 @@ public:
                     setAction(Actions([Action.Pop]), new CollectorBlock(parser, aBlock.statements));
                     break;
 
-                case Control.Declare:
+                case Ctl.Declare:
                     if (param){
                         post();
                         state = State.Type;
@@ -507,7 +507,7 @@ public:
                     }
                     break;
 
-                case Control.Assign:
+                case Ctl.Assign:
                     post();
                     declare.executeObject = new Assign_Node();
                     declare.executeObject.parent = declare;
@@ -515,7 +515,7 @@ public:
                     setAction(Actions([Action.Pop])); //Finish it, mean there is no body/statment for the declare
                     break;
 
-                case Control.End:
+                case Ctl.End:
                     if (param){
                         post();
                         state = State.Name;
@@ -526,19 +526,19 @@ public:
                     }
                     break;
 
-                case Control.Next:
+                case Ctl.Next:
                     post();
                     state = State.Name;
                     break;
 
-                case Control.OpenParams:
+                case Ctl.OpenParams:
                     post();
                     if (declare.defines.parameters.count > 0)
                         error("You already define params! we expected open block.");
                     param = true;
                     break;
 
-                case Control.CloseParams:
+                case Ctl.CloseParams:
                     post();
                     //pop(); //Finish it
                     param = false;
@@ -576,7 +576,7 @@ public:
         collector = aCollector;
     }
 
-    abstract void setControl(CtlControl control);
+    abstract void setControl(Control control);
 }
 
 /**
@@ -590,13 +590,13 @@ public:
         super(aCollector);
     }
 
-    override void setControl(CtlControl control)
+    override void setControl(Control control)
     {
         with(collector)
         {
             switch(control.code)
             {
-                case Control.Assign:
+                case Ctl.Assign:
                     if (isInitial)
                     {
                         instruction.setAssign();
@@ -607,7 +607,7 @@ public:
 
                     break;
 
-                case Control.Declare:
+                case Ctl.Declare:
                     if (isInitial)
                     {
                         Declare_Node aDeclare = instruction.setDeclare();
@@ -618,20 +618,20 @@ public:
                         error("You can not use a declare here!");
                     break;
 
-                case Control.OpenBlock:
+                case Ctl.OpenBlock:
                     Block_Node aBlock = new Block_Node();
                     instruction.setObject(aBlock);
                     parser.push(new CollectorBlock(parser, aBlock.statements));
                     break;
 
-                case Control.CloseBlock:
+                case Ctl.CloseBlock:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Curly");
                     parser.setAction(Actions([Action.Pop]));
                     break;
 
-                case Control.OpenParams:
+                case Ctl.OpenParams:
                     //params of function/object like: Sin(10)
                     if (instruction.checkIdentifier())
                     {
@@ -643,23 +643,23 @@ public:
                             parser.push(new CollectorStatement(parser, statement));
                     break;
 
-                case Control.CloseParams:
+                case Ctl.CloseParams:
                     post();
                     if (parser.count == 1)
                         error("Maybe you closed not opened Bracket");
                     parser.setAction(Actions([Action.Pop]));
                     break;
 
-                case Control.Start:            
+                case Ctl.Start:            
                     break;
-                case Control.Stop:            
+                case Ctl.Stop:            
                     post();
                     break;
-                case Control.End:            
+                case Ctl.End:            
                     post();
                     next();
                     break;
-                case Control.Next:            
+                case Ctl.Next:            
                     post();
                     next();
                     break;
@@ -681,7 +681,7 @@ public:
         super(aCollector);
     }
 
-    override void setControl(CtlControl control)
+    override void setControl(Control control)
     {
         //nothing O.o
         //TODO change the inheretance 
@@ -707,7 +707,7 @@ public:
     void setToken(Token token){
     }
 
-    void setControl(CtlControl control){
+    void setControl(Control control){
     }
 
     void setOperator(Operator operator){
@@ -734,7 +734,7 @@ public:
 class CodeParser: Parser
 {
 protected:
-    Control lastControl;
+    Ctl lastControl;
 
     override bool isKeyword(string identifier)
     {
@@ -742,12 +742,12 @@ protected:
         /*
         if (identifier == "begin")
         {
-            setControl(Control.OpenBlock);
+            setControl(Ctl.OpenBlock);
             return true;
         } 
         if (identifier == "end")
         {
-            setControl(Control.CloseBlock);
+            setControl(Ctl.CloseBlock);
             return true;
         }   
         else  */    
@@ -768,15 +768,15 @@ protected:
                         } <---------here not need to add ;
                     y := 10;    
             */
-            if (lastControl == Control.CloseBlock) 
+            if (lastControl == Ctl.CloseBlock) 
             {
-                lastControl = Control.None;//prevent loop
-                setControl(lexer.controls.getControl(Control.End));
+                lastControl = Ctl.None;//prevent loop
+                setControl(lexer.controls.getControl(Ctl.End));
             }
             current.addToken(token);
             doQueue();
             actions = [];
-            lastControl = Control.Token;
+            lastControl = Ctl.Token;
         }
     }
 
@@ -791,19 +791,19 @@ protected:
         current.addOperator(o);
         doQueue();
         actions = [];
-        lastControl = Control.Operator;
+        lastControl = Ctl.Operator;
     }
 
-    override void setControl(CtlControl control)
+    override void setControl(Control control)
     {
         debug(log){        
             writeln("SetControl: " ~ to!string(control));
         }
 
-        if (lastControl == Control.CloseBlock) //see setToken
+        if (lastControl == Ctl.CloseBlock) //see setToken
         {
-            lastControl = Control.None;//prevent loop
-            setControl(lexer.controls.getControl(Control.End));
+            lastControl = Ctl.None;//prevent loop
+            setControl(lexer.controls.getControl(Ctl.End));
         }
 
         current.addControl(control);
@@ -866,10 +866,10 @@ public:
 
     override void start()
     {
-        setControl(lexer.controls.getControl(Control.Start)); 
+        setControl(lexer.controls.getControl(Ctl.Start)); 
     }
 
     override void stop(){
-        setControl(lexer.controls.getControl(Control.Stop));
+        setControl(lexer.controls.getControl(Ctl.Stop));
     }
 }

@@ -45,7 +45,11 @@ string trim(string s)
 */
 bool scanText(string s, const string text, ref int index) 
 {
+    if (s == "")
+        return false;
+
     bool r = (text.length - index) >= s.length;
+    //bool r = (text.length - (index - 1)) >= s.length; //when convert to pascal
     if (r) {
         string w = text[index..index + s.length];
         r = toLower(w) == toLower(s); //case *in*sensitive

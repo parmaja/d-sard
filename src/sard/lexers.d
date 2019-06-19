@@ -21,7 +21,7 @@ import sard.utils;
 /**        Controls
 /**---------------------------*/
 
-enum Control: int
+enum Ctl: int
 {
     None = 0,
     Token,//* Token like Identifier, Keyword or Number
@@ -57,16 +57,21 @@ enum Type : int
     Comment
 }
 
+class SymbolicObject: BaseObject
+{
+    public bool IsSymbol;
+}
+
 /**
 *   This will used in the tokenizer
 */
 
 //TODO maybe struct not a class
 
-class CtlControl: BaseObject
+class Control: SymbolicObject
 {
     string name;
-    Control code;
+    Ctl code;
     int level;
     string description;
 
@@ -74,7 +79,7 @@ class CtlControl: BaseObject
         super();
     }
 
-    this(string aName, Control aCode)
+    this(string aName, Ctl aCode)
     {
         this();
         name = aName;
@@ -82,11 +87,11 @@ class CtlControl: BaseObject
     }
 }
 
-class CtlControls: NamedObjects!CtlControl
+class Controls: NamedObjects!Control
 {
-    CtlControl findControl(Control control)
+    Control findControl(Ctl control)
     {
-        CtlControl result = null;
+        Control result = null;
         foreach(itm; this) {
             if (control == itm.code) {
                 result = itm;
@@ -97,18 +102,18 @@ class CtlControls: NamedObjects!CtlControl
     }
 
     //getControl like find but raise exception
-    CtlControl getControl(Control control){
+    Control getControl(Ctl control){
         if (count == 0)
             error("No controls is added" ~ to!string(control));
-        CtlControl result = findControl(control);
+        Control result = findControl(control);
         if (!result)
             error("Control not found " ~ to!string(control));
         return result;
     }
 
-    CtlControl add(string name, Control code)
+    Control add(string name, Ctl code)
     {
-        CtlControl c = new CtlControl(name, code);
+        Control c = new Control(name, code);
         super.add(c);
         return c;
     }
@@ -120,7 +125,7 @@ class CtlControls: NamedObjects!CtlControl
 
 enum Associative {Left, Right};
 
-class Operator: BaseObject
+class Operator: SymbolicObject
 {
 public:
     string name; //Sign like + or -
@@ -153,19 +158,34 @@ public:
 }
 
 /**---------------------------*/
+/**        Symbol
+/**---------------------------*/
+
+class Symbol: SymbolicObject
+{
+public:
+    string name; //Sign like + or -
+}
+
+class Symbols: NamedObjects!Symbol
+{
+public:
+}
+
+/**---------------------------*/
 /**        Token
 /**---------------------------*/
 
 struct Token
 {
 public:
-    Control control;
+    Ctl control;
     int type;
     string value;
 
     @disable this();
 
-    this(Control c, int t, string v)
+    this(Ctl c, int t, string v)
     {
         type = t;
         value = v;
@@ -186,7 +206,7 @@ protected:
 
 public:
     abstract void setToken(Token token);
-    abstract void setControl(CtlControl control);
+    abstract void setControl(Control control);
     abstract void setOperator(Operator operator);
     abstract void setWhiteSpaces(string whitespaces);
 
@@ -215,11 +235,9 @@ private:
 
 protected:
     //Return true if it done, next will auto detect it detect
-    abstract void scan(const string text, ref int column, ref bool resume);
+    abstract void scan(const string text, int started, ref int column, ref bool resume);
 
-    bool accept(const string text, int column){
-        return false;
-    }
+    abstract bool accept(const string text, int column);
     //This function call when switched to it
 
     void switched() {
@@ -244,23 +262,22 @@ protected:
     abstract void finish();
     abstract void collect(string text);
 
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
-        int pos = column;
         if (!resume) //first time after accept()
         {
             column = column + openSymbol.length;
             if (lexer.trimSymbols)
-                pos = pos + openSymbol.length; //we need to ignore open tag {* here
+                started = started + openSymbol.length; //we need to ignore open tag {* here
         }
 
-        while (column < text.length)
+        while (indexInStr(column, text))
         {
             if (scanCompare(closeSymbol, text, column))
             {
                 if (!lexer.trimSymbols)
                     column = column + closeSymbol.length;
-                collect(text[pos..column]);
+                collect(text[started..column]);
                 if (lexer.trimSymbols)
                     column = column + closeSymbol.length;
 
@@ -270,7 +287,7 @@ protected:
             }
             column++;
         }
-        collect(text[pos..column]);
+        collect(text[started..column]);
         resume = true;
     }
 
@@ -302,7 +319,7 @@ abstract class String_Tokenizer: BufferedMultiLine_Tokenizer
 protected:
     override void setToken(string text)
     {
-        lexer.parser.setToken(Token(Control.Token, Type.String, text));
+        lexer.parser.setToken(Token(Ctl.Token, Type.String, text));
     }
 }
 
@@ -324,8 +341,11 @@ protected:
     Operators _operators;
     @property public Operators operators () { return _operators; }
 
-    CtlControls _controls;
-    @property public CtlControls controls() { return _controls; }
+    Controls _controls;
+    @property public Controls controls() { return _controls; }
+
+    Symbols _symbols;
+    @property public Symbols symbols() { return _symbols; }
 
     IParser _parser;
     public @property IParser parser() { return _parser; };
@@ -336,7 +356,8 @@ protected:
     Tokenizer detectTokenizer(const string text, int column)
     {
         Tokenizer result = null;
-        if (column >= text.length) {
+        if (column >= text.length)  // compare > in pascal
+        {
             //do i need to switchTokenizer?
             //return null; //no tokenizer for empty line or EOL
             //result = null; nothing to do already nil
@@ -401,12 +422,14 @@ public:
     this(){
         super();
         _operators = new Operators();
-        _controls = new CtlControls();
+        _controls = new Controls();
+        _symbols = new Symbols();
     }
 
     ~this(){
         destroy(_operators);
         destroy(_controls);
+        destroy(_symbols);
     }
 
     bool trimSymbols = true; //ommit send open and close tags when setToken
@@ -434,7 +457,7 @@ public:
     {
         int len = text.length;
         bool resume = false;
-        while (column < len)
+        while (column < len) //use <= in pascal
         {
             int oldColumn = column;
             Tokenizer oldTokenizer = current;
@@ -445,7 +468,7 @@ public:
                 else
                     resume = true;
 
-                current.scan(text, column, resume);
+                current.scan(text, column, column, resume);
 
                 if (!resume)
                     switchTokenizer(null);
@@ -526,6 +549,7 @@ public:
 
         _line = line;
         int column = 0;
+        //int column = 1; when convert to pascal
         lexer.scanLine(text, line, column);
     }
 
@@ -535,7 +559,7 @@ public:
         int i = 0;
         while(i < lines.count())
         {
-            scanLine(lines[i] ~ "\n", i);//TODO i hate to add \n it must be included in the lines itself
+            scanLine(lines[i] ~ "\n", i + 1);//TODO i hate to add \n it must be included in the lines itself
             i++;
         }
         stop();

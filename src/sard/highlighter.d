@@ -44,7 +44,7 @@ public:
         engine.print(token.value);
     }
 
-    override void setControl(CtlControl control){
+    override void setControl(Control control){
         //engine.print(control.name);
     
     }

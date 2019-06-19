@@ -58,7 +58,7 @@ class ParserException: Exception
     }
 }
 
-void error(string err, int code = -1) 
+void error(string err, int code = -1)
 {
     throw new CodeException(err, code);
 }
@@ -426,4 +426,11 @@ public static void setEngine(Engine newEngine)
         error("Engine not set! set it in the main().");
     }
     return _engine;
+}
+
+//functions
+
+bool indexInStr(int index,string str) {
+    return index < str.length;
+    //return index <= str.length; in Pascal
 }

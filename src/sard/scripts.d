@@ -27,6 +27,7 @@ class CodeScanner: Scanner
 {
 protected:
     Block_Node _block;
+    CodeParser _parser;
 
 public:
     this(Block_Node block)
@@ -38,9 +39,9 @@ public:
 
     override void doStart()
     {
-        CodeParser parser = new CodeParser(lexer, _block.statements);
+        _parser = new CodeParser(lexer, _block.statements);
 
-        lexer.parser = parser;
+        lexer.parser = _parser;
         lexer.start();
     }
 
@@ -48,6 +49,7 @@ public:
     {
         lexer.stop();
         lexer.parser = null;
+        destroy(_parser);
     }
 }
 

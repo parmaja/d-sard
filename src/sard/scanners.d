@@ -51,14 +51,13 @@ static immutable char[] sEscape = ['\\'];
 class Whitespace_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
-        int pos = column;
         column++;
-        while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
+        while (indexInStr(column, text) && (lexer.isWhiteSpace(text[column])))
             column++;
 
-        lexer.parser.setWhiteSpaces(text[pos..column]);
+        lexer.parser.setWhiteSpaces(text[started..column]);
         resume = false;
     }
 
@@ -70,14 +69,13 @@ protected:
 class Identifier_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
-        int pos = column;
         column++;
-        while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
+        while (indexInStr(column, text) && (lexer.isIdentifier(text[column], false)))
             column++;
 
-        lexer.parser.setToken(Token(Control.Token, Type.Identifier, text[pos..column]));
+        lexer.parser.setToken(Token(Ctl.Token, Type.Identifier, text[started..column]));
         resume = false;
     }
 
@@ -89,14 +87,13 @@ protected:
 class Number_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
-        int pos = column;      
         column++;
-        while ((column < text.length) && (lexer.isNumber(text[column], false)))
+        while (indexInStr(column, text) && (lexer.isNumber(text[column], false)))
             column++;    
 
-        lexer.parser.setToken(Token(Control.Token, Type.Number, text[pos..column]));
+        lexer.parser.setToken(Token(Ctl.Token, Type.Number, text[started..column]));
         resume = false;
     }
 
@@ -108,13 +105,13 @@ protected:
 class Control_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume) 
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
-        CtlControl control = lexer.controls.scan(text, column);
+        Control control = lexer.controls.scan(text, column);
         if (control !is null)
             column = column + control.name.length;
         else
-            error("Unkown control started with " ~ text[column]);
+            error("Unkown control started with " ~ text[started]);
 
         lexer.parser.setControl(control);
         resume = false;
@@ -129,13 +126,13 @@ protected:
 class Operator_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
         Operator operator = lexer.operators.scan(text, column);
         if (operator !is null)
             column = column + operator.name.length;
         else
-            error("Unkown operator started with " ~ text[column]);
+            error("Unkown operator started with " ~ text[started]);
 
         lexer.parser.setOperator(operator);
         resume = false;
@@ -151,10 +148,10 @@ protected:
 class LineComment_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {                                   
         column++;
-        while ((column < text.length) && (!lexer.isEOL(text[column])))
+        while (indexInStr(column, text) && (!lexer.isEOL(text[column])))
             column++;
         column++;//Eat the EOF char
         resume = false;
@@ -168,9 +165,9 @@ protected:
 class BlockComment_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
-        while (column < text.length) 
+        while (indexInStr(column, text))
         {
             if (scanText("*/", text, column)) 
             {
@@ -200,7 +197,7 @@ class Comment_Tokenizer: BufferedMultiLine_Tokenizer
 
     override void setToken(string text)
     {
-        lexer.parser.setToken(Token(Control.Token, Type.Comment, text));
+        lexer.parser.setToken(Token(Ctl.Token, Type.Comment, text));
     }
 }
 
@@ -232,15 +229,15 @@ protected:
 class Escape_Tokenizer: Tokenizer
 {
 protected:    
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
         int pos = column;
         column++; //not need first char, it is not pass from isIdentifier
         //print("Hello "\n"World"); //but add " to the world
-        while ((column < text.length) && (lexer.isIdentifier(text[column], false)))
+        while (indexInStr(column, text) && (lexer.isIdentifier(text[column], false)))
             column++;    
 
-        lexer.parser.setToken(Token(Control.Token, Type.Escape, text[pos..column]));
+        lexer.parser.setToken(Token(Ctl.Token, Type.Escape, text[pos..column]));
         resume = false;
     }
 
@@ -260,25 +257,25 @@ public:
         super();
         with(controls)
         {
-            add("", Control.None);////TODO i feel it is so bad
-            add("", Control.Token);
-            add("", Control.Operator);
-            add("", Control.Start);
-            add("", Control.Stop);
-            add("", Control.Declare);
-            add("", Control.Assign);
-            add("", Control.Let);
+            add("", Ctl.None);////TODO i feel it is so bad
+            add("", Ctl.Token);
+            add("", Ctl.Operator);
+            add("", Ctl.Start);
+            add("", Ctl.Stop);
+//            add("", Ctl.Declare);
+//            add("", Ctl.Assign);
+//            add("", Ctl.Let);
 
-            add("(", Control.OpenParams);
-            add("[", Control.OpenArray);
-            add("{", Control.OpenBlock);
-            add(")", Control.CloseParams);
-            add("]", Control.CloseArray);
-            add("}", Control.CloseBlock);
-            add(";", Control.End);
-            add(",", Control.Next);
-            add(":", Control.Declare);
-            add(":=", Control.Assign);
+            add("(", Ctl.OpenParams);
+            add("[", Ctl.OpenArray);
+            add("{", Ctl.OpenBlock);
+            add(")", Ctl.CloseParams);
+            add("]", Ctl.CloseArray);
+            add("}", Ctl.CloseBlock);
+            add(";", Ctl.End);
+            add(",", Ctl.Next);
+            add(":", Ctl.Declare);
+            add(":=", Ctl.Assign);
         }
 
         with (operators)
@@ -366,11 +363,11 @@ public:
 class OpenPreprocessor_Tokenizer: Tokenizer
 {
 protected:
-    override void scan(const string text, ref int column, ref bool resume)
+    override void scan(const string text, int started, ref int column, ref bool resume)
     {
         int pos = column;
         column++;
-        while ((column < text.length) && (lexer.isWhiteSpace(text[column])))
+        while (indexInStr(column, text) && (lexer.isWhiteSpace(text[column])))
             column++;
 
         lexer.parser.setWhiteSpaces(text[pos..column]);
@@ -388,7 +385,7 @@ class PlainLexer: Lexer
     {
         with(controls)
         {
-            add("<?", Control.OpenPreprocessor);
+            add("<?", Ctl.OpenPreprocessor);
         }
 
         with(this)

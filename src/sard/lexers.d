@@ -165,11 +165,22 @@ class Symbol: SymbolicObject
 {
 public:
     string name; //Sign like + or -
+
+    this(string aName)
+    {
+        name = aName;
+    }
 }
 
 class Symbols: NamedObjects!Symbol
 {
 public:
+    Symbol add(string name)
+    {
+        Symbol c = new Symbol(name);
+        super.add(c);
+        return c;
+    }
 }
 
 /**---------------------------*/
@@ -338,14 +349,14 @@ protected:
     Tokenizer _current; //current tokenizer
     public @property Tokenizer current() { return _current; } ;
 
-    Operators _operators;
-    @property public Operators operators () { return _operators; }
+    Symbols _symbols;
+    @property public Symbols symbols() { return _symbols; }
 
     Controls _controls;
     @property public Controls controls() { return _controls; }
 
-    Symbols _symbols;
-    @property public Symbols symbols() { return _symbols; }
+    Operators _operators;
+    @property public Operators operators () { return _operators; }
 
     IParser _parser;
     public @property IParser parser() { return _parser; };
@@ -421,15 +432,15 @@ public:
 
     this(){
         super();
-        _operators = new Operators();
-        _controls = new Controls();
         _symbols = new Symbols();
+        _controls = new Controls();
+        _operators = new Operators();
     }
 
     ~this(){
-        destroy(_operators);
-        destroy(_controls);
         destroy(_symbols);
+        destroy(_controls);
+        destroy(_operators);
     }
 
     bool trimSymbols = true; //ommit send open and close tags when setToken

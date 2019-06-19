@@ -255,6 +255,9 @@ class CodeLexer: Lexer
 public:
     this(){
         super();
+        with (symbols)
+        {
+        }
         with(controls)
         {
             add("", Ctl.None);////TODO i feel it is so bad
@@ -345,7 +348,7 @@ public:
 
     override bool isSymbol(char vChar)
     {
-        return sSymbolChars.indexOf(vChar) >= 0;
+        return (sSymbolChars.indexOf(vChar) >= 0) || symbols.isOpenBy(vChar);
     }
 
     override bool isIdentifier(char vChar, bool vOpen = true)

@@ -26,23 +26,6 @@ import std.file;
 import std.path;
 import sard;
 
-class MainEngine: Engine
-{
-    this(){
-        super();
-    }
-
-    override void print(string text, bool eol = true)
-    {
-        //luck for mutlithread
-        //Terminal.color(color); //map it
-        if (eol)
-            writeln(text);
-        else
-            write(text);
-    }
-}
-
 unittest{
 
 }
@@ -63,7 +46,7 @@ void run(string source){
     {
         with (e){
             writeln();
-            engine.print(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));
+            writeln(msg ~ " line: " ~ to!string(line) ~ " column: " ~ to!string(column));
         }
 
     }
@@ -71,7 +54,7 @@ void run(string source){
     {
         with (e){
             writeln();
-            engine.print("Error: " ~ msg, true);
+            writeln("Error: " ~ msg, true);
         }
     }
 }
@@ -82,8 +65,6 @@ int main(string[] argv)
     debug{
         writeln("Debug Mode\n");
     }
-
-    setEngine(new MainEngine());
 
     string file;
 

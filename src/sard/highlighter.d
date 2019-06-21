@@ -27,7 +27,6 @@ import sard.classes;
 import sard.lexers;
 import sard.parsers;
 import sard.objects;
-import sard.operators;
 import sard.scanners;
 
 /**

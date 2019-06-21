@@ -56,8 +56,7 @@ void run(string source){
         script.run();
 
         string s = script.result;
-        engine.print(s);
-
+        writeln(s);
         writeln();
     }
     catch(ParserException e)

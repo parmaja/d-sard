@@ -139,8 +139,8 @@ public:
 
         auto print_object = new Print_object_Node();
         print_object.name = "print";
-        Declare_Node print_declare = main.declareObject(print_object);
-        print_declare.defines.parameters.add("s", "string");
+        with (main.declareObject(print_object))
+            defines.parameters.add("s", "string");
 
         /* Compile */
 

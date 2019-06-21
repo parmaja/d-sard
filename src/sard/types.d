@@ -135,18 +135,17 @@ protected:
     }
 
 public:
-    /*    deprecated("testing") */
-    private Statement declareStatement;
 
     Declare_Node declareObject(Node object)
     {
-        if (declareStatement is null)
-            declareStatement =  statements.add();
-        Declare_Node result = new Declare_Node(); //TODO should use ctor to init variables
-        result.name = object.name;
-        result.executeObject = object;
-        declareStatement.add(null, result);
-        return result;
+        with (_statements.add) {
+            Declare_Node result = new Declare_Node(); //TODO should use ctor to init variables
+            result.name = object.name;
+            object.parent = result;
+            result.executeObject = object;
+            add(null, result);
+            return result;
+        }
     }
 }
 

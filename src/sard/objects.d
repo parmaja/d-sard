@@ -477,9 +477,10 @@ class Defines: BaseObject
             while (i < parameters.count)
             {
                 env.results.push();
-                arguments[i].execute(data, env);
                 if (i < arguments.count)
                 {
+                    arguments[i].execute(data, env);
+
                     Define p = parameters[i];
                     RunValue v = env.stack.current.variables.register(p.name, RunVarKinds([RunVarKind.Local, RunVarKind.Argument])); //TODO but must find it locally
                     v.value = env.results.current.result.value;

@@ -85,34 +85,24 @@ int main(string[] argv)
 
     setEngine(new MainEngine());
 
-    version(unittest){
-        writeln("Unittest Mode\n");
-        import test;
-        runTest("");
-    } 
-    else
-    {   
-        string file;
-        
-        writeln(getcwd());
-        if (argv.length > 1)
-        {
-            file = argv[1];
-        }
-        else {
-            file = "./source/test.sard";
-        }
+    string file;
 
-        if (exists(file))
-        {
-            writeln("run file: " ~ file);
-            string code = readText(file);
-            run(code);
-        }
-        else {
-            writeln("File not exists: " ~ file ~ "\n");
-            return 1;
-        }
+    writeln(getcwd());
+
+    if (argv.length > 1)
+    {
+        file = argv[1];
+    }
+
+    if (exists(file))
+    {
+        writeln("run file: " ~ file);
+        string code = readText(file);
+        run(code);
+    }
+    else {
+        writeln("File not exists: " ~ file ~ "\n");
+        return 1;
     }
     return 0;
 }

@@ -96,10 +96,9 @@ protected:
     override void doExecute(RunData data, RunEnv env, Operator operator, ref bool done){
         //env.results.current.result.value = new Text_Node(Clock.currTime().toISOExtString());
         auto v = env.stack.current.variables.find("s");
-        if (v !is null){
-            //if (v.value !is null) //TODO it is bad, we should not have it null
-                sard.classes.engine.print(v.value.asText);
-                done = true;
+        if ((v !is null) && (v.value !is null)){
+            sard.classes.engine.print(v.value.asText);
+            done = true;
         }
     }
 }

@@ -12,42 +12,48 @@
       <Watches Class="TmneWatches">
       </Watches>
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>D:\lab\pascal\p-sard\sard\demo\console\small.sard</CurrentFile>
+        <CurrentFile>D:\lab\d\d-sard\sard\bin\test.sard</CurrentFile>
         <CurrentFolder>D:\lab\d\d-sard\sard\src\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\d-sard\sard\src\main.d</FileName>
-            <CaretY>118</CaretY>
-            <TopLine>79</TopLine>
+            <CaretX>23</CaretX>
+            <CaretY>90</CaretY>
+            <TopLine>67</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\d-sard\sard\src\sard\objects.d</FileName>
-            <CaretX>22</CaretX>
-            <CaretY>483</CaretY>
-            <TopLine>454</TopLine>
+            <CaretX>19</CaretX>
+            <CaretY>250</CaretY>
+            <TopLine>212</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\d-sard\sard\src\sard\runtimes.d</FileName>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\d-sard\sard\src\sard\types.d</FileName>
-            <CaretY>142</CaretY>
-            <TopLine>113</TopLine>
+            <CaretX>25</CaretX>
+            <CaretY>265</CaretY>
+            <TopLine>228</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\d-sard\sard\src\sard\parsers.d</FileName>
-            <CaretY>581</CaretY>
-            <TopLine>563</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\d\d-sard\sard\src\sard\scripts.d</FileName>
-            <CaretY>143</CaretY>
-            <TopLine>113</TopLine>
+            <CaretY>98</CaretY>
+            <TopLine>65</TopLine>
           </Object>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\pascal\p-sard\sard\demo\console\small.sard</FileName>
-            <CaretX>16</CaretX>
-            <CaretY>5</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\full_test.sard</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\bin\test.sard</FileName>
+            <CaretX>5</CaretX>
+            <CaretY>4</CaretY>
           </Object>
         </Items>
       </Files>

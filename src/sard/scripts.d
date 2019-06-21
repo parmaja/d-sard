@@ -97,7 +97,7 @@ protected:
         //env.results.current.result.value = new Text_Node(Clock.currTime().toISOExtString());
         auto v = env.stack.current.variables.find("s");
         if ((v !is null) && (v.value !is null)){
-            sard.classes.engine.print(v.value.asText);
+            writeln(v.value.asText);
             done = true;
         }
     }

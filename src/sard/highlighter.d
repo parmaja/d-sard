@@ -27,7 +27,6 @@ import sard.classes;
 import sard.lexers;
 import sard.parsers;
 import sard.objects;
-import sard.runtimes;
 import sard.operators;
 import sard.scanners;
 
@@ -41,7 +40,7 @@ class HighlightParser: BaseObject, IParser
 {
 public:
     override void setToken(Token token){
-        engine.print(token.value);
+        writeln(token.value);
     }
 
     override void setControl(Control control){
@@ -49,11 +48,11 @@ public:
     
     }
     override void setOperator(Operator operator){
-        engine.print(operator.name);
+        writeln(operator.name);
     }
 
     override void setWhiteSpaces(string whitespaces){
-        engine.print(whitespaces);
+        writeln(whitespaces);
     }
 
     override void start(){        

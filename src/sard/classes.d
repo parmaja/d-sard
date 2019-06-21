@@ -395,39 +395,6 @@ public:
     }
 }
 
-/**---------------------------*/
-/**        Engine
-/**---------------------------*/
-
-private static Engine _engine;
-
-class Engine
-{
-    abstract void print(string text, bool eol = true);
-
-    debug void log(string text){
-        print(text);
-    }
-
-    this(){
-    }
-}
-
-public static void setEngine(Engine newEngine)
-{
-    if (_engine !is null)
-        destroy(_engine);
-    _engine = newEngine;
-}
-
-@property public static Engine engine()
-{
-    if (_engine is null) {
-        error("Engine not set! set it in the main().");
-    }
-    return _engine;
-}
-
 //functions
 
 bool indexInStr(int index,string str) {

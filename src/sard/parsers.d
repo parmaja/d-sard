@@ -23,8 +23,6 @@ import sard.classes;
 import sard.objects;
 import sard.lexers;
 import sard.operators;
-import sard.types;
-import sard.runtimes;
 import sard.scanners;
 
 import minilib.sets;

@@ -6,12 +6,11 @@ module sard;
     @author    Zaher Dirkey <zaherdirkey at yahoo dot com>
 */
 
+public import sard.utils;
 public import sard.classes;
 public import sard.lexers;
-public import sard.objects;
-
 public import sard.scanners;
-public import sard.parsers;
 
+public import sard.objects;
+public import sard.parsers;
 public import sard.scripts;
-public import sard.utils;

@@ -11,16 +11,16 @@ Modules
     classes.d
     Base classes for every thing, every thing dervied from BaseObject
     
+    scanners.d
+    Have lexer and scanners, scan the text source code and pass it to the parser
+
     objects.d
     Run time objects that can execute.
     
     parsers.d
     Here is the complex of generating parser tree of objects
     
-    scanners.d
-    Have lexer and scanners, scan the text source code and pass it to the parser
-    
-    script.d
+    scripts.d
         Main object to run script    
             
 

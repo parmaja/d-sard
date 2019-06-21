@@ -22,10 +22,10 @@ import sard.runtimes;
 
 /**
 x := 10  + ( 500 + 600);
--------------[  Fork  ]-------
+-------------[  Enclose  ]-------
 */
 
-class Fork_Node: Node
+class Enclose_Node: Node
 {
 protected:
     Statement _statement;
@@ -63,10 +63,10 @@ public:
 }
 
 /*
-*   Enclose_Node is a base class for list of objects (statements) like Block_Node
+*   Statement_Node is a base class for list of objects (statements) like Block_Node
 */
 
-abstract class Enclose_Node: Node
+abstract class Statement_Node: Node
 {
 protected:
     Statements _statements;
@@ -117,7 +117,7 @@ public:
     It a block before execute push in env, after execute will pop the env, it have return value too in the env
 */
 
-class Block_Node: Enclose_Node  //Result was droped until using := assign in the first of statement
+class Block_Node: Statement_Node  //Result was droped until using := assign in the first of statement
 {
 private:
 
@@ -142,11 +142,11 @@ public:
     {
         if (declareStatement is null)
             declareStatement =  statements.add();
-        Declare_Node declare = new Declare_Node(); //TODO should use ctor to init variables
-        declare.name = object.name;
-        declare.executeObject = object;
-        declareStatement.add(null, declare);
-        return declare;
+        Declare_Node result = new Declare_Node(); //TODO should use ctor to init variables
+        result.name = object.name;
+        result.executeObject = object;
+        declareStatement.add(null, result);
+        return result;
     }
 }
 
@@ -517,8 +517,6 @@ protected:
             RunValue v = env.stack.current.variables.find(name);
             if (v is null)
                 error("Can not find a variable: " ~ name);
-            if (v.value is null)
-                error("Variable value is null: " ~ v.name);
             if (v.value is null)
                 error("Variable object is null: " ~ v.name);
             done = v.value.execute(data, env, operator);

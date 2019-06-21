@@ -201,10 +201,10 @@ public:
 
     RunData findDeclare(string name)
     {
-        RunData declare = find(name);         
-        if (parent && (declare is null))
-            declare = parent.findDeclare(name);         
-        return declare;
+        RunData result = find(name);
+        if ((result is null) && parent)
+            result = parent.findDeclare(name);
+        return result;
     }
 
     this(RunData aParent)

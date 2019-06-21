@@ -33,9 +33,7 @@ import sard.operators;
 const string sVersion = "0.01";
 const int iVersion = 1;
 
-//enum ObjectType {otUnkown, otInteger, otNumber, otBoolean, otText, otComment, otBlock, otDeclare, otObject, otClass, otVariable};
-
-class DebugInfo: BaseObject 
+class DebugInfo: BaseObject
 {
 }
 
@@ -57,6 +55,8 @@ public:
     this(Operator operator, Node object) 
     {
         super();
+        if (object is null)
+            error("Object is null!");
         _operator = operator;
         _object = object;
     }
@@ -103,12 +103,14 @@ public:
 
     void add(Operator operator, Node aObject)
     {
-        debug(log_compile) {            
+        if (aObject is null)
+            error("You can null object!");
+        if (aObject.parent !is null)
+            error("You can not add object to another parent!");
+        debug(log_compile) {
 //            writeln("add clause: " ~ (operator? operator.name : "none") ~ ", " ~ aObject.classinfo.nakename);
         }
 
-        if (aObject.parent !is null)
-            error("You can not add object to another parent!");
         aObject.parent = parent;
         super.add(new Clause(operator, aObject));
     }
@@ -207,6 +209,9 @@ public:
     this()
     {       
         super();
+        static int lastID;
+        lastID++;
+        _id = lastID;
     }
 
     private Node _parent;

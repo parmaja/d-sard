@@ -127,7 +127,7 @@ public:
         //writeln("-------------------------------");
 
         main = new Block_Node(); //destory the old compile and create new
-        main.name = "main";
+        //main.name = "main";
 
         auto version_const = new Version_Const_Node();
         version_const.name = "version";

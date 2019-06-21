@@ -185,11 +185,11 @@ public:
         return result;
     }
 
-    Fork_Node setFork()
+    Enclose_Node setEnclose()
     { 
         if (identifier != "")
             error("Identifier is already set");
-        Fork_Node result = new Fork_Node();
+        Enclose_Node result = new Enclose_Node();
         internalSetObject(result);
         return result;
     }
@@ -639,7 +639,7 @@ public:
                             parser.push(new CollectorBlock(parser, arguments));
                     }
                     else //No it is just sub statment like: 10+(5*5)
-                        with (instruction.setFork())
+                        with (instruction.setEnclose())
                             parser.push(new CollectorStatement(parser, statement));
                     break;
 

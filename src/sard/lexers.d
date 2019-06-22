@@ -645,3 +645,9 @@ public:
         _active = false;
     }
 }
+
+
+class Script: BaseObject{
+
+}
+

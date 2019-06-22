@@ -12,48 +12,11 @@
       <Watches Class="TmneWatches">
       </Watches>
       <Files Class="TEditorDesktopFiles">
-        <CurrentFile>D:\lab\d\d-sard\sard\bin\test.sard</CurrentFile>
-        <CurrentFolder>D:\lab\d\d-sard\sard\src\</CurrentFolder>
+        <CurrentFile>D:\lab\pascal\p-sard\sard\demo\console\test.json</CurrentFile>
+        <CurrentFolder>D:\lab\d\d-sard\sard\src\sard\</CurrentFolder>
         <Items>
           <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\main.d</FileName>
-            <CaretX>23</CaretX>
-            <CaretY>90</CaretY>
-            <TopLine>67</TopLine>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\sard\objects.d</FileName>
-            <CaretX>19</CaretX>
-            <CaretY>250</CaretY>
-            <TopLine>212</TopLine>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\sard\runtimes.d</FileName>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\sard\types.d</FileName>
-            <CaretX>25</CaretX>
-            <CaretY>265</CaretY>
-            <TopLine>228</TopLine>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\sard\parsers.d</FileName>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\sard\scripts.d</FileName>
-            <CaretY>98</CaretY>
-            <TopLine>65</TopLine>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\pascal\p-sard\sard\demo\console\small.sard</FileName>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\src\full_test.sard</FileName>
-          </Object>
-          <Object Type="TEditorDesktopFile">
-            <FileName>D:\lab\d\d-sard\sard\bin\test.sard</FileName>
-            <CaretX>5</CaretX>
-            <CaretY>4</CaretY>
+            <FileName>D:\lab\pascal\p-sard\sard\demo\console\test.json</FileName>
           </Object>
         </Items>
       </Files>

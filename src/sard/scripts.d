@@ -453,7 +453,7 @@ protected:
     }
 }
 
-class SardScript: BaseObject
+class SardScript: Script
 {
 protected:
 

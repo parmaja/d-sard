@@ -1,4 +1,4 @@
-module sard.scanners;
+module sard.standards;
 /**
 *   This file is part of the "SARD"
 *
@@ -26,6 +26,9 @@ import sard.utils;
 import sard.classes;
 import sard.parsers;
 import sard.objects;
+
+static immutable char[] sEOL = ['\0', '\n', '\r'];
+static immutable char[] sEscape = ['\\'];
 
 import minilib.sets;
 

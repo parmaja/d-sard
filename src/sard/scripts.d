@@ -24,7 +24,6 @@ static immutable char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '
 static immutable char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
 static immutable char[] sSymbolChars = ['"', '\'', '\\'];
 static immutable char[] sIdentifierSeparator = ".";
-static immutable char[] sEscape = ['\\'];
 
 //const sColorOpenChars = ['#',];
 //const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];

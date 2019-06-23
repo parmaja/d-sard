@@ -8,8 +8,7 @@ module sard;
 
 public import sard.utils;
 public import sard.classes;
-public import sard.scanners;
-
-public import sard.objects;
 public import sard.parsers;
+public import sard.standards;
+public import sard.objects;
 public import sard.scripts;

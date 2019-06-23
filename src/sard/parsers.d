@@ -21,7 +21,7 @@ import std.datetime;
 import sard.utils;
 import sard.classes;
 import sard.objects;
-import sard.scanners;
+import sard.standards;
 
 import minilib.sets;
 

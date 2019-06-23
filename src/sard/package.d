@@ -8,7 +8,6 @@ module sard;
 
 public import sard.utils;
 public import sard.classes;
-public import sard.lexers;
 public import sard.scanners;
 
 public import sard.objects;

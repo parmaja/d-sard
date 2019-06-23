@@ -24,7 +24,6 @@ import std.datetime;
 
 import sard.utils;
 import sard.classes;
-import sard.lexers;
 import sard.parsers;
 import sard.objects;
 

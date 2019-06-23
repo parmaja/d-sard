@@ -21,10 +21,625 @@ import std.datetime;
 import sard.utils;
 import sard.classes;
 import sard.objects;
-import sard.lexers;
 import sard.scanners;
 
 import minilib.sets;
+
+/**---------------------------*/
+/**        Controls
+/**---------------------------*/
+
+enum Ctl: int
+{
+    None = 0,
+    Token,//* Token like Identifier, Keyword or Number
+    Operator,//
+    Start, //* Start parsing
+    Stop, //* Stop parsing
+    Declare, //* Declare a class of object
+
+//    Let, //* Same as assign but make it as lexical scope, this variable will be seen from descent/child objects
+    Assign, //* Assign to object/variable used as :=
+    Next, //* End Params, Comma ,
+    End, //* End Statement Semicolon ;
+    OpenBlock, //* {
+    CloseBlock, //* }
+    OpenParams, //* (
+    CloseParams, //* )
+    OpenPreprocessor, //* <?
+    ClosePreprocessor, //* ?>
+    OpenArray, //* [
+    CloseArray //* ]
+}
+
+//TokenType
+
+enum Type : int
+{
+    None,
+    Identifier,
+    Number,
+    Color,
+    String,
+    Escape, //Maybe Strings escape
+    Comment
+}
+
+class SymbolicObject: BaseObject
+{
+    public bool IsSymbol;
+}
+
+/**
+*   This will used in the tokenizer
+*/
+
+//TODO maybe struct not a class
+
+class Control: SymbolicObject
+{
+    string name;
+    Ctl code;
+    int level;
+    string description;
+
+    this(){
+        super();
+    }
+
+    this(string aName, Ctl aCode)
+    {
+        this();
+        name = aName;
+        code = aCode;
+    }
+}
+
+class Controls: NamedObjects!Control
+{
+    Control findControl(Ctl control)
+    {
+        Control result = null;
+        foreach(itm; this) {
+            if (control == itm.code) {
+                result = itm;
+                break;
+            }
+        }
+        return result;
+    }
+
+    //getControl like find but raise exception
+    Control getControl(Ctl control){
+        if (count == 0)
+            error("No controls is added" ~ to!string(control));
+        Control result = findControl(control);
+        if (!result)
+            error("Control not found " ~ to!string(control));
+        return result;
+    }
+
+    Control add(string name, Ctl code)
+    {
+        Control c = new Control(name, code);
+        super.add(c);
+        return c;
+    }
+}
+
+/**---------------------------*/
+/**        Operators
+/**---------------------------*/
+
+enum Associative {Left, Right};
+
+class Operator: SymbolicObject
+{
+public:
+    string name; //Sign like + or -
+    string title;
+//    int precedence;//TODO it is bad idea, we need more intelligent way to define the power level of operators
+    Associative associative;
+    string description;
+
+public:
+    debug(log_nodes) {
+        override void debugWrite(int level){
+            super.debugWrite(level);
+            writeln("operator: " ~ name);
+        }
+    }
+}
+
+class Operators: NamedObjects!Operator
+{
+public:
+    Operator findByTitle(string title)
+    {
+        foreach(itm; this)
+        {
+            if (icmp(title, itm.title) == 0)
+            return itm;
+        }
+        return null;
+    }
+}
+
+/**---------------------------*/
+/**        Symbol
+/**---------------------------*/
+
+class Symbol: SymbolicObject
+{
+public:
+    string name; //Sign like + or -
+
+    this(string aName)
+    {
+        name = aName;
+    }
+}
+
+class Symbols: NamedObjects!Symbol
+{
+public:
+    Symbol add(string name)
+    {
+        Symbol c = new Symbol(name);
+        super.add(c);
+        return c;
+    }
+}
+
+/**---------------------------*/
+/**        Token
+/**---------------------------*/
+
+struct Token
+{
+public:
+    Ctl control;
+    int type;
+    string value;
+
+    @disable this();
+
+    this(Ctl c, int t, string v)
+    {
+        type = t;
+        value = v;
+        control = c;
+    }
+}
+
+/**---------------------------*/
+/**        Tokenizer
+/**---------------------------*/
+
+/**
+*
+*   Small object scan one type of token
+*
+*/
+
+class Tokenizer: BaseObject
+{
+private:
+    Lexer _lexer;
+
+    public @property Lexer lexer() {
+        return _lexer;
+    } ;
+
+protected:
+    //Return true if it done, next will auto detect it detect
+    abstract void scan(const string text, int started, ref int column, ref bool resume);
+
+    abstract bool accept(const string text, int column);
+    //This function call when switched to it
+
+    void switched() {
+        //Maybe reseting buffer or something
+    }
+
+public:
+
+    this(){
+        super();
+    }
+}
+
+abstract class MultiLine_Tokenizer: Tokenizer
+{
+protected:
+
+    string openSymbol;
+    string closeSymbol;
+
+
+    abstract void finish();
+    abstract void collect(string text);
+
+    override void scan(const string text, int started, ref int column, ref bool resume)
+    {
+        if (!resume) //first time after accept()
+        {
+            column = column + openSymbol.length;
+            if (lexer.trimSymbols)
+                started = started + openSymbol.length; //we need to ignore open tag {* here
+        }
+
+        while (indexInStr(column, text))
+        {
+            if (scanCompare(closeSymbol, text, column))
+            {
+                if (!lexer.trimSymbols)
+                    column = column + closeSymbol.length;
+                collect(text[started..column]);
+                if (lexer.trimSymbols)
+                    column = column + closeSymbol.length;
+
+                finish();
+                resume = false;
+                return;
+            }
+            column++;
+        }
+        collect(text[started..column]);
+        resume = true;
+    }
+
+    override bool accept(const string text, int column){
+        return scanText(openSymbol, text, column);
+    }
+}
+
+abstract class BufferedMultiLine_Tokenizer: MultiLine_Tokenizer
+{
+private:
+    string buffer;
+
+protected:
+    abstract void setToken(string text);
+
+    override void collect(string text){
+        buffer = buffer ~ text;
+    }
+
+    override void finish(){
+        setToken(buffer);
+        buffer = "";
+    }
+}
+
+abstract class String_Tokenizer: BufferedMultiLine_Tokenizer
+{
+protected:
+    override void setToken(string text)
+    {
+        lexer.parser.setToken(Token(Ctl.Token, Type.String, text));
+    }
+}
+
+/**---------------------------*/
+/**        Lexer
+/**---------------------------*/
+
+class Lexer: Objects!Tokenizer {
+
+private:
+
+protected:
+    Scanner _scanner;
+    public @property Scanner scanner() { return _scanner; } ;
+
+    Tokenizer _current; //current tokenizer
+    public @property Tokenizer current() { return _current; } ;
+
+    Symbols _symbols;
+    @property public Symbols symbols() { return _symbols; }
+
+    Controls _controls;
+    @property public Controls controls() { return _controls; }
+
+    Operators _operators;
+    @property public Operators operators () { return _operators; }
+
+    Parser _parser;
+    public @property Parser parser() { return _parser; };
+    public @property Parser parser(Parser value) { return _parser = value; }
+
+protected:
+
+    Tokenizer detectTokenizer(const string text, int column)
+    {
+        Tokenizer result = null;
+        if (column >= text.length)  // compare > in pascal
+        {
+            //do i need to switchTokenizer?
+            //return null; //no tokenizer for empty line or EOL
+            //result = null; nothing to do already nil
+        }
+        else
+        {
+            foreach(itm; this)
+            {
+                if (itm.accept(text, column))
+                {
+                    result = itm;
+                    break;
+                }
+            }
+
+            if (result is null)
+                error("Tokenizer not found: " ~ text[column]);
+        }
+        switchTokenizer(result);
+        return result;
+    }
+
+    void switchTokenizer(Tokenizer nextTokenizer)
+    {
+        if (_current != nextTokenizer)
+        {
+            _current = nextTokenizer;
+            if (_current !is null)
+                _current.switched();
+        }
+    }
+
+    Tokenizer findClass(const ClassInfo tokenizerClass)
+    {
+        int i = 0;
+        foreach(itm; this) {
+            if (itm.classinfo == tokenizerClass) {
+                return itm;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    //This find the class and switch to it
+    Tokenizer selectTokenizer(ClassInfo tokenizerClass)
+    {
+        Tokenizer t = findClass(tokenizerClass);
+        if (t is null)
+            error("Tokenizer not found");
+        switchTokenizer(t);
+        return t;
+    }
+
+public:
+    override void beforeAdd(Tokenizer tokenizer)
+    {
+        super.beforeAdd(tokenizer);
+        tokenizer._lexer = this;
+    }
+
+    this(){
+        super();
+        _symbols = new Symbols();
+        _controls = new Controls();
+        _operators = new Operators();
+    }
+
+    ~this(){
+        destroy(_symbols);
+        destroy(_controls);
+        destroy(_operators);
+    }
+
+    bool trimSymbols = true; //ommit send open and close tags when setToken
+
+    abstract bool isEOL(char vChar);
+    abstract bool isWhiteSpace(char vChar, bool vOpen= true);
+    abstract bool isSymbol(char vChar);
+    abstract bool isControl(char vChar);
+    abstract bool isOperator(char vChar);
+    abstract bool isNumber(char vChar, bool vOpen = true);
+
+    bool isKeyword(string keyword){
+        return false;
+    }
+
+    bool isIdentifier(char vChar, bool vOpen = true)
+    {
+        bool r = !isWhiteSpace(vChar) && !isControl(vChar) && !isOperator(vChar) &&!isSymbol(vChar);
+        if (vOpen)
+            r = r && !isNumber(vChar, vOpen);
+        return r;
+    }
+
+    final void scanLine(const string text, const int line, ref int column)
+    {
+        int len = text.length;
+        bool resume = false;
+        while (column < len) //use <= in pascal
+        {
+            int oldColumn = column;
+            Tokenizer oldTokenizer = current;
+            try
+            {
+                if (current is null) //resume the line to current/last tokenizer
+                    detectTokenizer(text, column);
+                else
+                    resume = true;
+
+                current.scan(text, column, column, resume);
+
+                if (!resume)
+                    switchTokenizer(null);
+
+                if ((oldColumn == column) && (oldTokenizer == _current))
+                    error("Feeder in loop with: " ~ _current.classinfo.nakename); //TODO: be careful here
+            }
+            catch(Exception e) {
+                throw new ParserException(e.msg, line, column);
+            }
+        }
+    }
+
+    void start(){
+        parser.start();
+    }
+
+    void stop(){
+        parser.stop();
+    }
+}
+
+/**---------------------------*/
+/**        Scanner
+/**---------------------------*/
+
+class Scanner: Objects!Lexer
+{
+private:
+    bool _active;
+    public @property bool active() { return _active; }
+
+    string _ver;
+    public @property string ver() { return _ver; }
+
+    string _charset;
+    public @property string charset() { return _charset; }
+
+    //TODO: use env to wrap the code inside <?sard ... ?>,
+    //the current one must detect ?> to stop scanning and pop
+    //but the other lexer will throw none code to output provider
+
+    int _line;
+    public @property int line() { return _line; };
+
+
+protected:
+    Lexer lexer; //current lexer
+
+protected:
+    override void beforeAdd(Lexer lexer)
+    {
+        super.beforeAdd(lexer);
+        lexer._scanner = this;
+    }
+
+    void doStart() {
+    }
+
+    void doStop() {
+    }
+
+public:
+    this()
+    {
+        super();
+    }
+
+    ~this(){
+    }
+
+public:
+
+    void scanLine(const string text, const int line)
+    {
+        if (!active)
+            error("Should be started first");
+
+        _line = line;
+        int column = 0;
+        //int column = 1; when convert to pascal
+        lexer.scanLine(text, line, column);
+    }
+
+    void scan(const string[] lines)
+    {
+        start();
+        int i = 0;
+        while(i < lines.count())
+        {
+            scanLine(lines[i] ~ "\n", i + 1);//TODO i hate to add \n it must be included in the lines itself
+            i++;
+        }
+        stop();
+    }
+
+    /*void scan(InputStream stream)
+    {
+        char[] line;
+        start();
+        int i = 0;
+        while (stream.eof) {
+            line = stream.readLine(); //TODO readLineW
+            scanLine(to!string(line), i);
+            i++;
+        }
+        stop();
+    }
+*/
+    void scan(const string text)
+    {
+        string[] lines = text.split("\n");
+        scan(lines);
+    }
+
+/*    void scanFile(string filename)
+    {
+        BufferedFile stream = new BufferedFile(filename);
+        scope(exit) destroy(stream);
+
+        try {
+            scanStream(stream);
+        }
+        finally {
+            stream.close();
+        }
+    }*/
+    void scanFile(string filename)
+    {
+        auto file = File(filename, "r");
+        auto lines = file.byLine();
+        start();
+        int i = 0;
+        foreach(char[] line; lines)
+        {
+            line = line ~  "\n";
+            scanLine(to!string(line) , i); //TODO i hate to add \n it must be included in the lines itself
+            i++;
+        }
+        stop();
+    }
+
+/*   void scanStream(Stream stream)
+    {
+        scan(stream);
+    }
+*/
+    void start()
+    {
+        if (_active)
+            error("Already opened");
+        if (count == 0)
+            error("There is no lexers added");
+
+        _active = true;
+        lexer = this[0]; //First one
+        doStart();
+    }
+
+    void stop()
+    {
+        if (!_active)
+            error("Already closed");
+        doStop();
+        lexer = null;
+        _active = false;
+    }
+}
+
+
+class Script: BaseObject{
+
+}
 
 enum Action 
 {
@@ -223,17 +838,15 @@ abstract class Collector: BaseObject
 private:
 
 protected:
-    Instruction instruction;
     Controller controller;
 
-    Parser parser;
+    Parser _parser;
+    public @property Parser parser() { return _parser; };
 
     void internalPost(){  
     }
 
-    Controller createController() {
-        return new ControllerNormal(this);
-    }
+    abstract Controller createController();
 
 public:
 
@@ -244,7 +857,7 @@ public:
     this(Parser aParser)
     {
         this();
-        parser = aParser;
+        _parser = aParser;
         controller = createController();
         reset();
     }
@@ -254,71 +867,15 @@ public:
         debug(log_compile) writeln("kill collecter");
     }
 
-    void reset(){                      
-        //destroy(instruction);
-        instruction = Instruction.init;
-        //instruction= new Instruction;
-    }
+    abstract void reset();
 
-    void prepare(){            
-    }
+    abstract void prepare();
 
-    void post(){
-        debug(log_compile){
-            writeln("post(" ~ to!string(instruction.operator) ~ ", " ~ instruction.identifier ~ ")");
-        }
+    abstract void next();
 
-        if (instruction.isEmpty) 
-        {
-            debug(log_compile) writeln("post() empty");
-        }
-        else  {
-            prepare();
-            internalPost();
-        } 
-        reset();
-    }
+    abstract void post();
 
-    void next(){
-    }
-
-    void addToken(Token token)
-    {
-        string text = token.value;
-
-        switch (token.type) {
-            case Type.Number: 
-                instruction.setNumber(text);
-                break;
-            case Type.String: 
-                instruction.setText(text);
-                break;
-            case Type.Escape: {
-                //TODO text = //need function doing escapes
-                if (text == "\\n")
-                    text = "\n";
-                else if (text == "\\r")
-                    text = "\r";
-                else if (text == "\\\"")
-                    text = "\"";
-                else if (text == "\\\'")
-                    text = "\'";
-                instruction.setText(text);
-                break;
-            }
-            case Type.Comment: 
-                instruction.setComment(text);
-                break;
-            default:
-                instruction.setIdentifier(text);
-        }
-    }    
-
-    void addOperator(Operator operator)
-    {
-        post();
-        instruction.setOperator(operator);
-    }
+    abstract void addToken(Token token);
 
     //IsInitial: check if the next object will be the first one, usefule for Assign and Declare
     @property bool isInitial()
@@ -328,233 +885,6 @@ public:
 
     void addControl(Control control){
         controller.setControl(control);
-    }
-}
-
-class CollectorStatement: Collector
-{
-protected:
-    Statement statement;
-
-    override void internalPost()
-    {
-        super.internalPost();
-        statement.add(instruction.operator, instruction.object);
-    }
-
-public:
-
-    this(Parser aParser){
-        super(aParser);
-    }
-
-    this(Parser aParser, Statement aStatement)
-    {
-        this(aParser);
-        statement = aStatement;
-    }
-
-    override void next()
-    {
-        super.next();
-        statement = null;
-    }
-
-    override void prepare()
-    {
-        super.prepare();
-        if (instruction.identifier != "") 
-        {
-            if (instruction.object !is null)
-                error("Object is already set!");
-            instruction.setInstance();
-        }
-    }
-
-    override bool isInitial(){
-        return (statement is null) || (statement.count == 0);
-    }    
-}
-
-class CollectorBlock: CollectorStatement
-{
-protected:
-    Statements statements;
-
-public:
-
-    this(Parser aParser, Statements aStatements)
-    {
-        super(aParser);
-        statements = aStatements;
-    }
-
-    override void prepare()
-    {
-        super.prepare();
-        if (statement is null) {        
-            if (statements is null)
-                error("Maybe you need to set a block, or it single statment block");
-            statement = statements.add();
-            debug(log_compile) writeln("statements.add");
-        }                      
-    }
-}
-
-class CollectorDeclare: CollectorStatement
-{
-protected:
-
-public:
-
-    this(Parser aParser){
-        super(aParser);    
-    }
-
-    override void addControl(Control control)
-    {
-        switch (control.code){
-            case Ctl.End, Ctl.Next:
-                post();
-                parser.setAction(Actions([Action.Pop, Action.Bypass]));
-                break;
-            default:
-                super.addControl(control);
-        }
-    }
-}
-
-/**
-    Define is a parameters defines in declare 
-    
-    //parameters are in the declaration, arguments are the things actually passed to it. so void f(x), f(0), x is the parameter, 0 is the argument
-*/
-class CollectorDefine: Collector
-{
-private:
-    enum State {Name, Type};
-protected:
-    State state;
-    bool param;
-    Declare_Node declare;
-
-    this(Parser aParser){ 
-        super(aParser);    
-    }
-
-    this(Parser aParser, Declare_Node aDeclare){
-        this(aParser);
-        declare = aDeclare;
-    }
-
-    override void internalPost()
-    {
-        super.internalPost();
-        if (instruction.identifier == "")
-            error("Identifier not set"); //TODO maybe check if he post const or another things
-        if (param)
-        {
-            if (state == State.Name)
-                declare.defines.parameters.add(instruction.identifier, "");
-            else 
-            {
-                if (declare.defines.parameters.last.type != "") 
-                    error("Result type already set");
-                declare.defines.parameters.last.type = instruction.identifier;
-            }        
-        }
-        else 
-            declare.resultType = instruction.identifier;            
-    }
-
-    override Controller createController(){
-        return new ControllerDefines(this);
-    }
-
-public:
-    override void addControl(Control control)
-    {
-        /*
-        x:int  (p1: int; p2: string);
-        ^type (-------Params------)^
-        Declare  ^Declare
-        We end with ; or : or )
-        */
-        with(parser)
-        {
-            switch(control.code)
-            {
-                case Ctl.OpenBlock:
-                    post();
-                    Block_Node aBlock = new Block_Node();
-                    aBlock.parent = declare;
-                    declare.executeObject = aBlock;
-                    //We will pass the control to the next Collector
-                    setAction(Actions([Action.Pop]), new CollectorBlock(parser, aBlock.statements));
-                    break;
-
-                case Ctl.Declare:
-                    if (param){
-                        post();
-                        state = State.Type;
-                    }
-                    else {
-                        post();
-                        setAction(Actions([Action.Pop]));
-                    }
-                    break;
-
-                case Ctl.Assign:
-                    post();
-                    declare.executeObject = new Assign_Node();
-                    declare.executeObject.parent = declare;
-                    declare.executeObject.name = declare.name;
-                    setAction(Actions([Action.Pop])); //Finish it, mean there is no body/statment for the declare
-                    break;
-
-                case Ctl.End:
-                    if (param){
-                        post();
-                        state = State.Name;
-                    }
-                    else {
-                        post();
-                        setAction(Actions([Action.Pop]));
-                    }
-                    break;
-
-                case Ctl.Next:
-                    post();
-                    state = State.Name;
-                    break;
-
-                case Ctl.OpenParams:
-                    post();
-                    if (declare.defines.parameters.count > 0)
-                        error("You already define params! we expected open block.");
-                    param = true;
-                    break;
-
-                case Ctl.CloseParams:
-                    post();
-                    //pop(); //Finish it
-                    param = false;
-                    //action(Actions([paPop]), new CollectorBlock(parser, declare.block)); //return to the statment
-                    break;
-
-                default: 
-                    super.addControl(control);
-            }
-        }      
-    }
-
-    override void reset(){
-        state = State.Name;
-        super.reset();
-    }
-
-    override bool isInitial(){
-        return true;
     }
 }
 
@@ -577,120 +907,11 @@ public:
 }
 
 /**
-*    ControllerNormal
-*/
-
-class ControllerNormal: Controller
-{    
-public:    
-    this(Collector aCollector){
-        super(aCollector);
-    }
-
-    override void setControl(Control control)
-    {
-        with(collector)
-        {
-            switch(control.code)
-            {
-                case Ctl.Assign:
-                    if (isInitial)
-                    {
-                        instruction.setAssign();
-                        post();
-                    } 
-                    else 
-                        error("You can not use assignment here!");
-
-                    break;
-
-                case Ctl.Declare:
-                    if (isInitial)
-                    {
-                        Declare_Node aDeclare = instruction.setDeclare();
-                        post();
-                        parser.push(new CollectorDefine(parser, aDeclare));
-                    } 
-                    else 
-                        error("You can not use a declare here!");
-                    break;
-
-                case Ctl.OpenBlock:
-                    Block_Node aBlock = new Block_Node();
-                    instruction.setObject(aBlock);
-                    parser.push(new CollectorBlock(parser, aBlock.statements));
-                    break;
-
-                case Ctl.CloseBlock:
-                    post();
-                    if (parser.count == 1)
-                        error("Maybe you closed not opened Curly");
-                    parser.setAction(Actions([Action.Pop]));
-                    break;
-
-                case Ctl.OpenParams:
-                    //params of function/object like: Sin(10)
-                    if (instruction.checkIdentifier())
-                    {
-                        with (instruction.setInstance())
-                            parser.push(new CollectorBlock(parser, arguments));
-                    }
-                    else //No it is just sub statment like: 10+(5*5)
-                        with (instruction.setEnclose())
-                            parser.push(new CollectorStatement(parser, statement));
-                    break;
-
-                case Ctl.CloseParams:
-                    post();
-                    if (parser.count == 1)
-                        error("Maybe you closed not opened Bracket");
-                    parser.setAction(Actions([Action.Pop]));
-                    break;
-
-                case Ctl.Start:            
-                    break;
-                case Ctl.Stop:            
-                    post();
-                    break;
-                case Ctl.End:            
-                    post();
-                    next();
-                    break;
-                case Ctl.Next:            
-                    post();
-                    next();
-                    break;
-                default:
-                    error("Not implemented yet :(");
-            }
-        }
-    }
-}
-
-/**
-*    ControllerDefines
-*/
-
-class ControllerDefines: ControllerNormal  //TODO should i inherited it from Controller?
-{
-public:
-    this(Collector aCollector){
-        super(aCollector);
-    }
-
-    override void setControl(Control control)
-    {
-        //nothing O.o
-        //TODO change the inheretance 
-    }
-}
-
-/**
 *    @class Parser
 *
 */
 
-class Parser: Stack!Collector, IParser 
+class Parser: Stack!Collector
 {
 protected:
     Actions actions;

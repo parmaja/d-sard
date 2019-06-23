@@ -30,7 +30,7 @@ enum Ctl: int
     Stop, //* Stop parsing
     Declare, //* Declare a class of object
 
-    Let, //* Assign object reference
+//    Let, //* Same as assign but make it as lexical scope, this variable will be seen from descent/child objects
     Assign, //* Assign to object/variable used as :=
     Next, //* End Params, Comma ,
     End, //* End Statement Semicolon ;
@@ -631,6 +631,9 @@ public:
     {
         if (_active)
             error("Already opened");
+        if (count == 0)
+            error("There is no lexers added");
+
         _active = true;
         lexer = this[0]; //First one
         doStart();

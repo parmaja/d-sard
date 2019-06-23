@@ -348,12 +348,6 @@ public:
         afterPush();
     }
 
-    T push(){  //deprecated
-        T o = new T();
-        push(o);
-        return o;
-    }
-
     T peek(){
         if (currentItem is null)
             return null;

@@ -130,22 +130,41 @@ public:
     }
 }
 
-/*class ScriptScanner: Scanner
-{
-    this()
-    {
-        super();
-        add(new PlainLexer());
-        add(new CodeLexer());
-    }
-}*/
-
-
 /**
 *
-*   Plain Lexer
+*   Code Scanner
 *
 */
+
+class CodeScanner: Scanner
+{
+protected:
+    Block_Node _block;
+    CodeParser _parser;
+
+public:
+    this(Block_Node block)
+    {
+        super();
+        _block = block;
+        add(new CodeLexer());
+     }
+
+    override void doStart()
+    {
+        _parser = new CodeParser(lexer, _block.statements);
+
+        lexer.parser = _parser;
+        lexer.start();
+    }
+
+    override void doStop()
+    {
+        lexer.stop();
+        lexer.parser = null;
+        destroy(_parser);
+    }
+}
 
 
 /**
@@ -294,42 +313,6 @@ public:
 
     override void stop(){
         setControl(lexer.controls.getControl(Ctl.Stop));
-    }
-}
-
-/**
-*
-*   Code Scanner
-*
-*/
-
-class CodeScanner: Scanner
-{
-protected:
-    Block_Node _block;
-    CodeParser _parser;
-
-public:
-    this(Block_Node block)
-    {
-        super();
-        _block = block;
-        add(new CodeLexer());
-     }
-
-    override void doStart()
-    {
-        _parser = new CodeParser(lexer, _block.statements);
-
-        lexer.parser = _parser;
-        lexer.start();
-    }
-
-    override void doStop()
-    {
-        lexer.stop();
-        lexer.parser = null;
-        destroy(_parser);
     }
 }
 

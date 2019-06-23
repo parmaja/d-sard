@@ -218,7 +218,7 @@ public:
 *    list if controller
 */
 
-class Collector: BaseObject
+abstract class Collector: BaseObject
 {
 private:
 

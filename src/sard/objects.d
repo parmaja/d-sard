@@ -1083,6 +1083,9 @@ public:
 
 class RunResults: Stack!RunResult
 {
+    void push() {
+        super.push(new RunResult());
+    }
 }
 
 /**   Instance_Node */
@@ -1277,6 +1280,9 @@ public:
 
 class RunStack: Stack!RunStackItem
 {
+    void push() {
+        super.push(new RunStackItem());
+    }
 }
 
 /**

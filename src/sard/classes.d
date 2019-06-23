@@ -20,6 +20,8 @@ alias long integer;
 alias double number;
 alias string text;
 
+static immutable char[] sEOL = ['\0', '\n', '\r'];
+
 /**---------------------------*/
 /**        Exception
 /**---------------------------*/

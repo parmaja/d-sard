@@ -29,20 +29,82 @@ import sard.objects;
 
 import minilib.sets;
 
-static immutable char[] sEOL = ['\0', '\n', '\r'];
-static immutable char[] sWhitespace = sEOL ~ [' ', '\t'];
-static immutable char[] sNumberOpenChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-static immutable char[] sNumberChars = sNumberOpenChars ~ ['.', 'x', 'h', 'a', 'b', 'c', 'd', 'e', 'f'];
-static immutable char[] sSymbolChars = ['"', '\'', '\\'];
-static immutable char[] sIdentifierSeparator = ".";
-static immutable char[] sEscape = ['\\'];
-
-//const sColorOpenChars = ['#',];
-//const sColorChars = sColorOpenChars ~ ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-
 /**
     Tokenizers
 */
+
+abstract class MultiLine_Tokenizer: Tokenizer
+{
+protected:
+
+    string openSymbol;
+    string closeSymbol;
+
+
+    abstract void finish();
+    abstract void collect(string text);
+
+    override void scan(const string text, int started, ref int column, ref bool resume)
+    {
+        if (!resume) //first time after accept()
+        {
+            column = column + openSymbol.length;
+            if (lexer.trimSymbols)
+                started = started + openSymbol.length; //we need to ignore open tag {* here
+        }
+
+        while (indexInStr(column, text))
+        {
+            if (scanCompare(closeSymbol, text, column))
+            {
+                if (!lexer.trimSymbols)
+                    column = column + closeSymbol.length;
+                collect(text[started..column]);
+                if (lexer.trimSymbols)
+                    column = column + closeSymbol.length;
+
+                finish();
+                resume = false;
+                return;
+            }
+            column++;
+        }
+        collect(text[started..column]);
+        resume = true;
+    }
+
+    override bool accept(const string text, int column){
+        return scanText(openSymbol, text, column);
+    }
+}
+
+abstract class BufferedMultiLine_Tokenizer: MultiLine_Tokenizer
+{
+private:
+    string buffer;
+
+protected:
+    abstract void setToken(string text);
+
+    override void collect(string text){
+        buffer = buffer ~ text;
+    }
+
+    override void finish(){
+        setToken(buffer);
+        buffer = "";
+    }
+}
+
+abstract class String_Tokenizer: BufferedMultiLine_Tokenizer
+{
+protected:
+    override void setToken(string text)
+    {
+        lexer.parser.setToken(Token(Ctl.Token, Type.String, text));
+    }
+}
+
 
 class Whitespace_Tokenizer: Tokenizer
 {

@@ -149,7 +149,10 @@ class CodeScanner: Scanner
 {
 protected:
     Block_Node _block;
-    CodeParser _parser;
+
+    override Parser createParser() {
+        return new CodeParser(lexer, _block.statements);
+    }
 
 public:
     this(Block_Node block)
@@ -161,17 +164,11 @@ public:
 
     override void doStart()
     {
-        _parser = new CodeParser(lexer, _block.statements);
 
-        lexer.parser = _parser;
-        lexer.start();
     }
 
     override void doStop()
     {
-        lexer.stop();
-        lexer.parser = null;
-        destroy(_parser);
     }
 }
 
@@ -181,7 +178,7 @@ public:
 *
 */
 
-struct CodeInstruction
+struct Instruction
 {
 public:
 

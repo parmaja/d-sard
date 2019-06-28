@@ -409,6 +409,8 @@ public:
     }
 
     void start(){
+        if (parser is null)
+            error("Parser should be not null");
         parser.start();
     }
 
@@ -417,159 +419,7 @@ public:
     }
 }
 
-/**---------------------------*/
-/**        Scanner
-/**---------------------------*/
-
-class Scanner: Objects!Lexer
-{
-private:
-    bool _active;
-    public @property bool active() { return _active; }
-
-    string _ver;
-    public @property string ver() { return _ver; }
-
-    string _charset;
-    public @property string charset() { return _charset; }
-
-    //TODO: use env to wrap the code inside <?sard ... ?>,
-    //the current one must detect ?> to stop scanning and pop
-    //but the other lexer will throw none code to output provider
-
-    int _line;
-    public @property int line() { return _line; };
-
-
-protected:
-    Lexer lexer; //current lexer
-
-protected:
-    override void beforeAdd(Lexer lexer)
-    {
-        super.beforeAdd(lexer);
-        lexer._scanner = this;
-    }
-
-    void doStart() {
-    }
-
-    void doStop() {
-    }
-
-public:
-    this()
-    {
-        super();
-    }
-
-    ~this(){
-    }
-
-public:
-
-    void scanLine(const string text, const int line)
-    {
-        if (!active)
-            error("Should be started first");
-
-        _line = line;
-        int column = 0;
-        //int column = 1; when convert to pascal
-        lexer.scanLine(text, line, column);
-    }
-
-    void scan(const string[] lines)
-    {
-        start();
-        int i = 0;
-        while(i < lines.count())
-        {
-            scanLine(lines[i] ~ "\n", i + 1);//TODO i hate to add \n it must be included in the lines itself
-            i++;
-        }
-        stop();
-    }
-
-    /*void scan(InputStream stream)
-    {
-        char[] line;
-        start();
-        int i = 0;
-        while (stream.eof) {
-            line = stream.readLine(); //TODO readLineW
-            scanLine(to!string(line), i);
-            i++;
-        }
-        stop();
-    }
-*/
-    void scan(const string text)
-    {
-        string[] lines = text.split("\n");
-        scan(lines);
-    }
-
-/*    void scanFile(string filename)
-    {
-        BufferedFile stream = new BufferedFile(filename);
-        scope(exit) destroy(stream);
-
-        try {
-            scanStream(stream);
-        }
-        finally {
-            stream.close();
-        }
-    }*/
-    void scanFile(string filename)
-    {
-        auto file = File(filename, "r");
-        auto lines = file.byLine();
-        start();
-        int i = 0;
-        foreach(char[] line; lines)
-        {
-            line = line ~  "\n";
-            scanLine(to!string(line) , i); //TODO i hate to add \n it must be included in the lines itself
-            i++;
-        }
-        stop();
-    }
-
-/*   void scanStream(Stream stream)
-    {
-        scan(stream);
-    }
-*/
-    void start()
-    {
-        if (_active)
-            error("Already opened");
-        if (count == 0)
-            error("There is no lexers added");
-
-        _active = true;
-        lexer = this[0]; //First one
-        doStart();
-    }
-
-    void stop()
-    {
-        if (!_active)
-            error("Already closed");
-        doStop();
-        lexer = null;
-        _active = false;
-    }
-}
-
-
-class Script: BaseObject{
-
-}
-
-enum Action 
+enum Action
 {
     Pop, //Pop the current Collector
     Bypass  //resend the control char to the next Collector
@@ -580,181 +430,6 @@ alias Set!Action Actions;
 /**
 *    @class Instruction
 */
-
-struct Instruction
-{
-public:
-
-protected:
-    void internalSetObject(Node aObject)
-    {
-        if ((object !is null) && (aObject !is null))
-            error("Object is already set");
-        object = aObject;
-    }
-
-public:
-
-    string identifier;
-    Operator operator;
-    Node object;
-
-    //Return true if Identifier is not empty and object is nil
-    bool checkIdentifier(in bool raise = false)
-    {
-        bool r = identifier != "";
-        if (raise && !r)
-            error("Identifier is not set!");
-        r = r && (object is null);
-        if (raise && !r) 
-            error("Object is already set!");
-        return r;
-    }
-
-    //Return true if Object is not nil and Identifier is empty
-    bool checkObject(in bool raise = false)
-    {
-        bool r = object !is null;
-        if (raise && !r)
-            error("Object is not set!");
-        r = r && (identifier == "");
-        if (raise && !r)
-            error("Identifier is already set!");
-        return r;
-    }
-
-    //Return true if Operator is not nil
-    bool CheckOperator(in bool raise = false)
-    {
-        bool r = operator !is null;
-        if (raise && !r)
-            error("Operator is not set!");
-        return r;
-    }
-
-    @property bool isEmpty() 
-    {
-        return !((identifier != "") || (object !is null) || (operator !is null));
-        //TODO and attributes
-    }
-
-    void setOperator(Operator aOperator)
-    {
-        if (operator !is null)
-            error("Operator is already set");
-        operator = aOperator;
-    }
-
-    void setIdentifier(string aIdentifier)
-    {
-        if (identifier != "")
-            error("Identifier is already set to " ~ identifier);
-        identifier = aIdentifier;
-    }
-
-    Number_Node setNumber(string aIdentifier)
-    {
-        if (identifier != "")
-            error("Identifier is already set to " ~ identifier);
-        //TODO need to check object too
-        Number_Node result;
-        if ((aIdentifier.indexOf(".") >= 0) || ((aIdentifier.indexOf("E") >= 0)))
-            result = new Real_Node(to!float(aIdentifier));
-        else 
-            result = new Integer_Node(to!int(aIdentifier));
-
-        internalSetObject(result);
-        return result;
-    }
-
-    Text_Node setText(string text)
-    {
-        /*if (identifier != "")
-            error("Identifier is already set");*/
-        //TODO need review
-
-        Text_Node result;
-        if (object is null) {
-            result = new Text_Node(text);
-            internalSetObject(result);
-        }
-        else {
-            result = cast(Text_Node)object;
-            if (result is null)
-                error("Object is already exist when setting string!");
-            result.value = result.value ~ text;
-        }
-        return result;
-    }
-
-    Comment_Node setComment(string aIdentifier)
-    {
-        //We need to check if it the first expr in the statment
-        if (identifier != "")
-            error("Identifier is already set");
-        //TODO need to check object too
-        Comment_Node result = new Comment_Node();
-        result.value = aIdentifier;
-        internalSetObject(result);
-        return result;
-    }
-
-    void setObject(Node aObject)
-    {
-        if (identifier != "")
-            error("Identifier is already set");
-        internalSetObject(aObject);  
-    }  
-
-    Instance_Node setInstance(string aIdentifier)
-    {
-        if (identifier == "")
-            error("Identifier is already set");
-        Instance_Node result = new Instance_Node();
-        result.name = aIdentifier;
-        internalSetObject(result);
-        return result;
-    }
-
-    Instance_Node setInstance()
-    {
-        if (identifier == "")
-            error("Identifier is not set");
-        Instance_Node result = setInstance(identifier);
-        identifier = "";	  
-        return result;
-    }
-
-    Enclose_Node setEnclose()
-    { 
-        if (identifier != "")
-            error("Identifier is already set");
-        Enclose_Node result = new Enclose_Node();
-        internalSetObject(result);
-        return result;
-    }
-
-    Assign_Node setAssign()
-    {
-        //Do not check the Identifier if empty, becuase it is can be empty to assign to result of block
-        Assign_Node result = new Assign_Node();
-        result.name = identifier;    
-        internalSetObject(result);
-        identifier = "";
-        return result;
-    }
-
-    Declare_Node setDeclare()
-    {
-        if (identifier == "")
-            error("identifier is not set");
-        Declare_Node result = new Declare_Node();
-        result.name = identifier;    
-        internalSetObject(result);
-        identifier = "";
-        return result;
-    }
-}
 
 /**
 *    @class Collector
@@ -863,6 +538,8 @@ public:
     }
 
     void start(){
+        if (current is null)
+            error("At last you need one collector pushed");
     }
 
     void stop(){
@@ -877,3 +554,165 @@ public:
 
 }
 
+/**---------------------------*/
+/**        Scanner
+/**---------------------------*/
+
+class Scanner: Objects!Lexer
+{
+private:
+    bool _active;
+    public @property bool active() { return _active; }
+
+    string _ver;
+    public @property string ver() { return _ver; }
+
+    string _charset;
+    public @property string charset() { return _charset; }
+
+    //TODO: use env to wrap the code inside <?sard ... ?>,
+    //the current one must detect ?> to stop scanning and pop
+    //but the other lexer will throw none code to output provider
+
+    int _line;
+    public @property int line() { return _line; };
+
+
+protected:
+    Parser _parser;
+    public @property Parser parser() { return _parser; }
+
+    Lexer lexer; //current lexer
+
+protected:
+    override void beforeAdd(Lexer lexer)
+    {
+        super.beforeAdd(lexer);
+        lexer._scanner = this;
+    }
+
+    void doStart() {
+    }
+
+    void doStop() {
+    }
+
+    abstract Parser createParser();
+
+public:
+    this()
+    {
+        super();
+    }
+
+    ~this(){
+    }
+
+public:
+
+    void scanLine(const string text, const int line)
+    {
+        if (!active)
+            error("Should be started first");
+
+        _line = line;
+        int column = 0;
+        //int column = 1; when convert to pascal
+        lexer.scanLine(text, line, column);
+    }
+
+    void scan(const string[] lines)
+    {
+        start();
+        int i = 0;
+        while(i < lines.count())
+        {
+            scanLine(lines[i] ~ "\n", i + 1);//TODO i hate to add \n it must be included in the lines itself
+            i++;
+        }
+        stop();
+    }
+
+    /*void scan(InputStream stream)
+    {
+        char[] line;
+        start();
+        int i = 0;
+        while (stream.eof) {
+            line = stream.readLine(); //TODO readLineW
+            scanLine(to!string(line), i);
+            i++;
+        }
+        stop();
+    }
+*/
+    void scan(const string text)
+    {
+        string[] lines = text.split("\n");
+        scan(lines);
+    }
+
+/*    void scanFile(string filename)
+    {
+        BufferedFile stream = new BufferedFile(filename);
+        scope(exit) destroy(stream);
+
+        try {
+            scanStream(stream);
+        }
+        finally {
+            stream.close();
+        }
+    }*/
+    void scanFile(string filename)
+    {
+        auto file = File(filename, "r");
+        auto lines = file.byLine();
+        start();
+        int i = 0;
+        foreach(char[] line; lines)
+        {
+            line = line ~  "\n";
+            scanLine(to!string(line) , i); //TODO i hate to add \n it must be included in the lines itself
+            i++;
+        }
+        stop();
+    }
+
+/*   void scanStream(Stream stream)
+    {
+        scan(stream);
+    }
+*/
+    void start()
+    {
+        if (_active)
+            error("Already opened");
+        if (count == 0)
+            error("There is no lexers added");
+
+        _active = true;
+        lexer = this[0]; //First one
+        _parser = createParser();
+        lexer.parser = _parser;
+        lexer.start();
+        doStart();
+    }
+
+    void stop()
+    {
+        if (!_active)
+            error("Already closed");
+        doStop();
+        lexer.stop();
+        lexer.parser = null;
+        destroy(_parser);
+        lexer = null;
+        _active = false;
+    }
+}
+
+
+class Script: BaseObject{
+
+}

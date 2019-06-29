@@ -151,7 +151,7 @@ protected:
     Block_Node _block;
 
     override Parser createParser() {
-        return new CodeParser(lexer, _block.statements);
+        return new CodeParser(current, _block.statements);
     }
 
 public:
@@ -707,7 +707,7 @@ protected:
     }
 }
 
-class SardScript: Script
+class SardScript: BaseObject
 {
 protected:
 

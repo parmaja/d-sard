@@ -582,7 +582,7 @@ protected:
     Parser _parser;
     public @property Parser parser() { return _parser; }
 
-    Lexer lexer; //current lexer
+    Lexer current; //current lexer
 
 protected:
     override void beforeAdd(Lexer lexer)
@@ -618,7 +618,7 @@ public:
         _line = line;
         int column = 0;
         //int column = 1; when convert to pascal
-        lexer.scanLine(text, line, column);
+        current.scanLine(text, line, column);
     }
 
     void scan(const string[] lines)
@@ -692,10 +692,10 @@ public:
             error("There is no lexers added");
 
         _active = true;
-        lexer = this[0]; //First one
+        current = this[0]; //First one
         _parser = createParser();
-        lexer.parser = _parser;
-        lexer.start();
+        current.parser = _parser;
+        current.start();
         doStart();
     }
 
@@ -704,15 +704,10 @@ public:
         if (!_active)
             error("Already closed");
         doStop();
-        lexer.stop();
-        lexer.parser = null;
+        current.stop();
+        current.parser = null;
         destroy(_parser);
-        lexer = null;
+        current = null;
         _active = false;
     }
-}
-
-
-class Script: BaseObject{
-
 }

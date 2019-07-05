@@ -377,7 +377,7 @@ public:
         //instruction= new Instruction;
     }
 
-    override void post(){
+    void post(){
         debug(log_compile){
             writeln("post(" ~ to!string(instruction.operator) ~ ", " ~ instruction.identifier ~ ")");
         }
@@ -393,13 +393,13 @@ public:
         reset();
     }
 
-    override void prepare(){
+    void prepare(){
     }
 
-    override void next(){
+    void next(){
     }
 
-    override void addToken(Token token)
+    protected override void doToken(Token token)
     {
         string text = token.value;
 
@@ -431,7 +431,10 @@ public:
         }
     }
 
-    void addOperator(Operator operator)
+    protected override void doControl(Control control) {
+    }
+
+    void setOperator(Operator operator)
     {
         post();
         instruction.setOperator(operator);
@@ -486,7 +489,7 @@ protected:
                 lastControl = Ctl.None;//prevent loop
                 setControl(lexer.controls.getControl(Ctl.End));
             }
-            current.addToken(token);
+            current.setToken(token);
             doQueue();
             actions = [];
             lastControl = Ctl.Token;
@@ -501,7 +504,7 @@ protected:
         Operator o = operator;
         if (o is null)
             error("SetOperator not Operator");
-        (cast(CodeCollector) current).addOperator(o);
+        (cast(CodeCollector) current).setOperator(o);
         doQueue();
         actions = [];
         lastControl = Ctl.Operator;
@@ -519,10 +522,10 @@ protected:
             setControl(lexer.controls.getControl(Ctl.End));
         }
 
-        current.addControl(control);
+        current.setControl(control);
         doQueue();
-        if (Action.Bypass in actions)//TODO check if Set work good here
-            current.addControl(control);
+        if (Action.Pass in actions)//TODO check if Set work good here
+            current.setControl(control);
         actions = [];
         lastControl = control.code;
     }
@@ -863,15 +866,15 @@ public:
         super(aParser);
     }
 
-    override void addControl(Control control)
+    override void doControl(Control control)
     {
         switch (control.code){
             case Ctl.End, Ctl.Next:
                 post();
-                parser.setAction(Actions([Action.Pop, Action.Bypass]));
+                parser.setAction(Actions([Action.Pop, Action.Pass]));
                 break;
             default:
-                super.addControl(control);
+                super.setControl(control);
         }
     }
 }
@@ -924,7 +927,7 @@ protected:
     }
 
 public:
-    override void addControl(Control control)
+    override void doControl(Control control)
     {
         /*
         x:int  (p1: int; p2: string);
@@ -995,7 +998,7 @@ public:
                     break;
 
                 default:
-                    super.addControl(control);
+                    super.setControl(control);
             }
         }
     }

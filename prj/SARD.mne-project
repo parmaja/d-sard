@@ -17,6 +17,40 @@
         <Items>
           <Object Type="TEditorDesktopFile">
             <FileName>D:\lab\pascal\p-sard\sard\demo\console\test.json</FileName>
+            <CaretX>59</CaretX>
+            <CaretY>3</CaretY>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\sard\parsers.d</FileName>
+            <CaretX>35</CaretX>
+            <CaretY>500</CaretY>
+            <TopLine>462</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\sard\scripts.d</FileName>
+            <CaretX>26</CaretX>
+            <CaretY>1101</CaretY>
+            <TopLine>1064</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\sard\classes.d</FileName>
+            <CaretX>18</CaretX>
+            <CaretY>360</CaretY>
+            <TopLine>321</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\sard\objects.d</FileName>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\sard\utils.d</FileName>
+            <CaretY>64</CaretY>
+            <TopLine>25</TopLine>
+          </Object>
+          <Object Type="TEditorDesktopFile">
+            <FileName>D:\lab\d\d-sard\sard\src\sard\standards.d</FileName>
+            <CaretX>3</CaretX>
+            <CaretY>249</CaretY>
+            <TopLine>220</TopLine>
           </Object>
         </Items>
       </Files>
@@ -26,7 +60,7 @@
     <RunOptions Class="TRunProjectOptions">
       <Params>../bin/test.sard</Params>
       <MainFolder>..\src\</MainFolder>
-      <MainFile>main.d</MainFile>
+      <MainFile>D:\lab\d\d-sard\sard\src\main.d</MainFile>
       <OutputFile>../bin/sard.exe</OutputFile>
       <ExpandPaths>False</ExpandPaths>
       <Paths Class="TStringList">

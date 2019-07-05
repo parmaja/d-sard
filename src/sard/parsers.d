@@ -87,11 +87,12 @@ class Control: SymbolicObject
         super();
     }
 
-    this(string aName, Ctl aCode)
+    this(string aName, Ctl aCode, string aDescription = "")
     {
         this();
         name = aName;
         code = aCode;
+        description = aDescription;
     }
 }
 
@@ -119,9 +120,9 @@ class Controls: NamedObjects!Control
         return result;
     }
 
-    Control add(string name, Ctl code)
+    Control add(string name, Ctl code, string description = "")
     {
-        Control c = new Control(name, code);
+        Control c = new Control(name, code, description);
         super.add(c);
         return c;
     }
@@ -422,7 +423,7 @@ public:
 enum Action
 {
     Pop, //Pop the current Collector
-    Bypass  //resend the control char to the next Collector
+    Pass  //resend the control char to the next Collector
 }
 
 alias Set!Action Actions;
@@ -449,7 +450,9 @@ protected:
     void internalPost(){  
     }
 
-    abstract Controller createController();
+    Controller createController() {
+        return null;
+    }
 
 public:
 
@@ -470,24 +473,26 @@ public:
         debug(log_compile) writeln("kill collecter");
     }
 
-    abstract void reset();
-
-    abstract void prepare();
-
-    abstract void next();
-
-    abstract void post();
-
-    abstract void addToken(Token token);
-
     //IsInitial: check if the next object will be the first one, usefule for Assign and Declare
     @property bool isInitial()
     {
         return false;
     }
 
-    void addControl(Control control){
-        controller.setControl(control);
+    abstract void reset();
+
+    protected abstract void doToken(Token token);
+
+    protected abstract void doControl(Control control);
+
+    final void setToken(Token token){
+        doToken(token);
+    }
+
+    final void setControl(Control control){
+        doControl(control);
+        if (!(controller is null))
+            controller.setControl(control);
     }
 }
 
